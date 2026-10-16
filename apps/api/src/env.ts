@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+const emptyToUndef = (v: unknown) => (v === '' ? undefined : v);
+
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().default(4000),
@@ -16,13 +18,13 @@ const schema = z.object({
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('30d'),
 
-  S3_ENDPOINT: z.string().url().optional(),
-  S3_BUCKET: z.string().optional(),
-  S3_ACCESS_KEY: z.string().optional(),
-  S3_SECRET_KEY: z.string().optional(),
+  S3_ENDPOINT: z.preprocess(emptyToUndef, z.string().url().optional()),
+  S3_BUCKET: z.preprocess(emptyToUndef, z.string().optional()),
+  S3_ACCESS_KEY: z.preprocess(emptyToUndef, z.string().optional()),
+  S3_SECRET_KEY: z.preprocess(emptyToUndef, z.string().optional()),
 
-  ESKIZ_EMAIL: z.string().email().optional(),
-  ESKIZ_PASSWORD: z.string().optional(),
+  ESKIZ_EMAIL: z.preprocess(emptyToUndef, z.string().email().optional()),
+  ESKIZ_PASSWORD: z.preprocess(emptyToUndef, z.string().optional()),
 });
 
 export const env = schema.parse(process.env);

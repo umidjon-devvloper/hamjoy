@@ -56,3 +56,7 @@ apps/mobile/web-build/
 
 # typescript
 *.tsbuildinfo
+apps/api/drizzle.config.*.ts
+apps/api/drizzle.config.js
+apps/api/drizzle.config.d.ts
+apps/api/drizzle.config.js.map

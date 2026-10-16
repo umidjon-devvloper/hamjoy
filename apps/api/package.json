@@ -15,6 +15,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@fastify/static": "^7.0.4",
+    "@fastify/swagger": "^8.14.0",
+    "@fastify/swagger-ui": "^4.1.0",
     "@joymee/sdk": "workspace:*",
     "@joymee/types": "workspace:*",
     "@nestjs/common": "^10.4.15",
@@ -27,6 +30,7 @@
     "@nestjs/websockets": "^10.4.15",
     "argon2": "^0.41.1",
     "bullmq": "^5.34.0",
+    "dotenv": "^18.0.8",
     "drizzle-orm": "^0.36.4",
     "fastify": "^5.1.0",
     "ioredis": "^5.4.1",
