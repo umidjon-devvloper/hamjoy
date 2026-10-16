@@ -1,0 +1,78 @@
+import type { User } from '@/types';
+import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types';
+
+const baseProfile = {
+  language: 'uz' as const,
+  notifications: { ...DEFAULT_NOTIFICATION_SETTINGS },
+};
+
+export const users: User[] = [
+  {
+    id: 'user-alex',
+    name: 'Akmal Saidov',
+    email: 'akmal@hamjoy.uz',
+    phone: '+998 90 123 45 67',
+    title: 'UI/UX Dizayner',
+    avatarUrl: 'https://i.pravatar.cc/150?u=alex',
+    role: 'poster',
+    profileRole: 'both',
+    badge: 'Premium aʼzo',
+    companyId: 'company-uzum',
+    ...baseProfile,
+  },
+  {
+    id: 'user-sarah',
+    name: 'Dilnoza Yusupova',
+    email: 'dilnoza@hamjoy.uz',
+    title: 'HR menejer',
+    avatarUrl: 'https://i.pravatar.cc/150?u=sarah',
+    role: 'poster',
+    profileRole: 'poster',
+    companyId: 'company-uzum',
+    ...baseProfile,
+  },
+  {
+    id: 'user-mike',
+    name: 'Jasur Toshmatov',
+    email: 'jasur@hamjoy.uz',
+    title: 'Muhandislik menejeri',
+    avatarUrl: 'https://i.pravatar.cc/150?u=mike',
+    role: 'poster',
+    profileRole: 'poster',
+    companyId: 'company-click',
+    ...baseProfile,
+  },
+  {
+    id: 'user-emily',
+    name: 'Malika Olimova',
+    email: 'malika@hamjoy.uz',
+    title: 'Rekruter',
+    avatarUrl: 'https://i.pravatar.cc/150?u=emily',
+    role: 'poster',
+    profileRole: 'poster',
+    companyId: 'company-korzinka',
+    ...baseProfile,
+  },
+  {
+    id: 'user-jordan',
+    name: 'Bekzod Rashidov',
+    email: 'bekzod@hamjoy.uz',
+    phone: '+998 90 765 43 21',
+    title: 'Frontend Dasturchi',
+    avatarUrl: 'https://i.pravatar.cc/150?u=jordan',
+    role: 'seeker',
+    profileRole: 'seeker',
+    ...baseProfile,
+  },
+  {
+    id: 'user-admin',
+    name: 'Admin User',
+    email: 'admin@jobmarket.app',
+    title: 'Platform Administrator',
+    avatarUrl: 'https://i.pravatar.cc/150?u=admin',
+    role: 'admin',
+    profileRole: 'both',
+    badge: 'Admin',
+    ...baseProfile,
+  },
+];

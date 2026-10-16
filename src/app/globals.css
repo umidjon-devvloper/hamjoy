@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #2563EB;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-light: #EFF6FF;
+  --color-secondary: #111827;
+  --color-muted: #6B7280;
+  --color-success: #10B981;
+  --color-success-light: #ECFDF5;
+  --color-accent: #F97316;
+  --color-accent-light: #FFF7ED;
+  --color-background: #F3F4F6;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+
+  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -6px rgb(0 0 0 / 0.06);
+  --shadow-nav: 0 -4px 24px rgb(0 0 0 / 0.06);
+}
+
+/* Brand (from the logo) + the platform navbar. Plain :root (not @theme) so the
+   variables are always emitted — Tailwind tree-shakes unused @theme vars.
+   The navbar is white by default and dark when <html data-theme="dark">. */
+:root {
+  --color-brand-green: #1F6B3F;
+  --color-brand-gold: #D9B25F;
+  --color-brand-gold-light: #F3DE9C;
+
+  --nav-bg: #FFFFFF;
+  --nav-fg: #0B0B0C;
+  --nav-fg-muted: #0B0B0C;
+  --nav-fg-subtle: #4B5160; /* descriptions/placeholder; ≥7:1 on white */
+  --nav-hover: #EAF4EE; /* light brand-green tint */
+  --nav-hover-fg: #1F6B3F; /* brand green */
+  --nav-field: #F3F4F6;
+  --nav-field-focus: #FFFFFF;
+  --nav-border: #E5E7EB;
+  --nav-panel: #FFFFFF;
+  /* Gold is too light on white, so light mode accents use the brand green. */
+  --nav-accent: #1F6B3F;
+  --nav-shadow: rgb(15 23 42 / 0.12);
+  --nav-tab-open-border: #E5E7EB;
+
+  /* Hero carousel price badge */
+  --brand-primary: #0F766E;
+  --brand-on: #FFFFFF;
+}
+
+:root[data-theme="dark"] {
+  --nav-bg: #141517;
+  --nav-fg: #FFFFFF;
+  --nav-fg-muted: rgb(255 255 255 / 0.75);
+  --nav-fg-subtle: rgb(255 255 255 / 0.6); /* ≥6:1 on bg and panels */
+  --nav-hover: rgb(95 191 132 / 0.12);
+  --nav-hover-fg: #6FCF97;
+  --nav-field: #232428;
+  --nav-field-focus: #2A2B30;
+  --nav-border: rgb(255 255 255 / 0.08);
+  --nav-panel: #232428;
+  --nav-accent: #D9B25F;
+  --nav-shadow: rgb(0 0 0 / 0.45);
+  --nav-tab-open-border: transparent;
+
+  --brand-primary: #2DD4BF;
+  --brand-on: #042F2A;
+}
+
+/* Hero carousel entrance */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-up { animation: none; }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-secondary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-3xl);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+  }
+
+  .card-hover {
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .card-hover:hover {
+    box-shadow: var(--shadow-card-hover);
+    border-color: #D1D5DB;
+  }
+
+  .card-hover:active {
+    transform: scale(0.99);
+  }
+
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgb(229 231 235 / 0.85) 0%,
+      rgb(243 244 246 / 0.95) 50%,
+      rgb(229 231 235 / 0.85) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .page-container {
+    @apply px-4 sm:px-6 lg:px-8 py-5 md:py-8 max-w-5xl mx-auto w-full;
+  }
+
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

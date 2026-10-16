@@ -1,0 +1,68 @@
+import type { Message } from '@/types';
+
+export const messages: Message[] = [
+  {
+    id: 'msg-1',
+    chatId: 'chat-1',
+    senderId: 'user-sarah',
+    body: 'Hi Alex! Thanks for applying to the Senior Product Designer role.',
+    createdAt: '2026-06-24T10:00:00.000Z',
+    read: true,
+  },
+  {
+    id: 'msg-2',
+    chatId: 'chat-1',
+    senderId: 'user-alex',
+    body: 'Thank you! I am very interested in the position.',
+    createdAt: '2026-06-24T10:15:00.000Z',
+    read: true,
+  },
+  {
+    id: 'msg-3',
+    chatId: 'chat-1',
+    senderId: 'user-sarah',
+    body: 'Your portfolio looks great! When can you interview?',
+    createdAt: '2026-06-24T10:30:00.000Z',
+    read: false,
+  },
+  {
+    id: 'msg-4',
+    chatId: 'chat-2',
+    senderId: 'user-mike',
+    body: 'Thanks for applying. We will review your application soon.',
+    createdAt: '2026-06-23T16:00:00.000Z',
+    read: true,
+  },
+  {
+    id: 'msg-5',
+    chatId: 'chat-2',
+    senderId: 'user-alex',
+    body: 'Sounds good, looking forward to hearing back!',
+    createdAt: '2026-06-23T16:05:00.000Z',
+    read: true,
+  },
+  {
+    id: 'msg-6',
+    chatId: 'chat-3',
+    senderId: 'user-emily',
+    body: 'Are you available for a quick call tomorrow?',
+    createdAt: '2026-06-22T09:15:00.000Z',
+    read: false,
+  },
+  {
+    id: 'msg-7',
+    chatId: 'chat-3',
+    senderId: 'user-alex',
+    body: 'Yes, I am available tomorrow at 2 PM. Looking forward to it!',
+    createdAt: '2026-06-22T09:20:00.000Z',
+    read: true,
+  },
+  {
+    id: 'msg-8',
+    chatId: 'chat-4',
+    senderId: 'user-jordan',
+    body: 'Hi Alex! I saw your Freelance Brand Designer posting and would love to learn more.',
+    createdAt: '2026-06-24T14:00:00.000Z',
+    read: false,
+  },
+];
