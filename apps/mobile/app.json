@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Joymee",
+    "slug": "joymee",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "joymee",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "uz.joymee.app"
+    },
+    "android": {
+      "package": "uz.joymee.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0d1117"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -1,65 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Joymee
 
-## Getting Started
+Marketplace monorepo — Next.js web, Expo mobile, NestJS API, umumiy TS SDK.
 
-First, run the development server:
+## Tuzilish
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+apps/
+  web/        Next.js 16 (mavjud UI)
+  mobile/     Expo React Native
+  api/        NestJS + Drizzle + PostGIS
+packages/
+  types/      umumiy TS tiplar
+  sdk/        API klient (web + mobile)
+  config/     tsconfig / eslint
+infra/
+  compose/    Docker Compose (postgres+postgis, redis, meili, minio)
+  migrations/ Drizzle SQL + PostGIS kengaytmasi
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Ishga tushirish
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Avval zarur asboblar: Node 20+, pnpm 9+, Docker.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# bog'liqliklar
+pnpm install
 
-## Backend (Firebase)
+# baza + sidecar servislar
+pnpm db:up
 
-By default the app runs on **mock data** (seed jobs + localStorage). To connect Firebase:
+# env fayllarini sozlash
+cp apps/api/.env.example apps/api/.env
 
-1. Copy `env/production.env.example` → `.env.local` (or use `env/local.env.example` for mock)
-2. Add your Firebase `NEXT_PUBLIC_FIREBASE_*` variables
-3. In Firebase Console: enable **Email/Password** auth and create a **Firestore** database
-4. Deploy security rules from `firebase/firestore.rules`
-5. Set `NEXT_PUBLIC_AUTH_PROVIDER=firebase` and restart `npm run dev`
+# bazani yaratish
+pnpm --filter @joymee/api db:push
+psql $DATABASE_URL -f infra/migrations/0001_postgis.sql
 
-**Collections:** profiles, categories, jobs, favorites, chats (+ messages subcollection), reports, locations.
+# ishga tushirish (hammasi parallel)
+pnpm dev
+```
 
-**Services:** jobs, categories, favorites, chats, auth/profile, reports — all fall back to mock when env vars are unset.
+Keyin:
+- Web — http://localhost:3000
+- API — http://localhost:4000  (docs: `/docs`)
+- Meilisearch — http://localhost:7700
+- MinIO console — http://localhost:9001
 
-## Admin panel
+## Komandalar
 
-Mock admin login: `admin@jobmarket.app` (any password).
+| Komanda | Nima qiladi |
+|---|---|
+| `pnpm dev` | Hammasini parallel ishga tushiradi (Turborepo) |
+| `pnpm build` | Barcha paketlarni build qiladi |
+| `pnpm lint` | ESLint |
+| `pnpm typecheck` | TypeScript tekshiruvi |
+| `pnpm test` | Vitest testlar |
+| `pnpm db:up` / `db:down` | Docker Compose |
+| `pnpm --filter @joymee/api db:migrate` | Migratsiyalar |
 
-Routes under `/admin` are protected — only users with `role: 'admin'` can access. Normal users are redirected to `/home`. The admin link appears in Settings for admins only (not in main navigation).
+## Faza 0 holati
 
-Features: dashboard stats, job moderation (approve/reject/delete), user blocking, reports queue, categories and locations management.
+- [x] Monorepo (pnpm + Turborepo)
+- [x] Mavjud Next.js kod → `apps/web`
+- [x] `packages/types`, `packages/sdk`, `packages/config` skeleton
+- [x] NestJS API skeleton (health + Swagger)
+- [x] Drizzle schema (14 jadval) + PostGIS SQL
+- [x] Expo mobile skeleton
+- [x] Docker Compose (Postgres+PostGIS, Redis, Meilisearch, MinIO, Mailhog)
+- [x] GitHub Actions CI (lint, typecheck, test, build)
 
-## Production checklist
-
-- Set `NEXT_PUBLIC_SITE_URL` to your production domain
-- Deploy Firestore security rules (`firebase/firestore.rules`)
-- Set `NEXT_PUBLIC_AUTH_PROVIDER=firebase` for real auth
-- Build: `npm run lint && npm run build`
-- Start: `npm run start` (or deploy to Vercel)
-
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Keyingi — **Faza 1**: NestJS auth modullari, listings CRUD, Meilisearch sync.
