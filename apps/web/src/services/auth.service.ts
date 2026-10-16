@@ -112,10 +112,10 @@ export const authService = {
 
   async getUserById(userId: string): Promise<User | undefined> {
     if (isRestBackendEnabled()) {
-      const { restProfilesRepository } = await import(
-        '@/lib/rest/repositories/profiles.repository'
+      const { joymeeProfilesRepository } = await import(
+        '@/lib/joymee/profiles.repository'
       );
-      return restProfilesRepository.getById(userId);
+      return joymeeProfilesRepository.getById(userId);
     }
     if (isBackendEnabled()) {
       const profile = await firebaseProfilesRepository.getById(userId);
@@ -135,10 +135,10 @@ export const authService = {
 
   async updateProfile(userId: string, patch: UserProfileUpdate): Promise<User | undefined> {
     if (isRestBackendEnabled()) {
-      const { restProfilesRepository } = await import(
-        '@/lib/rest/repositories/profiles.repository'
+      const { joymeeProfilesRepository } = await import(
+        '@/lib/joymee/profiles.repository'
       );
-      return restProfilesRepository.update(userId, patch);
+      return joymeeProfilesRepository.update(userId, patch);
     }
     if (isBackendEnabled()) {
       return firebaseProfilesRepository.update(userId, patch);

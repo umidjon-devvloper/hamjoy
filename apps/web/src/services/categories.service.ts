@@ -5,10 +5,8 @@ import { isRestBackendEnabled } from '@/lib/api/config';
 import { firebaseCategoriesRepository } from '@/lib/firebase/repositories/categories.repository';
 
 async function restRepo() {
-  const { restCategoriesRepository } = await import(
-    '@/lib/rest/repositories/categories.repository'
-  );
-  return restCategoriesRepository;
+  const { joymeeCategoriesRepository } = await import('@/lib/joymee/categories.repository');
+  return joymeeCategoriesRepository;
 }
 
 export const categoriesService = {

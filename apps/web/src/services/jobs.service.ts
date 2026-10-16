@@ -19,8 +19,8 @@ import {
 
 async function fetchAllJobs(): Promise<Job[]> {
   if (isRestBackendEnabled()) {
-    const { restJobsRepository } = await import('@/lib/rest/repositories/jobs.repository');
-    return restJobsRepository.getAll();
+    const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+    return joymeeListingsRepository.getAll();
   }
   if (isBackendEnabled()) {
     return firebaseJobsRepository.getAll();
@@ -101,8 +101,8 @@ export const jobsService = {
 
   async getByIdAsync(id: string): Promise<Job | undefined> {
     if (isRestBackendEnabled()) {
-      const { restJobsRepository } = await import('@/lib/rest/repositories/jobs.repository');
-      return restJobsRepository.getById(id);
+      const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+      return joymeeListingsRepository.getById(id);
     }
     if (isBackendEnabled()) {
       return firebaseJobsRepository.getById(id);
@@ -113,8 +113,8 @@ export const jobsService = {
   async createFromForm(data: CreateJobFormData): Promise<Job> {
     const job = createJobFormToEntity(data);
     if (isRestBackendEnabled()) {
-      const { restJobsRepository } = await import('@/lib/rest/repositories/jobs.repository');
-      return restJobsRepository.insert(job);
+      // TODO (Faza 2.5): wire create-job form to POST /listings
+      throw new Error("E'lon yaratish hali REST rejimida ulanmagan");
     }
     if (isBackendEnabled()) {
       return firebaseJobsRepository.insert(job);

@@ -3,12 +3,12 @@ import { getActiveAuthProvider } from '@/lib/auth/config';
 import { isRestBackendEnabled } from '@/lib/api/config';
 import { mockAuthRepository } from './mock-auth.adapter';
 import { firebaseAuthRepository } from './firebase-auth.adapter';
-import { restAuthRepository } from '@/lib/rest/repositories/profiles.repository';
+import { joymeeAuthRepository } from '@/lib/joymee/auth.repository';
 import type { AuthRepository } from '@/lib/auth/repository';
 
 export function getAuthRepository(): AuthRepository {
   if (isRestBackendEnabled()) {
-    return restAuthRepository;
+    return joymeeAuthRepository;
   }
 
   const provider = getActiveAuthProvider();

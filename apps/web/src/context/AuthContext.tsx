@@ -28,6 +28,8 @@ interface AuthContextValue {
   isAdmin: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
+  otpSend: (phone: string) => Promise<{ expiresInSec: number }>;
+  otpVerify: (phone: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (patch: UserProfileUpdate) => Promise<void>;
   refresh: () => void;
@@ -101,6 +103,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const otpSend = useCallback(async (phone: string) => {
+    const repo = authService.getRepository();
+    if (!repo.otpSend) {
+      throw new Error('OTP flow is not supported by the current auth provider.');
+    }
+    return repo.otpSend(phone);
+  }, []);
+
+  const otpVerify = useCallback(async (phone: string, code: string) => {
+    const repo = authService.getRepository();
+    if (!repo.otpVerify) {
+      throw new Error('OTP flow is not supported by the current auth provider.');
+    }
+    const nextSession = await repo.otpVerify(phone, code);
+    const nextUser = await authService.getUserById(nextSession.userId);
+    setSession(nextSession);
+    setUser(nextUser ?? authService.getCurrentUser());
+  }, []);
+
   const logout = useCallback(async () => {
     await authService.logout();
     setSession(null);
@@ -125,11 +146,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isAdmin: isAdminUser(user),
       login,
       register,
+      otpSend,
+      otpVerify,
       logout,
       updateProfile,
       refresh,
     }),
-    [user, session, isHydrated, login, register, logout, updateProfile, refresh]
+    [user, session, isHydrated, login, register, otpSend, otpVerify, logout, updateProfile, refresh]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

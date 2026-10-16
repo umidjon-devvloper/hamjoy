@@ -16,4 +16,8 @@ export interface AuthRepository {
   getSession(): Promise<AuthSession | null>;
   getAuthUser(): Promise<AuthUser | null>;
   onAuthStateChanged?(callback: (session: AuthSession | null) => void): () => void;
+
+  /** SMS OTP flows (REST adapter — Joymee backend). */
+  otpSend?(phone: string): Promise<{ expiresInSec: number }>;
+  otpVerify?(phone: string, code: string): Promise<AuthSession>;
 }
