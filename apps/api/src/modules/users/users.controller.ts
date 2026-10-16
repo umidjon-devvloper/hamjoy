@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Patch, UsePipes } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { z } from 'zod';
 import { CurrentUser, type AuthUser } from '../../common/current-user.decorator';
@@ -25,8 +25,10 @@ export class UsersController {
   }
 
   @Patch('me')
-  @UsePipes(new ZodValidationPipe(UpdateMeSchema))
-  update(@CurrentUser() user: AuthUser, @Body() patch: UpdateMeDto) {
+  update(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodValidationPipe(UpdateMeSchema)) patch: UpdateMeDto,
+  ) {
     return this.users.updateMe(user.id, patch);
   }
 }

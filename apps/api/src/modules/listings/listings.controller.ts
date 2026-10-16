@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query, UsePipes } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, type AuthUser } from '../../common/current-user.decorator';
 import { Public } from '../../common/jwt-auth.guard';
@@ -14,8 +14,7 @@ export class ListingsController {
 
   @Public()
   @Get('search')
-  @UsePipes(new ZodValidationPipe(SearchQuerySchema))
-  search(@Query() q: SearchQueryDto) {
+  search(@Query(new ZodValidationPipe(SearchQuerySchema)) q: SearchQueryDto) {
     return this.svc.searchActive(q);
   }
 
@@ -33,8 +32,10 @@ export class ListingsController {
 
   @ApiBearerAuth()
   @Post()
-  @UsePipes(new ZodValidationPipe(CreateListingSchema))
-  create(@CurrentUser() user: AuthUser, @Body() dto: CreateListingDto) {
+  create(
+    @CurrentUser() user: AuthUser,
+    @Body(new ZodValidationPipe(CreateListingSchema)) dto: CreateListingDto,
+  ) {
     return this.svc.create(user, dto);
   }
 
