@@ -7,6 +7,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 import { AppModule } from './app.module';
 import { env } from './env';
 
@@ -20,6 +21,8 @@ async function bootstrap() {
     origin: env.CORS_ORIGINS,
     credentials: true,
   });
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   const config = new DocumentBuilder()
     .setTitle('Joymee API')

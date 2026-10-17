@@ -1,6 +1,8 @@
 import type {
+  Chat,
   Listing,
   ListingSearchQuery,
+  Message,
   Paginated,
   Profile,
   User,
@@ -136,6 +138,23 @@ export class JoymeeClient {
     publish: (id: string) => this.request<Listing>(`listings/${id}/publish`, { method: 'POST' }),
     remove: (id: string) => this.request<{ ok: true }>(`listings/${id}`, { method: 'DELETE' }),
   };
+
+  readonly chats = {
+    list: () => this.request<Array<Chat & { listing: { id: string; title: string; status: string } | null; unread: number }>>('chats'),
+    start: (listingId: string) => this.request<Chat>('chats', { method: 'POST', body: { listingId } }),
+    messages: (chatId: string, cursor?: string, limit?: number) =>
+      this.request<{ items: Message[]; cursor: string | null }>(`chats/${chatId}/messages`, {
+        query: { cursor, limit },
+      }),
+    send: (chatId: string, body: string, mediaUrl?: string | null) =>
+      this.request<Message>(`chats/${chatId}/messages`, { method: 'POST', body: { body, mediaUrl } }),
+    read: (chatId: string) => this.request<{ ok: true }>(`chats/${chatId}/read`, { method: 'POST' }),
+  };
+
+  /** Base URL for the Socket.io client (same origin as REST). */
+  get wsBaseUrl(): string {
+    return this.opts.baseUrl;
+  }
 }
 
 export function createClient(opts: ClientOptions): JoymeeClient {

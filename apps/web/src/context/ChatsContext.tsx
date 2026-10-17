@@ -12,6 +12,9 @@ import type { Chat, ChatPreview, ChatThreadView, Message } from '@/types';
 import { chatsService } from '@/services/chats.service';
 import { formatUserError } from '@/lib/errors/format-user-error';
 import { isBackendEnabled } from '@/lib/backend/config';
+import { isRestBackendEnabled } from '@/lib/api/config';
+
+const usesRemoteChats = () => isBackendEnabled() || isRestBackendEnabled();
 import { useAuth } from '@/context/AuthContext';
 
 interface ChatsContextValue {
@@ -44,7 +47,7 @@ export function ChatsProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function load() {
-      if (isBackendEnabled() && (!authHydrated || !isAuthenticated)) {
+      if (usesRemoteChats() && (!authHydrated || !isAuthenticated)) {
         setChats([]);
         setError(null);
         setIsHydrated(true);

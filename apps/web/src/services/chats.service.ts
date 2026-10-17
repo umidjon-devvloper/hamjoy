@@ -3,7 +3,10 @@ import { chats as seedChats, messages as seedMessages } from '@/data';
 import { authService } from '@/services/auth.service';
 import { chatStore } from '@/services/chat.store';
 import { isBackendEnabled } from '@/lib/backend/config';
+import { isRestBackendEnabled } from '@/lib/api/config';
 import { firebaseChatsRepository } from '@/lib/firebase/repositories/chats.repository';
+import { joymeeChatsRepository } from '@/lib/joymee/chats.repository';
+import { getJoymeeSocket } from '@/lib/joymee/socket';
 import { jobsService } from '@/services/jobs.service';
 import {
   buildChatHeader,
@@ -33,6 +36,10 @@ function getAllMessagesMock(): Message[] {
 }
 
 async function getAllChats(): Promise<Chat[]> {
+  if (isRestBackendEnabled()) {
+    const { chats } = await joymeeChatsRepository.listMine();
+    return chats;
+  }
   if (isBackendEnabled()) {
     return firebaseChatsRepository.getChatsForUser(currentUserId());
   }
@@ -40,6 +47,15 @@ async function getAllChats(): Promise<Chat[]> {
 }
 
 async function getAllMessages(): Promise<Message[]> {
+  if (isRestBackendEnabled()) {
+    const chats = await getAllChats();
+    const all: Message[] = [];
+    for (const chat of chats) {
+      const msgs = await joymeeChatsRepository.messages(chat.id);
+      all.push(...msgs);
+    }
+    return all;
+  }
   if (isBackendEnabled()) {
     const chats = await getAllChats();
     const all: Message[] = [];
@@ -62,6 +78,10 @@ export const chatsService = {
   },
 
   async getChatById(chatId: string): Promise<Chat | undefined> {
+    if (isRestBackendEnabled()) {
+      const { chats } = await joymeeChatsRepository.listMine();
+      return chats.find((c) => c.id === chatId);
+    }
     if (isBackendEnabled()) {
       return firebaseChatsRepository.getChatById(chatId);
     }
@@ -93,10 +113,18 @@ export const chatsService = {
     if (!chat || !chat.participantIds.includes(userId)) return undefined;
 
     const job = await getJobForChat(chat);
-    const messages = isBackendEnabled()
-      ? sortMessagesAsc(await firebaseChatsRepository.getMessages(chatId))
-      : sortMessagesAsc(getAllMessagesMock().filter((m) => m.chatId === chatId));
-    const allMessages = isBackendEnabled() ? messages : getAllMessagesMock();
+    let messages: Message[];
+    let allMessages: Message[];
+    if (isRestBackendEnabled()) {
+      messages = sortMessagesAsc(await joymeeChatsRepository.messages(chatId));
+      allMessages = messages;
+    } else if (isBackendEnabled()) {
+      messages = sortMessagesAsc(await firebaseChatsRepository.getMessages(chatId));
+      allMessages = messages;
+    } else {
+      messages = sortMessagesAsc(getAllMessagesMock().filter((m) => m.chatId === chatId));
+      allMessages = getAllMessagesMock();
+    }
     const preview = buildChatPreview(chat, allMessages, job);
     const header = buildChatHeader(chat, job);
 
@@ -104,6 +132,9 @@ export const chatsService = {
   },
 
   async getMessages(chatId: string): Promise<Message[]> {
+    if (isRestBackendEnabled()) {
+      return sortMessagesAsc(await joymeeChatsRepository.messages(chatId));
+    }
     if (isBackendEnabled()) {
       return sortMessagesAsc(await firebaseChatsRepository.getMessages(chatId));
     }
@@ -112,6 +143,11 @@ export const chatsService = {
 
   async markAsRead(chatId: string): Promise<boolean> {
     const userId = currentUserId();
+
+    if (isRestBackendEnabled()) {
+      await joymeeChatsRepository.markRead(chatId);
+      return true;
+    }
 
     if (isBackendEnabled()) {
       await firebaseChatsRepository.markAsRead(chatId, userId);
@@ -165,6 +201,10 @@ export const chatsService = {
       read: false,
     };
 
+    if (isRestBackendEnabled()) {
+      return joymeeChatsRepository.send(chatId, trimmed);
+    }
+
     if (isBackendEnabled()) {
       return firebaseChatsRepository.sendMessage(message);
     }
@@ -188,6 +228,10 @@ export const chatsService = {
     const posterId = job.posterId;
     const userId = currentUserId();
     if (posterId === userId) return null;
+
+    if (isRestBackendEnabled()) {
+      return joymeeChatsRepository.start(jobId);
+    }
 
     const allChats = await getAllChats();
     const existing = allChats.find(
@@ -219,6 +263,48 @@ export const chatsService = {
   },
 
   subscribeToMessages(chatId: string, onInsert: (message: Message) => void): (() => void) | null {
+    if (isRestBackendEnabled()) {
+      let cleanup = () => {};
+      let active = true;
+      void (async () => {
+        const socket = await getJoymeeSocket();
+        if (!socket || !active) return;
+
+        const connect = () => {
+          socket.emit('chat:subscribe', chatId);
+        };
+        if (socket.connected) connect();
+        else socket.once('connect', connect);
+
+        const onMessage = (payload: {
+          id: string;
+          chatId: string;
+          senderId: string;
+          body: string;
+          createdAt: string;
+          readAt: string | null;
+        }) => {
+          if (payload.chatId !== chatId) return;
+          onInsert({
+            id: payload.id,
+            chatId: payload.chatId,
+            senderId: payload.senderId,
+            body: payload.body,
+            createdAt: payload.createdAt,
+            read: payload.readAt != null,
+          });
+        };
+        socket.on('chat:message', onMessage);
+        cleanup = () => {
+          socket.emit('chat:unsubscribe', chatId);
+          socket.off('chat:message', onMessage);
+        };
+      })();
+      return () => {
+        active = false;
+        cleanup();
+      };
+    }
     if (!isBackendEnabled()) return null;
     return firebaseChatsRepository.subscribeToMessages(chatId, onInsert);
   },
