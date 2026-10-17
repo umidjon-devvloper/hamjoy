@@ -1,3 +1,8 @@
 packages:
-  - 'apps/*'
+  - 'apps/web'
+  - 'apps/api'
   - 'packages/*'
+  # apps/mobile is intentionally excluded from the pnpm workspace. Expo/React
+  # Native and pnpm's symlinked store don't play nicely (duplicate RN copies
+  # cause Hermes "property is not writable" crashes). Install mobile with
+  # plain npm from inside apps/mobile/.
