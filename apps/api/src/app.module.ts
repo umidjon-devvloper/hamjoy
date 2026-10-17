@@ -15,6 +15,8 @@ import { LocationsModule } from './modules/locations/locations.module';
 import { ListingsModule } from './modules/listings/listings.module';
 import { FavoritesModule } from './modules/favorites/favorites.module';
 import { ChatsModule } from './modules/chats/chats.module';
+import { ApplicationsModule } from './modules/applications/applications.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
   imports: [
@@ -29,6 +31,8 @@ import { ChatsModule } from './modules/chats/chats.module';
     ListingsModule,
     FavoritesModule,
     ChatsModule,
+    ApplicationsModule,
+    NotificationsModule,
   ],
   controllers: [HealthController],
   providers: [

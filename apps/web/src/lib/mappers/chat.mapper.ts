@@ -27,11 +27,13 @@ export function buildChatPreview(
 
   const isJobPoster = job?.posterId === userId;
 
+  const fallbackName = isJobPoster ? 'Qiziquvchi' : 'Mulkdor';
+
   return {
     id: chat.id,
-    userName: other?.name ?? 'Unknown',
+    userName: other?.name ?? fallbackName,
     userAvatar: other?.avatarUrl ?? '',
-    lastMessage: lastMsg?.body ?? 'Start the conversation',
+    lastMessage: lastMsg?.body ?? "Suhbatni boshlang",
     time: lastMsg ? formatPostedAt(lastMsg.createdAt) : formatPostedAt(chat.updatedAt),
     unread: unread > 0 ? unread : undefined,
     jobId: chat.jobId,
@@ -44,11 +46,14 @@ export function buildChatPreview(
 export function buildChatHeader(chat: Chat, job?: Job): ChatHeaderInfo {
   const otherId = getOtherParticipantId(chat);
   const other = otherId ? usersService.getById(otherId) : undefined;
+  const userId = authService.getCurrentUserId();
+  const isJobPoster = job?.posterId === userId;
+  const fallbackName = isJobPoster ? 'Qiziquvchi' : 'Mulkdor';
 
   return {
     chatId: chat.id,
     otherUserId: otherId ?? '',
-    otherUserName: other?.name ?? 'Unknown',
+    otherUserName: other?.name ?? fallbackName,
     otherUserAvatar: other?.avatarUrl ?? '',
     otherUserTitle: other?.title,
     job: job

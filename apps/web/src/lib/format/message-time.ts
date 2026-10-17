@@ -10,8 +10,8 @@ export function formatMessageDateLabel(isoDate: string): string {
   const messageDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const diffDays = Math.round((today.getTime() - messageDay.getTime()) / 86400000);
 
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Yesterday';
+  if (diffDays === 0) return 'Bugun';
+  if (diffDays === 1) return 'Kecha';
   if (diffDays < 7) {
     return date.toLocaleDateString([], { weekday: 'long' });
   }

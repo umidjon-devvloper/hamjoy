@@ -14,6 +14,8 @@ import { LISTING_FEATURES, UZ_REGIONS } from '@/data/listings';
 import { appToast } from '@/lib/feedback/toast';
 import { compressImage } from '@/lib/listings/image';
 import { addUserListing } from '@/lib/listings/user-listings';
+import { isRestBackendEnabled } from '@/lib/api/config';
+import { postPropertyListing } from '@/lib/joymee/create-property-listing';
 import {
   formatListingPrice,
   LISTING_INTENTS,
@@ -148,7 +150,7 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
   const toggleFeature = (f: string) =>
     set('features', form.features.includes(f) ? form.features.filter((x) => x !== f) : [...form.features, f]);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const found = validateListingForm(form);
     setErrors(found);
@@ -158,7 +160,10 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
     }
     setIsSubmitting(true);
     try {
-      const listing = addUserListing(toPropertyListing(form, user.id));
+      const draft = toPropertyListing(form, user.id);
+      const listing = isRestBackendEnabled()
+        ? await postPropertyListing(draft)
+        : addUserListing(draft);
       appToast.success('Eʼlon joylandi');
       router.push(ROUTES.listing(listing.id));
     } catch (err) {

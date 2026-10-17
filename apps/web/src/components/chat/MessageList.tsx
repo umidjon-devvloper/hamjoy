@@ -33,9 +33,9 @@ export function MessageList({ messages, bottomRef, isEmpty }: MessageListProps) 
         <div className="w-14 h-14 rounded-2xl bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center mb-4">
           <MessageCircle className="w-7 h-7" />
         </div>
-        <h3 className="font-semibold text-[var(--color-secondary)] mb-1">No messages yet</h3>
+        <h3 className="font-semibold text-[var(--color-secondary)] mb-1">Hali xabar yo'q</h3>
         <p className="text-sm text-[var(--color-muted)] max-w-xs">
-          Say hello and ask about the role. Your messages stay in this conversation thread.
+          Salom bering va e'lon haqida so'rang. Xabarlaringiz shu suhbat ichida qoladi.
         </p>
       </div>
     );
