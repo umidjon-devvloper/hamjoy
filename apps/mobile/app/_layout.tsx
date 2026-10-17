@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '@/lib/auth';
+import { SavedProvider } from '@/lib/saved';
 import { colors } from '@/lib/theme';
 import { View } from 'react-native';
 
@@ -23,7 +24,7 @@ function AuthGate() {
     const inAuthGroup = segments[0] === '(auth)';
 
     if (!isAuthenticated && !inAuthGroup) {
-      router.replace('/(auth)/login');
+      router.replace('/(auth)/welcome');
     } else if (isAuthenticated && inAuthGroup) {
       router.replace('/(tabs)');
     }
@@ -37,16 +38,20 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <StatusBar style="light" />
-          <View style={{ flex: 1, backgroundColor: colors.bg }}>
-            <AuthGate />
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.bg },
-              }}
-            />
-          </View>
+          <SavedProvider>
+            <StatusBar style="dark" />
+            <View style={{ flex: 1, backgroundColor: colors.ground }}>
+              <AuthGate />
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colors.ground },
+                }}
+              >
+                <Stack.Screen name="post" options={{ presentation: 'modal' }} />
+              </Stack>
+            </View>
+          </SavedProvider>
         </AuthProvider>
       </QueryClientProvider>
     </SafeAreaProvider>

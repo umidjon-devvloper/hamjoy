@@ -1,106 +1,126 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import {
-  ActivityIndicator,
-  FlatList,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ListingCard } from '@/components/ListingCard';
-import { getApi } from '@/lib/api';
-import { colors, radius, spacing } from '@/lib/theme';
+import { HomeTile, JobCard } from '@/components/cards';
+import { Chip, EmptyState, Icon, Segmented } from '@/components/ui';
+import { useHomes, useJobs, type Deal } from '@/lib/data';
+import { colors, radius, shadow, TAB_BAR_SPACE, type } from '@/lib/theme';
 
-interface RawListing {
-  id: string;
-  title: string;
-  type: string;
-  priceAmount?: number | string | null;
-  priceCurrency?: string | null;
-  createdAt: string;
-}
+const DEALS: { id: Deal | 'all'; label: string }[] = [
+  { id: 'all', label: 'Hammasi' },
+  { id: 'sotuv', label: 'Sotuv' },
+  { id: 'ijara', label: 'Ijara' },
+  { id: 'kunlik', label: 'Kunlik' },
+];
+
+const SUGGESTIONS = ['Yunusobod', 'Chilonzor', 'Hovli', 'Studiya', 'Villa', 'Mirzo Ulugʻbek'];
 
 export default function Search() {
+  const [section, setSection] = useState<'uyjoy' | 'ish'>('uyjoy');
   const [q, setQ] = useState('');
-  const { data, isLoading } = useQuery({
-    queryKey: ['listings', 'search', q],
-    queryFn: async () => {
-      const res = await getApi().listings.search({ q: q || undefined, limit: 30 });
-      return res.items as unknown as RawListing[];
-    },
-  });
+  const [deal, setDeal] = useState<Deal | 'all'>('all');
+  const homes = useHomes({ q, deal });
+  const jobs = useJobs(q);
+  const isJobs = section === 'ish';
+  const loading = isJobs ? jobs.isLoading : homes.isLoading;
+  const count = isJobs ? (jobs.data?.length ?? 0) : (homes.data?.length ?? 0);
 
-  return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Qidiruv</Text>
+  const header = (
+    <View style={styles.header}>
+      <Text style={type.display}>Qidiruv</Text>
+      <Segmented
+        options={[
+          { value: 'uyjoy', label: 'Uy-joy' },
+          { value: 'ish', label: 'Ish' },
+        ]}
+        value={section}
+        onChange={setSection}
+      />
+      <View style={[styles.field, shadow.soft]}>
+        <Icon name="search" size={20} color={colors.muted} />
         <TextInput
           value={q}
           onChangeText={setQ}
-          placeholder="Kvartira, ish, xizmat…"
+          placeholder={isJobs ? 'Kasb yoki kompaniya' : 'Tuman, koʻcha yoki mulk turi'}
           placeholderTextColor={colors.dim}
           style={styles.input}
           autoCapitalize="none"
           returnKeyType="search"
+          accessibilityLabel="Qidiruv"
         />
+        {q ? (
+          <Pressable onPress={() => setQ('')} hitSlop={10} accessibilityLabel="Tozalash">
+            <Icon name="x-circle" size={20} color={colors.dim} />
+          </Pressable>
+        ) : null}
       </View>
+      {!isJobs ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }} style={{ marginHorizontal: -20 }}>
+          <View style={{ width: 12 }} />
+          {DEALS.map((d) => (
+            <Chip key={d.id} label={d.label} selected={deal === d.id} onPress={() => setDeal(d.id)} />
+          ))}
+          <View style={{ width: 12 }} />
+        </ScrollView>
+      ) : null}
+      {!q ? (
+        <View style={styles.suggest}>
+          {SUGGESTIONS.map((s) => (
+            <Pressable key={s} onPress={() => setQ(s)} style={styles.suggestItem}>
+              <Icon name="clock" size={14} color={colors.muted} />
+              <Text style={styles.suggestText}>{s}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      {!loading ? (
+        <Text style={[type.label, { marginTop: 4 }]}>
+          {count} TA NATIJA{q ? ` · «${q.toUpperCase()}»` : ''}
+        </Text>
+      ) : null}
+    </View>
+  );
 
-      <FlatList
-        data={data ?? []}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.md }} />}
-        ListHeaderComponent={
-          data ? (
-            <Text style={styles.resultsText}>
-              {data.length} ta natija{q ? ` «${q}»` : ''}
-            </Text>
-          ) : null
-        }
-        ListEmptyComponent={
-          isLoading ? (
-            <View style={styles.center}>
-              <ActivityIndicator color={colors.accent} />
-            </View>
-          ) : (
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Hech narsa topilmadi</Text>
-            </View>
-          )
-        }
-        renderItem={({ item }) => (
-          <ListingCard
-            id={item.id}
-            title={item.title}
-            priceAmount={item.priceAmount != null ? Number(item.priceAmount) : null}
-            priceCurrency={item.priceCurrency}
-            type={item.type}
-            createdAt={item.createdAt}
-          />
-        )}
-      />
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      {isJobs ? (
+        <FlatList
+          data={jobs.data ?? []}
+          keyExtractor={(j) => j.id}
+          ListHeaderComponent={header}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => <JobCard job={item} />}
+          ListEmptyComponent={loading ? <ActivityIndicator color={colors.green} /> : <EmptyState icon="briefcase" title="Hech narsa topilmadi" text="Boshqa soʻz bilan qidirib koʻring." />}
+        />
+      ) : (
+        <FlatList
+          data={homes.data ?? []}
+          keyExtractor={(h) => h.id}
+          ListHeaderComponent={header}
+          contentContainerStyle={styles.list}
+          ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+          keyboardShouldPersistTaps="handled"
+          renderItem={({ item }) => <HomeTile home={item} />}
+          ListEmptyComponent={loading ? <ActivityIndicator color={colors.green} /> : <EmptyState icon="home" title="Hech narsa topilmadi" text="Filtrlarni oʻzgartirib koʻring." />}
+        />
+      )}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg, gap: spacing.md },
-  title: { color: colors.fg, fontSize: 24, fontWeight: '700', letterSpacing: -0.5 },
-  input: {
-    backgroundColor: colors.surface,
-    borderColor: colors.line,
-    borderWidth: 1,
-    borderRadius: radius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: 12,
-    color: colors.fg,
-    fontSize: 15,
+  container: { flex: 1, backgroundColor: colors.ground },
+  header: { gap: 14, paddingTop: 16, paddingBottom: 16 },
+  list: { paddingHorizontal: 20, paddingBottom: TAB_BAR_SPACE },
+  field: {
+    height: 58, borderRadius: radius.pill, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20,
   },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
-  resultsText: { color: colors.muted, fontSize: 12, marginBottom: spacing.md, letterSpacing: 0.4 },
-  center: { alignItems: 'center', justifyContent: 'center', padding: spacing.xxl },
-  emptyText: { color: colors.muted, fontSize: 14 },
+  input: { flex: 1, fontSize: 16, color: colors.ink },
+  suggest: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  suggestItem: {
+    flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: radius.pill, backgroundColor: colors.field,
+  },
+  suggestText: { fontSize: 13, fontWeight: '600', color: colors.inkSoft },
 });

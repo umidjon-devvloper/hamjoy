@@ -1,17 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import {
-  ActivityIndicator,
-  FlatList,
-  Pressable,
-  RefreshControl,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { useState } from 'react';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Avatar, EmptyState, Icon, Segmented } from '@/components/ui';
 import { getApi } from '@/lib/api';
-import { colors, radius, spacing } from '@/lib/theme';
+import { useAuth } from '@/lib/auth';
+import { timeAgo } from '@/lib/data';
+import { colors, radius, shadow, TAB_BAR_SPACE, type } from '@/lib/theme';
 
 interface ChatRow {
   id: string;
@@ -25,84 +21,105 @@ interface ChatRow {
 
 export default function ChatList() {
   const router = useRouter();
+  const { me } = useAuth();
+  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [q, setQ] = useState('');
   const { data, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ['chats'],
     queryFn: async () => (await getApi().chats.list()) as unknown as ChatRow[],
     refetchInterval: 15_000,
   });
 
+  const rows = (data ?? [])
+    .filter((c) => filter === 'all' || c.unread > 0)
+    .filter((c) => !q || (c.listing?.title ?? '').toLowerCase().includes(q.toLowerCase()));
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Suhbatlar</Text>
-      </View>
-      {isLoading ? (
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.accent} />
-        </View>
-      ) : (
-        <FlatList
-          data={data ?? []}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          ItemSeparatorComponent={() => <View style={styles.sep} />}
-          refreshControl={
-            <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.accent} />
-          }
-          ListEmptyComponent={
-            <View style={styles.center}>
-              <Text style={styles.emptyText}>Hali suhbat yo'q</Text>
-              <Text style={styles.emptyHint}>E'lon ustiga bosib yozishni boshlang</Text>
+      <FlatList
+        data={rows}
+        keyExtractor={(c) => c.id}
+        contentContainerStyle={styles.list}
+        refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.green} />}
+        ListHeaderComponent={
+          <View style={styles.header}>
+            <Text style={type.display}>Xabarlar</Text>
+            <View style={[styles.field, shadow.soft]}>
+              <Icon name="search" size={18} color={colors.muted} />
+              <TextInput
+                value={q}
+                onChangeText={setQ}
+                placeholder="Suhbatlarni qidirish"
+                placeholderTextColor={colors.dim}
+                style={styles.input}
+                accessibilityLabel="Suhbatlarni qidirish"
+              />
             </View>
-          }
-          renderItem={({ item }) => (
+            <Segmented
+              options={[
+                { value: 'all', label: 'Hammasi' },
+                { value: 'unread', label: 'Oʻqilmagan' },
+              ]}
+              value={filter}
+              onChange={setFilter}
+            />
+          </View>
+        }
+        ListEmptyComponent={
+          isLoading ? (
+            <ActivityIndicator color={colors.green} style={{ marginTop: 32 }} />
+          ) : (
+            <EmptyState icon="message-circle" title="Hali suhbat yoʻq" text="Eʼlon sahifasida “Yozish” tugmasini bosing — suhbat shu yerda paydo boʻladi." />
+          )
+        }
+        renderItem={({ item }) => {
+          const iAmSeller = item.sellerId === me?.user.id;
+          const title = item.listing?.title ?? 'Eʼlon mavjud emas';
+          return (
             <Pressable
-              style={({ pressed }) => [styles.row, pressed && styles.pressed]}
               onPress={() => router.push(`/chat/${item.id}`)}
+              style={({ pressed }) => [styles.row, pressed && { opacity: 0.8 }]}
             >
-              <View style={styles.rowMain}>
-                <Text style={styles.rowTitle} numberOfLines={1}>
-                  {item.listing?.title ?? "E'lon mavjud emas"}
-                </Text>
-                <Text style={styles.rowMeta}>
-                  {item.lastMessageAt ? new Date(item.lastMessageAt).toLocaleString('uz-UZ') : 'xabar yo‘q'}
-                </Text>
-              </View>
-              {item.unread > 0 ? (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{item.unread}</Text>
+              <Avatar name={title} tone={iAmSeller ? 'gold' : 'deep'} size={52} />
+              <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+                <View style={styles.rowTop}>
+                  <Text style={styles.rowTitle} numberOfLines={1}>
+                    {title}
+                  </Text>
+                  <Text style={[styles.time, item.unread > 0 && { color: colors.green, fontWeight: '700' }]}>
+                    {item.lastMessageAt ? timeAgo(item.lastMessageAt) : ''}
+                  </Text>
                 </View>
-              ) : null}
+                <View style={styles.rowTop}>
+                  <Text style={type.small} numberOfLines={1}>
+                    {iAmSeller ? 'Xaridor siz bilan bogʻlandi' : 'Sotuvchi bilan suhbat'}
+                  </Text>
+                  {item.unread > 0 ? (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{item.unread}</Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
             </Pressable>
-          )}
-        />
-      )}
+          );
+        }}
+        ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg },
-  header: { paddingHorizontal: spacing.xl, paddingVertical: spacing.lg },
-  title: { color: colors.fg, fontSize: 24, fontWeight: '700', letterSpacing: -0.5 },
-  list: { paddingHorizontal: spacing.xl, paddingBottom: spacing.xxl },
-  sep: { height: 1, backgroundColor: colors.line },
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.md, gap: spacing.md },
-  pressed: { opacity: 0.6 },
-  rowMain: { flex: 1 },
-  rowTitle: { color: colors.fg, fontSize: 15, fontWeight: '600' },
-  rowMeta: { color: colors.dim, fontSize: 12, marginTop: 2 },
-  badge: {
-    backgroundColor: colors.accent,
-    minWidth: 22,
-    height: 22,
-    borderRadius: radius.pill,
-    paddingHorizontal: 7,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeText: { color: colors.bg, fontSize: 12, fontWeight: '700' },
-  center: { alignItems: 'center', justifyContent: 'center', paddingVertical: 64 },
-  emptyText: { color: colors.fg, fontSize: 15, fontWeight: '600' },
-  emptyHint: { color: colors.muted, fontSize: 13, marginTop: 4 },
+  container: { flex: 1, backgroundColor: colors.ground },
+  list: { paddingHorizontal: 20, paddingBottom: TAB_BAR_SPACE },
+  header: { gap: 14, paddingTop: 16, paddingBottom: 16 },
+  field: { height: 52, borderRadius: radius.pill, backgroundColor: colors.surface, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 18 },
+  input: { flex: 1, fontSize: 15, color: colors.ink },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderRadius: 22, backgroundColor: colors.surface },
+  rowTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  rowTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: colors.ink },
+  time: { fontSize: 12, color: colors.muted },
+  badge: { minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 6, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
+  badgeText: { color: colors.white, fontSize: 12, fontWeight: '800' },
 });
