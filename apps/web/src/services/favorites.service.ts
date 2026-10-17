@@ -32,8 +32,8 @@ export const favoritesService = {
 
   async getFavoriteJobIdsAsync(): Promise<Set<string>> {
     if (isRestBackendEnabled()) {
-      const { restFavoritesRepository } = await import('@/lib/rest/repositories/favorites.repository');
-      return restFavoritesRepository.getFavoriteIds(authService.getCurrentUserId());
+      const { joymeeFavoritesRepository } = await import('@/lib/joymee/favorites.repository');
+      return joymeeFavoritesRepository.getFavoriteIds(authService.getCurrentUserId());
     }
     if (isBackendEnabled()) {
       return firebaseFavoritesRepository.getFavoriteIds(authService.getCurrentUserId());
@@ -61,8 +61,8 @@ export const favoritesService = {
 
   async toggleFavoriteAsync(jobId: string): Promise<boolean> {
     if (isRestBackendEnabled()) {
-      const { restFavoritesRepository } = await import('@/lib/rest/repositories/favorites.repository');
-      return restFavoritesRepository.toggle(authService.getCurrentUserId(), jobId);
+      const { joymeeFavoritesRepository } = await import('@/lib/joymee/favorites.repository');
+      return joymeeFavoritesRepository.toggle(authService.getCurrentUserId(), jobId);
     }
     if (isBackendEnabled()) {
       return firebaseFavoritesRepository.toggle(authService.getCurrentUserId(), jobId);

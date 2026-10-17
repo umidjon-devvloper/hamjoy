@@ -32,15 +32,15 @@ export function SaveListingButton({
         else appToast.info('Eʼlon saqlanganlardan olib tashlandi');
       }}
       className={cn(
-        'flex shrink-0 items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-gold)]/70 active:scale-95',
+        'flex shrink-0 items-center justify-center gap-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)]/50 active:scale-95',
         variant === 'overlay'
-          ? 'h-10 w-10 rounded-full bg-white/90 text-gray-700 shadow-md backdrop-blur hover:bg-white hover:text-rose-500'
-          : 'h-11 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-secondary)] hover:border-rose-200 hover:bg-rose-50',
+          ? 'h-11 w-11 rounded-full bg-white/95 text-[#0B0B0C] shadow-sm backdrop-blur hover:bg-white hover:text-[var(--color-brand-green)]'
+          : 'h-11 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-secondary)] hover:border-[var(--color-brand-green)]/30 hover:bg-[var(--color-primary-light)]',
         className
       )}
     >
       <Heart
-        className={cn('h-5 w-5 transition-colors', saved && 'fill-rose-500 text-rose-500')}
+        className={cn('h-5 w-5 transition-colors', saved && 'fill-[var(--color-brand-green)] text-[var(--color-brand-green)]')}
         strokeWidth={2}
       />
       {variant === 'outline' && (saved ? 'Saqlangan' : 'Saqlash')}

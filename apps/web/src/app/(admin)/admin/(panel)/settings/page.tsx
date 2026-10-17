@@ -19,7 +19,7 @@ const slugify = (v: string) =>
     .replace(/^-+|-+$/g, '');
 
 const inputClass =
-  'h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20';
+  'h-10 flex-1 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20';
 
 function AddForm({ placeholder, onAdd }: { placeholder: string; onAdd: (value: string) => Promise<void> }) {
   const [value, setValue] = useState('');
@@ -42,7 +42,7 @@ function AddForm({ placeholder, onAdd }: { placeholder: string; onAdd: (value: s
       className="flex gap-2 border-b border-slate-100 p-4"
     >
       <input value={value} onChange={(e) => setValue(e.target.value)} placeholder={placeholder} aria-label={placeholder} className={inputClass} />
-      <button type="submit" disabled={busy || !value.trim()} className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50">
+      <button type="submit" disabled={busy || !value.trim()} className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--color-primary)] px-4 text-sm font-semibold text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-50">
         <Plus className="h-4 w-4" /> Qoʻshish
       </button>
     </form>

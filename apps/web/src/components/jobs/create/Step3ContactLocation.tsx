@@ -30,7 +30,7 @@ export function Step3ContactLocation({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 px-4 py-3">
+      <div className="rounded-2xl border border-[var(--color-primary-light)] bg-[var(--color-primary-light)]/70 px-4 py-3">
         <h2 className="text-lg font-bold text-[var(--color-secondary)]">Aloqa va joylashuv</h2>
         <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
           Nomzodlar bog'lana olishi uchun telefon raqami va ish joylashuvini aniq kiriting.
@@ -49,7 +49,7 @@ export function Step3ContactLocation({
       />
 
       {isRemote && (
-        <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm font-medium text-[var(--color-muted)]">
+        <div className="rounded-2xl border border-[var(--color-primary-light)] bg-[var(--color-primary-light)] px-4 py-3 text-sm font-medium text-[var(--color-muted)]">
           Masofaviy ish tanlangan. Aniq ofis manzili talab qilinmaydi.
         </div>
       )}

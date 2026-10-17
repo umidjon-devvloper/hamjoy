@@ -54,7 +54,7 @@ const LANGUAGES = [
 type MenuId = 'lang' | 'post';
 
 const focusRing =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-gold)]/70';
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)]/50';
 
 const iconButton = cn(
   'relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)]',
@@ -161,7 +161,7 @@ function NavAction({
       aria-current={active ? 'page' : undefined}
       aria-label={count > 0 ? `${label}, ${count} ${countLabel ?? 'ta'}` : label}
       className={cn(
-        'group relative flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-2.5 text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)] xl:px-3',
+        'group relative flex h-10 shrink-0 items-center justify-center gap-2 rounded-xl px-2.5 text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)] 2xl:px-3',
         active && 'bg-[var(--nav-hover)] text-[var(--nav-accent)]',
         focusRing,
         className
@@ -170,21 +170,21 @@ function NavAction({
       <span className="relative flex">
         <Icon className="h-[22px] w-[22px]" strokeWidth={1.75} />
         {count > 0 && (
-          <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--color-accent)] px-1 text-[10px] font-bold text-white ring-2 ring-[var(--nav-bg)] xl:hidden">
+          <span className="absolute -right-2 -top-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--color-brand-green)] px-1 text-[10px] font-bold text-white ring-2 ring-[var(--nav-bg)] 2xl:hidden">
             {count > 9 ? '9+' : count}
           </span>
         )}
       </span>
-      <span className="hidden whitespace-nowrap text-[15px] font-medium xl:inline">{label}</span>
+      <span className="hidden whitespace-nowrap text-[15px] font-medium 2xl:inline">{label}</span>
       {count > 0 && (
         <span
           aria-hidden
-          className="hidden h-5 min-w-5 items-center justify-center rounded-md bg-[var(--color-accent)] px-1.5 text-xs font-bold text-white xl:inline-flex"
+          className="hidden h-5 min-w-5 items-center justify-center rounded-md bg-[var(--color-brand-green)] px-1.5 text-xs font-bold text-white 2xl:inline-flex"
         >
           {badge}
         </span>
       )}
-      <Tooltip label={label} className="xl:hidden" />
+      <Tooltip label={label} className="2xl:hidden" />
     </Link>
   );
 }
@@ -270,7 +270,7 @@ function NavSearch({
         placeholder={placeholder}
         aria-label="Qidirish"
         enterKeyHint="search"
-        className="h-11 w-full rounded-full border border-[var(--nav-border)] bg-[var(--nav-field)] pl-11 pr-12 text-sm text-[var(--nav-fg)] outline-none transition-[border-color,background-color,box-shadow] placeholder:text-[var(--nav-fg-subtle)] hover:border-[var(--nav-fg-subtle)]/40 focus:border-[var(--color-brand-gold)]/60 focus:bg-[var(--nav-field-focus)] focus:shadow-[0_0_0_4px_rgb(217_178_95/0.12)] [&::-webkit-search-cancel-button]:hidden"
+        className="h-11 w-full rounded-[14px] border border-transparent bg-[var(--nav-field)] pl-11 pr-12 text-sm text-[var(--nav-fg)] outline-none transition-[border-color,background-color,box-shadow] placeholder:text-[var(--nav-fg-subtle)] hover:border-[var(--nav-fg-subtle)]/40 focus:border-[var(--color-brand-green)]/50 focus:bg-[var(--nav-field-focus)] focus:shadow-[0_0_0_4px_rgb(31_107_63/0.12)] [&::-webkit-search-cancel-button]:hidden"
       />
       {query ? (
         <button
@@ -412,8 +412,38 @@ export function PlatformNavbar() {
             </span>
           </Link>
 
+          {/* Uy-joy / Ish — the two halves of the platform */}
+          <nav
+            aria-label="Boʻlimlar"
+            className="ml-2 hidden items-center gap-0.5 rounded-full bg-[var(--nav-field)] p-1 lg:flex"
+          >
+            {(
+              [
+                { id: 'uy-joy', href: ROUTES.home, label: 'Uy-joy', icon: Building2 },
+                { id: 'ish', href: ROUTES.jobs, label: 'Ish', icon: Briefcase },
+              ] as const
+            ).map(({ id, href, label, icon: Icon }) => (
+              <Link
+                key={id}
+                href={href}
+                onClick={closeAll}
+                aria-current={mode === id ? 'page' : undefined}
+                className={cn(
+                  'inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors',
+                  mode === id
+                    ? 'bg-[var(--color-brand-green)] text-white'
+                    : 'text-[var(--nav-fg-muted)] hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)]',
+                  focusRing
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </Link>
+            ))}
+          </nav>
+
           {/* Language + theme, grouped in one pill */}
-          <div className="ml-3 hidden items-center rounded-xl border border-[var(--nav-border)] p-0.5 lg:flex">
+          <div className="ml-1 hidden items-center rounded-xl p-0.5 xl:flex">
             <div className="relative">
               <button
                 type="button"
@@ -536,7 +566,7 @@ export function PlatformNavbar() {
                 aria-controls="nav-post-panel"
                 aria-label="Eʼlon joylash"
                 className={cn(
-                  'inline-flex h-10 items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-brand-gold)] to-[var(--color-brand-gold-light)] px-3 text-sm font-bold text-gray-900 shadow-lg shadow-[var(--color-brand-gold)]/15 transition-all hover:-translate-y-px hover:shadow-[var(--color-brand-gold)]/30 hover:brightness-105 active:translate-y-0 sm:h-11 sm:px-5',
+                  'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
                   focusRing
                 )}
               >
@@ -591,12 +621,6 @@ export function PlatformNavbar() {
           <ModeSwitch mode={mode} onNavigate={closeAll} />
           <NavSearch onSubmitted={closeAll} placeholder={searchPlaceholder} />
         </div>
-
-        {/* Thin brand accent line */}
-        <div
-          aria-hidden
-          className="h-px bg-gradient-to-r from-transparent via-[var(--color-brand-gold)]/40 to-transparent"
-        />
 
         <AnimatePresence>
           {mobileOpen && (

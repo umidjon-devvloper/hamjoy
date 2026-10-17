@@ -35,8 +35,8 @@ export function BottomNavigation() {
                     className={cn(
                       'w-[3.25rem] h-[3.25rem] text-white rounded-2xl flex items-center justify-center shadow-lg transition-all ring-4 ring-[var(--color-background)]',
                       isActive
-                        ? 'bg-orange-600 shadow-orange-500/40 scale-105'
-                        : 'bg-[var(--color-accent)] shadow-orange-500/30 hover:bg-orange-600 hover:scale-105 active:scale-95'
+                        ? 'bg-[var(--color-brand-green)] shadow-black/10 scale-105'
+                        : 'bg-[var(--color-brand-green)] shadow-black/10 hover:bg-[var(--color-brand-green-deep)] hover:scale-105 active:scale-95'
                     )}
                   >
                     <Icon className="w-6 h-6" strokeWidth={2.5} />
@@ -44,7 +44,7 @@ export function BottomNavigation() {
                   <span
                     className={cn(
                       'text-[10px] font-semibold mt-1',
-                      isActive ? 'text-orange-600' : 'text-[var(--color-accent)]'
+                      'text-[var(--color-brand-green)]'
                     )}
                   >
                     {item.label}
@@ -74,7 +74,7 @@ export function BottomNavigation() {
                   <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
                 </div>
                 {item.href === '/chat' && isHydrated && totalUnread > 0 && (
-                  <span className="absolute top-1 right-2 min-w-[16px] h-4 px-1 bg-[var(--color-accent)] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-2 min-w-[16px] h-4 px-1 bg-[var(--color-brand-green)] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                     {totalUnread > 9 ? '9+' : totalUnread}
                   </span>
                 )}

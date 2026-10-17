@@ -11,10 +11,10 @@ import { APPLICATION_STATUS_LABELS, type ApplicationStatus } from '@/types';
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  pending: 'bg-amber-50 text-amber-700',
-  reviewing: 'bg-blue-50 text-blue-700',
+  pending: 'bg-[var(--color-accent-light)] text-[#7A5A12]',
+  reviewing: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
   shortlisted: 'bg-violet-50 text-violet-700',
-  accepted: 'bg-emerald-50 text-emerald-700',
+  accepted: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
   rejected: 'bg-red-50 text-red-600',
   withdrawn: 'bg-gray-100 text-gray-500',
 };

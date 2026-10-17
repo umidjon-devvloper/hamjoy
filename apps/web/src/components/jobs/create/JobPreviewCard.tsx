@@ -1,8 +1,8 @@
 'use client';
 
 import type { JobListItem } from '@/types';
+import { CompanyLogo } from '@/components/jobs/CompanyLogo';
 import { Bookmark, MapPin, Clock } from 'lucide-react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 interface JobPreviewCardProps {
@@ -25,7 +25,7 @@ export function JobPreviewCard({ job, className }: JobPreviewCardProps) {
       <div className="flex justify-between items-start gap-3 mb-3.5">
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden border border-[var(--color-border)] shrink-0">
-            <Image src={job.logo} alt="" width={32} height={32} className="object-contain" aria-hidden />
+            <CompanyLogo src={job.logo} company={job.company} size={32} />
           </div>
           <div className="min-w-0 pr-16">
             <h3 className="font-semibold text-[var(--color-secondary)] text-base sm:text-lg truncate">

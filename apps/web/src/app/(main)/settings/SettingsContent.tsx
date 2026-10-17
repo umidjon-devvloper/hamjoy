@@ -88,7 +88,7 @@ export function SettingsContent() {
       </Link>
 
       {isMockAuth && (
-        <div className="card p-4 mb-6 border-amber-200 bg-amber-50 text-sm text-amber-900">
+        <div className="card p-4 mb-6 border-[var(--color-brand-gold)]/50 bg-[var(--color-accent-light)] text-sm text-[#3D2E07]">
           Mock auth is active. Set Firebase env vars and NEXT_PUBLIC_AUTH_PROVIDER=firebase for production.
         </div>
       )}

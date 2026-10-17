@@ -96,14 +96,14 @@ export default function AdminListingsPage() {
         </div>
 
         {selected.size > 0 && (canModerate || canDelete) && (
-          <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 bg-blue-50/60 px-4 py-2.5 text-sm">
+          <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 bg-[var(--color-primary-light)]/60 px-4 py-2.5 text-sm">
             <span className="font-semibold text-slate-700">{selected.size} ta tanlandi:</span>
             {canModerate && (
               <>
-                <button type="button" onClick={() => apply([...selected], 'active')} className="rounded-lg bg-emerald-600 px-3 py-1.5 font-semibold text-white hover:bg-emerald-700">
+                <button type="button" onClick={() => apply([...selected], 'active')} className="rounded-lg bg-[var(--color-primary)] px-3 py-1.5 font-semibold text-white hover:bg-[var(--color-primary-hover)]">
                   Tasdiqlash
                 </button>
-                <button type="button" onClick={() => apply([...selected], 'pending')} className="rounded-lg bg-amber-500 px-3 py-1.5 font-semibold text-white hover:bg-amber-600">
+                <button type="button" onClick={() => apply([...selected], 'pending')} className="rounded-lg bg-[var(--color-accent)] px-3 py-1.5 font-semibold text-white hover:brightness-90">
                   Tekshiruvga
                 </button>
               </>
@@ -132,7 +132,7 @@ export default function AdminListingsPage() {
                         return next;
                       })
                     }
-                    className="h-4 w-4 accent-blue-600"
+                    className="h-4 w-4 accent-[var(--color-primary)]"
                   />
                 </th>
                 <th className={thClass}>#</th>
@@ -153,7 +153,7 @@ export default function AdminListingsPage() {
                   return (
                     <tr key={l.id} className="hover:bg-slate-50/60">
                       <td className={tdClass}>
-                        <input type="checkbox" aria-label={`${l.title} — tanlash`} checked={selected.has(l.id)} onChange={() => toggle(l.id)} className="h-4 w-4 accent-blue-600" />
+                        <input type="checkbox" aria-label={`${l.title} — tanlash`} checked={selected.has(l.id)} onChange={() => toggle(l.id)} className="h-4 w-4 accent-[var(--color-primary)]" />
                       </td>
                       <td className={tdClass}>{offset + i + 1}</td>
                       <td className={tdClass}>

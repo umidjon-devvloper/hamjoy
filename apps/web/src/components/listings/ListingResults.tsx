@@ -49,8 +49,10 @@ export function ListingResults({
 
   return (
     <>
-      <p className="mb-3 text-sm font-medium text-gray-600">{results.length} ta eʼlon</p>
-      <div className="grid gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
+      <p className="mb-4 text-[var(--color-muted)]">
+        <span className="tabular font-bold text-[var(--color-secondary)]">{results.length}</span> ta eʼlon
+      </p>
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {results.map((l, i) => (
           <ListingCard key={l.id} listing={l} eager={i < 2} />
         ))}

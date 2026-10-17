@@ -238,7 +238,7 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
                   <span
                     className={cn(
                       'text-xs tabular-nums',
-                      form.title.length > 70 ? 'text-orange-600' : 'text-[var(--color-muted)]',
+                      form.title.length > 70 ? 'text-[var(--color-accent)]' : 'text-[var(--color-muted)]',
                     )}
                   >
                     {form.title.length}/80

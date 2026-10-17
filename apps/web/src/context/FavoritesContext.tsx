@@ -12,8 +12,11 @@ import { favoritesService } from '@/services/favorites.service';
 import { jobsService } from '@/services/jobs.service';
 import type { JobListItem } from '@/types';
 import { isBackendEnabled } from '@/lib/backend/config';
+import { isRestBackendEnabled } from '@/lib/api/config';
 import { useAuth } from '@/context/AuthContext';
 import { formatUserError } from '@/lib/errors/format-user-error';
+
+const usesRemoteFavorites = () => isBackendEnabled() || isRestBackendEnabled();
 
 interface FavoritesContextValue {
   favoriteIds: Set<string>;
@@ -43,7 +46,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function load() {
-      if (isBackendEnabled() && (!authHydrated || !isAuthenticated)) {
+      if (usesRemoteFavorites() && (!authHydrated || !isAuthenticated)) {
         setFavoriteIds(new Set());
         setSavedJobs([]);
         setError(null);
@@ -55,7 +58,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       setIsLoading(true);
       setError(null);
       try {
-        const ids = isBackendEnabled()
+        const ids = usesRemoteFavorites()
           ? await favoritesService.getFavoriteJobIdsAsync()
           : favoritesService.getFavoriteJobIds();
         const jobs = await jobsService.listJobs(ids);
@@ -95,7 +98,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
       setFavoriteIds(optimistic);
 
       try {
-        const isNowSaved = isBackendEnabled()
+        const isNowSaved = usesRemoteFavorites()
           ? await favoritesService.toggleFavoriteAsync(jobId)
           : favoritesService.toggleFavorite(jobId);
         refresh();

@@ -111,11 +111,11 @@ export const jobsService = {
   },
 
   async createFromForm(data: CreateJobFormData): Promise<Job> {
-    const job = createJobFormToEntity(data);
     if (isRestBackendEnabled()) {
-      // TODO (Faza 2.5): wire create-job form to POST /listings
-      throw new Error("E'lon yaratish hali REST rejimida ulanmagan");
+      const { createListingFromForm } = await import('@/lib/joymee/create-listing');
+      return createListingFromForm(data);
     }
+    const job = createJobFormToEntity(data);
     if (isBackendEnabled()) {
       return firebaseJobsRepository.insert(job);
     }

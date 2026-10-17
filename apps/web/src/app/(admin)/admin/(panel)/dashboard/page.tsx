@@ -42,8 +42,8 @@ export default function AdminDashboardPage() {
     return {
       labels: days.map((d) => `${Number(d.slice(8))}.${d.slice(5, 7)}`),
       series: [
-        { label: 'Uy-joy', color: '#2563EB', values: count(listings.map((l) => l.postedAt)) },
-        { label: 'Ish', color: '#7C3AED', values: count(jobs.data.map((j) => j.createdAt.slice(0, 10))) },
+        { label: 'Uy-joy', color: '#1F6B3F', values: count(listings.map((l) => l.postedAt)) },
+        { label: 'Ish', color: '#C9A24E', values: count(jobs.data.map((j) => j.createdAt.slice(0, 10))) },
       ],
     };
   }, [listings, jobs.data]);
@@ -96,7 +96,7 @@ export default function AdminDashboardPage() {
             {recent.map((item) => (
               <li key={item.id}>
                 <Link href={item.href} target="_blank" className="flex items-center gap-3 px-5 py-3 hover:bg-slate-50">
-                  <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-violet-50 text-violet-600">
+                  <span className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-[var(--color-field)] text-[var(--color-muted)]">
                     {item.image ? <Image src={item.image} alt="" fill sizes="44px" className="object-cover" /> : <Briefcase className="h-5 w-5" />}
                   </span>
                   <span className="min-w-0 flex-1">

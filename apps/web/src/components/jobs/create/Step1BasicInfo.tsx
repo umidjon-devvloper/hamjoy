@@ -55,7 +55,7 @@ function ChoiceGrid<T extends string>({
                 'flex min-h-12 items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition-all',
                 isSelected
                   ? 'border-[var(--color-primary)] bg-[var(--color-primary-light)] text-[var(--color-primary)] shadow-sm'
-                  : 'border-[var(--color-border)] bg-white text-[var(--color-secondary)] hover:border-blue-200 hover:bg-blue-50/50'
+                  : 'border-[var(--color-border)] bg-white text-[var(--color-secondary)] hover:border-[var(--color-primary)]/30 hover:bg-[var(--color-primary-light)]/50'
               )}
               aria-pressed={isSelected}
             >
@@ -88,7 +88,7 @@ export function Step1BasicInfo({ form, errors, onChange }: Step1BasicInfoProps) 
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-blue-100 bg-blue-50/70 px-4 py-3">
+      <div className="rounded-2xl border border-[var(--color-primary-light)] bg-[var(--color-primary-light)]/70 px-4 py-3">
         <h2 className="text-lg font-bold text-[var(--color-secondary)]">Asosiy ma'lumot</h2>
         <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
           Qisqa va aniq yozing. Nomzodlar birinchi navbatda lavozim nomi, kategoriya va ish
@@ -157,7 +157,7 @@ export function Step1BasicInfo({ form, errors, onChange }: Step1BasicInfoProps) 
                     'flex min-h-11 items-center justify-between gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold transition-all',
                     isSelected
                       ? 'bg-[var(--color-primary)] text-white shadow-sm'
-                      : 'bg-gray-50 text-[var(--color-secondary)] hover:bg-blue-50 hover:text-[var(--color-primary)]'
+                      : 'bg-gray-50 text-[var(--color-secondary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-primary)]'
                   )}
                   aria-pressed={isSelected}
                 >

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { CompanyLogo } from '@/components/jobs/CompanyLogo';
 import { useParams, useRouter } from 'next/navigation';
 import {
   ChevronLeft,
@@ -25,7 +26,6 @@ import { useChats } from '@/context/ChatsContext';
 import { appToast } from '@/lib/feedback/toast';
 import { cn } from '@/lib/utils';
 import { AlertCircle } from 'lucide-react';
-import Image from 'next/image';
 import { JobDetailMapPreview } from '@/components/map/JobDetailMapPreview';
 import { mapService } from '@/services';
 import { authService } from '@/services/auth.service';
@@ -127,7 +127,7 @@ export default function JobDetailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] pb-28">
-      <div className="h-44 sm:h-52 bg-gradient-to-br from-[var(--color-primary)] to-blue-700 relative">
+      <div className="h-44 sm:h-52 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-brand-green-deep)] relative">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-60" />
         <div className="absolute top-0 left-0 right-0 p-4 sm:p-6 flex justify-between items-center z-10">
           <button
@@ -155,7 +155,7 @@ export default function JobDetailPage() {
       <div className="px-4 sm:px-6 relative -top-14 max-w-2xl mx-auto">
         <div className="card p-5 sm:p-6 flex flex-col items-center text-center shadow-[var(--shadow-card-hover)]">
           <div className="w-18 h-18 sm:w-20 sm:h-20 bg-gray-50 rounded-2xl flex items-center justify-center -mt-14 mb-4 shadow-md border-4 border-white">
-            <Image src={job.logo} alt="" width={48} height={48} className="object-contain" aria-hidden />
+            <CompanyLogo src={job.logo} company={job.company} size={48} />
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-[var(--color-secondary)] mb-1">
             {job.title}

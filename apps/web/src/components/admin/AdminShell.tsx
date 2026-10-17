@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -47,12 +48,13 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
   const { session } = useAdminSession();
 
   return (
-    <div className="flex h-full flex-col bg-[#0B1B3F] text-slate-300">
-      <Link href="/admin/dashboard" onClick={onNavigate} className="flex items-center gap-3 px-6 py-5 text-white">
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600">
-          <Home className="h-5 w-5" />
+    <div className="flex h-full flex-col bg-[#0F1F16] text-white/80">
+      <Link href="/admin/dashboard" onClick={onNavigate} className="flex items-center gap-2.5 px-5 pb-5 pt-6 text-white">
+        <Image src="/brand/hamjoy-logo.png" alt="" width={36} height={36} className="h-9 w-9 rounded-[10px]" />
+        <span className="flex flex-col leading-tight">
+          <span className="font-extrabold tracking-[0.04em]">HAMJOY</span>
+          <span className="text-[11px] font-bold tracking-[0.18em] text-[var(--color-brand-gold)]">ADMIN</span>
         </span>
-        <span className="text-lg font-bold">Admin Panel</span>
       </Link>
 
       <nav aria-label="Admin menyu" className="flex-1 space-y-1 overflow-y-auto px-3 py-2">
@@ -65,11 +67,13 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
               onClick={onNavigate}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors',
-                active ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/40' : 'hover:bg-white/5 hover:text-white'
+                'flex h-11 items-center gap-2.5 rounded-xl px-2.5 text-sm font-semibold transition-colors',
+                active ? 'bg-[var(--color-brand-green)] text-white' : 'text-white/80 hover:bg-white/5 hover:text-white'
               )}
             >
-              <Icon className="h-[18px] w-[18px] shrink-0" />
+              <span className={cn('flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px]', active ? 'bg-white/15' : 'bg-white/[0.06]')}>
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
               {label}
             </Link>
           );
@@ -78,12 +82,12 @@ function Sidebar({ onNavigate }: { onNavigate: () => void }) {
 
       {session && (
         <div className="m-3 flex items-center gap-3 rounded-xl bg-white/5 p-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 font-bold text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-brand-gold)] font-extrabold text-[var(--color-ink-on-gold)]">
             {session.name.charAt(0)}
           </span>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-white">{session.name}</p>
-            <p className="text-xs text-slate-400">{ROLE_META[session.role].label}</p>
+            <p className="text-xs text-white/70">{ROLE_META[session.role].label}</p>
           </div>
         </div>
       )}
@@ -120,7 +124,7 @@ function ProfileMenu() {
         aria-expanded={open}
         className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-slate-100"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0B1B3F] font-bold text-white">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#0F1F16] font-bold text-white">
           {session.name.charAt(0)}
         </span>
         <span className="hidden text-left sm:block">
@@ -165,14 +169,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [ready, session, pathname, router]);
 
   if (!ready || !session) {
-    return <div className="flex min-h-screen items-center justify-center bg-slate-50 text-sm text-slate-500">Yuklanmoqda…</div>;
+    return <div className="flex min-h-screen items-center justify-center bg-[var(--color-background)] text-sm text-slate-500">Yuklanmoqda…</div>;
   }
 
   const current = ADMIN_NAV.find((n) => pathname.startsWith(n.href));
   const allowed = !current?.permission || can(current.permission);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[var(--color-background)]">
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 lg:block">
         <Sidebar onNavigate={() => {}} />
       </aside>

@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { CompanyLogo } from '@/components/jobs/CompanyLogo';
 import type { JobListItem } from '@/types';
 import { Bookmark, MapPin, Clock, Star, Phone } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useFavorites } from '@/context/FavoritesContext';
 import { useAuth } from '@/context/AuthContext';
@@ -79,15 +79,7 @@ export function JobCard({ job, index = 0, featured }: JobCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gray-50 flex items-center justify-center overflow-hidden border border-[var(--color-border)] shrink-0 relative">
-                <Image
-                  src={job.logo}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="object-contain"
-                  aria-hidden
-                  unoptimized
-                />
+                <CompanyLogo src={job.logo} company={job.company} size={28} />
               </div>
               <div className="min-w-0">
                 <h3 className="font-semibold text-[var(--color-secondary)] text-base sm:text-[17px] leading-snug truncate">

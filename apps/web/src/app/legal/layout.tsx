@@ -1,25 +1,18 @@
-import Link from 'next/link';
-import { ROUTES } from '@/lib/navigation/routes';
+import { PlatformNavbar } from '@/components/layout/PlatformNavbar';
+import { SiteFooter } from '@/components/layout/SiteFooter';
+import { LegalTabs } from './LegalTabs';
 
 export default function LegalLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[var(--color-background)]">
-      <header className="border-b border-[var(--color-border)] bg-white">
-        <div className="page-container py-4 flex items-center justify-between gap-4">
-          <Link href={ROUTES.home} className="text-sm font-semibold text-[var(--color-primary)]">
-            ← Back to HamJoy
-          </Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/legal/privacy" className="text-[var(--color-muted)] hover:text-[var(--color-primary)]">
-              Privacy
-            </Link>
-            <Link href="/legal/terms" className="text-[var(--color-muted)] hover:text-[var(--color-primary)]">
-              Terms
-            </Link>
-          </nav>
-        </div>
-      </header>
-      {children}
+    <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
+      <PlatformNavbar />
+      <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 px-4 py-9 sm:px-6">
+        <LegalTabs />
+        <article className="card rounded-3xl p-6 text-[var(--color-secondary)] sm:p-9 [&_h1]:text-[clamp(1.875rem,3.6vw,2.625rem)] [&_h1]:font-extrabold [&_h1]:tracking-[-0.03em] [&_h2]:text-[22px] [&_h2]:font-bold [&_h2]:tracking-[-0.02em] [&_li]:leading-[1.7] [&_p]:leading-[1.7]">
+          {children}
+        </article>
+      </main>
+      <SiteFooter />
     </div>
   );
 }

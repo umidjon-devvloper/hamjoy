@@ -17,10 +17,10 @@ export type Slide = {
 };
 
 const TONES = [
-  'from-slate-900 via-teal-900 to-emerald-700',
-  'from-cyan-950 via-teal-800 to-slate-800',
-  'from-emerald-950 via-teal-800 to-cyan-800',
-  'from-slate-800 via-emerald-900 to-teal-700',
+  'from-[#0B1F14] via-[#123F26] to-[#1F6B3F]',
+  'from-[#123F26] via-[#1F6B3F] to-[#0B0B0C]',
+  'from-[#0B1F14] via-[#1F6B3F] to-[#2B2006]',
+  'from-[#0B0B0C] via-[#123F26] to-[#1F6B3F]',
 ];
 
 function fmtPrice(p?: string | number) {
@@ -129,7 +129,7 @@ export function Carousel({
             )}
 
             <span className="relative z-10 flex h-full max-w-[60%] flex-col justify-center px-6 sm:px-10">
-              <span className="mb-1 text-[11px] font-bold uppercase tracking-wider text-teal-300 sm:text-sm">
+              <span className="mb-1 text-[11px] font-bold uppercase tracking-wider text-[var(--color-brand-gold-light)] sm:text-sm">
                 {eyebrow}
               </span>
               <span
@@ -140,7 +140,7 @@ export function Carousel({
                 {s.title}
               </span>
               {s.subtitle && (
-                <span className="mt-1 text-xs text-teal-100/90 sm:text-sm">{s.subtitle}</span>
+                <span className="mt-1 text-xs text-white/85 sm:text-sm">{s.subtitle}</span>
               )}
               {s.price != null && s.price !== '' && (
                 <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-xl bg-[var(--brand-primary,#0F766E)] px-3 py-1 text-lg font-black text-[var(--brand-on,#FFFFFF)] sm:text-2xl">

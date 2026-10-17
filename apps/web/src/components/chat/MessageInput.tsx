@@ -59,7 +59,7 @@ export function MessageInput({
         <button
           type="submit"
           disabled={disabled || !message.trim()}
-          className="w-12 h-12 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors shrink-0 shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:pointer-events-none"
+          className="w-12 h-12 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center hover:bg-[var(--color-primary-hover)] transition-colors shrink-0 shadow-md shadow-black/10 disabled:opacity-50 disabled:pointer-events-none"
           aria-label="Send message"
         >
           <Send className="w-5 h-5" />

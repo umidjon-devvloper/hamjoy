@@ -43,7 +43,7 @@ export function StepProgress({ currentStep, onStepClick }: StepProgressProps) {
                     isComplete &&
                       'border-[var(--color-success)] bg-[var(--color-success)] text-white',
                     isCurrent &&
-                      'border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-md shadow-blue-500/20',
+                      'border-[var(--color-primary)] bg-[var(--color-primary)] text-white shadow-md shadow-black/10',
                     !isComplete &&
                       !isCurrent &&
                       'border-[var(--color-border)] bg-white text-[var(--color-muted)]'

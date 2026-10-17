@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Briefcase, Building2, CalendarClock, ChevronDown, Map as MapIcon } from 'lucide-react';
+import { ArrowRight, Briefcase, CalendarClock, ChevronDown, Map as MapIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/lib/navigation/routes';
 import { DAILY_JOBS_HREF, MEGA_MENUS, type MegaMenu } from '@/lib/navigation/mega-menu';
@@ -16,7 +16,20 @@ const menusFor = (mode: PlatformMode) =>
   MEGA_MENUS.filter((m) => (mode === 'ish' ? m.id === JOBS_MENU_ID : m.id !== JOBS_MENU_ID));
 
 const linkTabClass =
-  'relative inline-flex h-12 items-center gap-2 rounded-t-xl border border-b-0 border-transparent px-5 text-[15px] font-bold text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-brand-gold)]/70';
+  'relative inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-t-xl border border-b-0 border-transparent px-3.5 text-[14px] font-semibold text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-brand-gold)]/70';
+
+/** Direct links after the mega-menu tabs (the Uy-joy / Ish switch lives in the top row). */
+const UY_JOY_LINKS = [
+  { label: 'Kunlik ijara', href: '/uy-joy/ijara?muddat=kunlik' },
+  { label: 'Tijorat', href: '/uy-joy/sotuv?tur=tijorat' },
+  { label: 'Xaridor soʻrovlari', href: ROUTES.uyJoy.buy },
+];
+const ISH_LINKS = [
+  { label: 'Kunlik ish', href: DAILY_JOBS_HREF },
+  { label: 'Arizalarim', href: ROUTES.applications },
+  { label: 'Nomzodlar', href: ROUTES.applicants },
+  { label: 'Mening vakansiyalarim', href: ROUTES.myJobs },
+];
 
 const OPEN_DELAY_MS = 90;
 const CLOSE_DELAY_MS = 160;
@@ -173,12 +186,6 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
       className="relative mx-auto hidden max-w-7xl items-end px-4 sm:px-6 lg:flex"
     >
       <nav aria-label="Kategoriyalar" className="flex items-end gap-1">
-        {mode === 'ish' && (
-          <Link href={ROUTES.home} onClick={close} className={linkTabClass}>
-            <Building2 className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
-            Uy-joy
-          </Link>
-        )}
         {menus.map((menu) => {
           const isOpen = openId === menu.id;
           // In Ish mode the jobs tab is the current section.
@@ -198,7 +205,7 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
                 setOpenId(isOpen ? null : menu.id);
               }}
               className={cn(
-                'relative inline-flex h-12 items-center gap-2 rounded-t-xl px-5 text-[15px] font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-brand-gold)]/70',
+                'relative inline-flex h-12 items-center gap-1.5 whitespace-nowrap rounded-t-xl px-3.5 text-[14px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-brand-gold)]/70',
                 isOpen
                   ? 'relative z-[60] -mb-px border border-b-0 border-[var(--nav-tab-open-border)] bg-white text-[var(--color-secondary)]'
                   : isCurrent
@@ -221,28 +228,21 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
             </button>
           );
         })}
-        {mode === 'uy-joy' && (
-          <Link href={ROUTES.jobs} onClick={close} className={linkTabClass}>
-            <Briefcase className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
-            Ish
+        {(mode === 'uy-joy' ? UY_JOY_LINKS : ISH_LINKS).map((link) => (
+          <Link key={link.label} href={link.href} onClick={close} className={linkTabClass}>
+            {link.label}
           </Link>
-        )}
-        <Link href={DAILY_JOBS_HREF} onClick={close} className={linkTabClass}>
-          <CalendarClock className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
-          Kunlik ish
-        </Link>
+        ))}
       </nav>
 
-      {mode === 'ish' && (
-        <Link
-          href={ROUTES.map}
-          onClick={close}
-          className="mb-2 ml-auto inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-semibold text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)]"
-        >
-          <MapIcon className="h-4 w-4 text-[var(--nav-accent)]" />
-          Xaritadan qidirish
-        </Link>
-      )}
+      <Link
+        href={mode === 'ish' ? ROUTES.map : ROUTES.uyJoy.sale}
+        onClick={close}
+        className="mb-2 ml-auto hidden h-9 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm xl:inline-flex font-semibold text-[var(--nav-hover-fg)] transition-colors hover:bg-[var(--nav-hover)]"
+      >
+        <MapIcon className="h-4 w-4" />
+        {mode === 'ish' ? 'Xaritadan qidirish' : 'Xaritada koʻrish'}
+      </Link>
 
       <AnimatePresence>
         {openMenu && (

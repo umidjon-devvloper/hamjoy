@@ -17,7 +17,7 @@ export function PlaceholderMapCanvas({
   return (
     <div
       className={cn(
-        'relative overflow-hidden bg-gradient-to-br from-blue-50 via-gray-50 to-emerald-50',
+        'relative overflow-hidden bg-gradient-to-br from-[#EAF4EE] via-gray-50 to-[#F3DE9C]/30',
         className
       )}
       role="img"

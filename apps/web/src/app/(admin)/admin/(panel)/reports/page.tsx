@@ -100,7 +100,7 @@ export default function AdminReportsPage() {
                     <td className={tdClass}>{offset + i + 1}</td>
                     <td className={tdClass}>
                       {r.targetType === 'job' ? (
-                        <Link href={ROUTES.job(r.targetId)} target="_blank" className="font-semibold text-blue-600 hover:underline">
+                        <Link href={ROUTES.job(r.targetId)} target="_blank" className="font-semibold text-[var(--color-primary)] hover:underline">
                           {TARGET.job}
                         </Link>
                       ) : (

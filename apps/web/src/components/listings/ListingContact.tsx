@@ -37,8 +37,8 @@ export function ListingContact({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-green)]/10 text-lg font-bold text-[var(--color-brand-green)]">
+      <div className="flex items-center gap-3 rounded-2xl bg-[var(--color-background)] p-3.5">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-brand-green)] text-lg font-bold text-white">
           {seller.name.charAt(0)}
         </span>
         <div className="min-w-0">
@@ -52,7 +52,7 @@ export function ListingContact({
       {phoneShown ? (
         <a
           href={`tel:${seller.phone.replace(/\s/g, '')}`}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-green)] text-[15px] font-bold text-white transition hover:brightness-110"
+          className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-green)] text-base font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)]"
         >
           <Phone className="h-5 w-5" />
           {seller.phone}
@@ -61,11 +61,11 @@ export function ListingContact({
         <button
           type="button"
           onClick={() => setPhoneShown(true)}
-          className="flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--color-brand-green)] text-[15px] font-bold text-white transition hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-gold)]/70"
+          className="flex h-[54px] items-center justify-center gap-2 rounded-2xl bg-[var(--color-brand-green)] text-base font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)]/40 focus-visible:ring-offset-2"
         >
           <Phone className="h-5 w-5" />
           <span>{masked}</span>
-          <span className="text-sm font-semibold opacity-80">· Raqamni koʻrsatish</span>
+          <span className="text-sm font-medium opacity-85">Koʻrsatish</span>
         </button>
       )}
 
@@ -84,7 +84,7 @@ export function ListingContact({
         <button
           type="button"
           onClick={share}
-          className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-secondary)] transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-gold)]/70"
+          className="flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--color-border)] bg-white px-4 text-sm font-semibold text-[var(--color-secondary)] transition hover:bg-[var(--color-primary-light)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand-green)]/40"
         >
           <Share2 className="h-4 w-4" />
           Ulashish

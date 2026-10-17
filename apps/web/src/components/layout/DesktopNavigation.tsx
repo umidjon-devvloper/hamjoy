@@ -18,7 +18,7 @@ export function DesktopNavigation() {
     <aside className="hidden md:flex flex-col w-[17.5rem] lg:w-72 h-screen border-r border-[var(--color-border)] bg-white sticky top-0 shrink-0">
       <div className="p-6 border-b border-[var(--color-border)]">
         <Link href={ROUTES.home} className="flex items-center gap-3">
-          <div className="w-11 h-11 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center shadow-md shadow-blue-500/25">
+          <div className="w-11 h-11 bg-[var(--color-primary)] text-white rounded-xl flex items-center justify-center shadow-md shadow-black/10">
             <Briefcase className="w-6 h-6" />
           </div>
           <div>

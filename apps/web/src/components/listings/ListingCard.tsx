@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { BedDouble, Building2, Camera, ChevronLeft, ChevronRight, Layers, MapPin, Maximize2, SearchCheck } from 'lucide-react';
+import { BedDouble, Building2, Camera, ChevronLeft, ChevronRight, Layers, MapPin, Maximize2, SearchCheck, Star } from 'lucide-react';
 import type { PropertyListing } from '@/types/listing';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/lib/navigation/routes';
@@ -80,24 +80,27 @@ export function ListingCard({
         <div className="pointer-events-none absolute left-3 top-3 z-10 flex gap-1.5">
           <span
             className={cn(
-              'rounded-lg px-2 py-1 text-xs font-bold text-white shadow-sm',
+              'flex h-[26px] items-center rounded-lg px-2.5 text-xs font-bold',
               intent.seeking
-                ? 'bg-[var(--color-accent)]'
+                ? 'border-[1.5px] border-[var(--color-brand-green)] bg-white text-[var(--color-brand-green)]'
                 : listing.deal === 'sotuv'
-                  ? 'bg-[var(--color-brand-green)]'
-                  : 'bg-[var(--color-primary)]'
+                  ? 'bg-[var(--color-brand-green)] text-white'
+                  : listing.rentPeriod === 'kun'
+                    ? 'bg-[var(--color-brand-gold)] text-[var(--color-ink-on-gold)]'
+                    : 'bg-[#0B0B0C]/80 text-white'
             )}
           >
             {intent.badge}
           </span>
           {listing.isTop && (
-            <span className="rounded-lg bg-[var(--color-brand-gold)] px-2 py-1 text-xs font-bold text-gray-900 shadow-sm">
+            <span className="flex h-[26px] items-center gap-1 rounded-lg bg-[var(--color-brand-gold-soft)] px-2 text-xs font-bold tracking-wide text-[#3D2E07]">
+              <Star className="h-3 w-3 fill-current" strokeWidth={0} aria-hidden />
               TOP
             </span>
           )}
         </div>
 
-        <SaveListingButton listingId={listing.id} className="absolute right-3 top-3 z-10" />
+        <SaveListingButton listingId={listing.id} className="absolute right-2 top-2 z-10" />
 
         {count > 1 && (
           <>
@@ -138,11 +141,11 @@ export function ListingCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <p className="text-lg font-extrabold tracking-tight text-[var(--color-secondary)]">
+      <div className="flex flex-1 flex-col px-[18px] pb-[18px] pt-4">
+        <p className="tabular text-[22px] font-extrabold leading-tight tracking-[-0.02em] text-[var(--color-secondary)]">
           {formatListingPrice(listing)}
         </p>
-        <h3 className="mt-0.5 line-clamp-1 text-[15px] font-semibold text-[var(--color-secondary)]">
+        <h3 className="mt-1 line-clamp-1 text-[15px] font-semibold text-[var(--color-secondary)]">
           {/* Stretched link: the whole text area opens the listing. */}
           <Link
             href={href}

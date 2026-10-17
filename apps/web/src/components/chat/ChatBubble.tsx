@@ -28,7 +28,7 @@ export function ChatBubble({
         className={cn(
           'p-3 rounded-2xl max-w-[80%]',
           isSent
-            ? 'bg-[var(--color-primary)] text-white rounded-br-md shadow-md shadow-blue-500/15'
+            ? 'bg-[var(--color-primary)] text-white rounded-br-md shadow-md shadow-black/10'
             : 'card rounded-bl-md shadow-none'
         )}
       >
@@ -36,7 +36,7 @@ export function ChatBubble({
         <span
           className={cn(
             'text-[10px] mt-1 block text-right',
-            isSent ? 'text-blue-200' : 'text-[var(--color-muted)]'
+            isSent ? 'text-white/70' : 'text-[var(--color-muted)]'
           )}
         >
           {time}

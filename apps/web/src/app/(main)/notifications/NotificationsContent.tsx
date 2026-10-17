@@ -26,10 +26,10 @@ const KIND_ICON: Record<NotificationKind, LucideIcon> = {
 };
 
 const KIND_STYLE: Record<NotificationKind, string> = {
-  message: 'bg-blue-50 text-blue-600',
-  application: 'bg-violet-50 text-violet-600',
-  application_update: 'bg-emerald-50 text-emerald-600',
-  job_match: 'bg-amber-50 text-amber-600',
+  message: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
+  application: 'bg-[var(--color-field)] text-[var(--color-muted)]',
+  application_update: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
+  job_match: 'bg-[var(--color-accent-light)] text-[#7A5A12]',
   system: 'bg-gray-100 text-gray-500',
 };
 

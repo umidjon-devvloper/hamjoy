@@ -46,10 +46,10 @@ function writeStore(items: AppNotification[]): void {
 }
 
 async function restRepo() {
-  const { restNotificationsRepository } = await import(
-    '@/lib/rest/repositories/notifications.repository'
+  const { joymeeNotificationsRepository } = await import(
+    '@/lib/joymee/notifications.repository'
   );
-  return restNotificationsRepository;
+  return joymeeNotificationsRepository;
 }
 
 export const notificationsService = {

@@ -24,7 +24,7 @@ export function JobMapMarker({ marker, isSelected, onSelect }: JobMapMarkerProps
         className={cn(
           'w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shadow-lg transition-transform hover:scale-110',
           isSelected
-            ? 'bg-[var(--color-primary)] text-white shadow-blue-500/30 scale-110'
+            ? 'bg-[var(--color-primary)] text-white shadow-black/10 scale-110'
             : marker.isRemote
               ? 'bg-white text-[var(--color-accent)] border border-[var(--color-border)]'
               : 'bg-white text-[var(--color-primary)] border border-[var(--color-border)]'

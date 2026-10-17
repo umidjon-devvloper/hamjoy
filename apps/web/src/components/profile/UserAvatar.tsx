@@ -8,6 +8,8 @@ export interface UserAvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isOnline?: boolean;
   className?: string;
+  /** Above-the-fold avatars (e.g. the profile header) load eagerly. */
+  eager?: boolean;
 }
 
 const sizePixels = {
@@ -30,6 +32,7 @@ export function UserAvatar({
   size = 'md',
   isOnline,
   className,
+  eager = false,
 }: UserAvatarProps) {
   const px = sizePixels[size];
 
@@ -40,6 +43,7 @@ export function UserAvatar({
         alt={alt}
         width={px}
         height={px}
+        loading={eager ? 'eager' : undefined}
         className={cn(sizeClasses[size], 'object-cover border-2 border-white shadow-sm')}
       />
       {isOnline && (

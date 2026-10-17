@@ -98,14 +98,14 @@ export function Step4Preview({ form, errors }: Step4PreviewProps) {
           'rounded-xl border p-4',
           isValid
             ? 'border-[var(--color-success)]/30 bg-[var(--color-success)]/5'
-            : 'border-amber-300/60 bg-amber-50'
+            : 'border-[var(--color-brand-gold)]/50 bg-[var(--color-accent-light)]'
         )}
       >
         <div className="flex items-start gap-2 mb-3">
           {isValid ? (
             <CheckCircle2 className="w-5 h-5 text-[var(--color-success)] shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-[#7A5A12] shrink-0 mt-0.5" />
           )}
           <div>
             <p className="font-semibold text-sm text-[var(--color-secondary)]">
@@ -125,9 +125,9 @@ export function Step4Preview({ form, errors }: Step4PreviewProps) {
               {item.ok ? (
                 <CheckCircle2 className="w-4 h-4 text-[var(--color-success)] shrink-0" />
               ) : (
-                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <AlertCircle className="w-4 h-4 text-[#7A5A12] shrink-0" />
               )}
-              <span className={item.ok ? 'text-[var(--color-secondary)]' : 'text-amber-800'}>
+              <span className={item.ok ? 'text-[var(--color-secondary)]' : 'text-[#3D2E07]'}>
                 {item.label}
               </span>
             </li>
@@ -135,7 +135,7 @@ export function Step4Preview({ form, errors }: Step4PreviewProps) {
         </ul>
 
         {!isValid && Object.keys(errors).length > 0 && (
-          <p className="mt-3 text-xs text-amber-800" role="alert">
+          <p className="mt-3 text-xs text-[#3D2E07]" role="alert">
             Belgilangan maydonlarni tuzatish uchun avvalgi qadamlarga qayting.
           </p>
         )}

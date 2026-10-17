@@ -103,7 +103,7 @@ export default async function UyJoySectionPage(props: PageProps<'/uy-joy/[bolim]
 
   return (
     <>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {!section && (
           <nav aria-label="Uy-joy boʻlimlari" className="mb-6 flex justify-center">
             <ul className="inline-flex max-w-full gap-1 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-1">
@@ -133,15 +133,15 @@ export default async function UyJoySectionPage(props: PageProps<'/uy-joy/[bolim]
         )}
 
         {section ? (
-          <div className="lg:grid lg:grid-cols-[250px_minmax(0,1fr)] lg:items-start lg:gap-6">
+          <div className="lg:grid lg:grid-cols-[270px_minmax(0,1fr)] lg:items-start lg:gap-7">
             <aside
               className={cn(
                 'mb-5 space-y-3 lg:sticky lg:top-36 lg:mb-0 lg:max-h-[calc(100dvh-10rem)] lg:space-y-0',
                 sideAsideScrollClass
               )}
             >
-              <div className="lg:card lg:rounded-2xl lg:p-3">
-                <p className="mb-2 hidden px-3.5 pt-1 text-lg font-bold text-[var(--color-secondary)] lg:block">
+              <div className="lg:card lg:rounded-[22px] lg:p-3">
+                <p className="mb-2 hidden px-3.5 pt-1.5 text-xs font-bold uppercase tracking-[0.06em] text-[var(--color-muted)] lg:block">
                   Eʼlon turi
                 </p>
                 <IntentNav
@@ -151,8 +151,8 @@ export default async function UyJoySectionPage(props: PageProps<'/uy-joy/[bolim]
                   hrefs={INTENT_BROWSE_HREFS}
                 />
               </div>
-              <div className="lg:card lg:mt-4 lg:rounded-2xl lg:p-3">
-                <p className="mb-2 hidden px-3.5 pt-1 text-lg font-bold text-[var(--color-secondary)] lg:block">
+              <div className="lg:card lg:mt-4 lg:rounded-[22px] lg:p-3">
+                <p className="mb-2 hidden px-3.5 pt-1.5 text-xs font-bold uppercase tracking-[0.06em] text-[var(--color-muted)] lg:block">
                   Mulk turi
                 </p>
                 <nav aria-label="Mulk turi" className={sideRowClass}>
@@ -176,8 +176,8 @@ export default async function UyJoySectionPage(props: PageProps<'/uy-joy/[bolim]
               </div>
             </aside>
             <section aria-labelledby="listings-heading" className="min-w-0">
-              <div className="mb-4 flex flex-wrap items-center gap-2">
-                <h1 id="listings-heading" className="text-2xl font-bold text-[var(--color-secondary)]">
+              <div className="mb-4 flex flex-wrap items-center gap-2.5">
+                <h1 id="listings-heading" className="text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--color-secondary)]">
                   {section === 'olish'
                     ? 'Xaridor soʻrovlari'
                     : `${activeBrowseIntent(section, searchParams) === 'kunlik-ijara' ? 'Kunlik ijara' : title} eʼlonlari`}
@@ -191,7 +191,7 @@ export default async function UyJoySectionPage(props: PageProps<'/uy-joy/[bolim]
                       key={`${f.key}-${f.value}`}
                       title={applied(f.key) ? undefined : 'Bu filtr demo rejimida qoʻllanmaydi'}
                       className={cn(
-                        'rounded-full border px-3 py-1 text-xs',
+                        'inline-flex h-9 items-center rounded-full border px-3.5 text-[13px] font-semibold',
                         applied(f.key)
                           ? 'border-[var(--color-brand-green)]/30 bg-[var(--color-brand-green)]/10 text-[var(--color-brand-green)]'
                           : 'border-dashed border-[var(--color-border)] text-[var(--color-muted)]',

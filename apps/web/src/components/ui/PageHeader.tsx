@@ -26,10 +26,10 @@ export function PageHeader({
     <header className={cn('flex justify-between items-start gap-4 mb-6 md:mb-8', className)}>
       <div className="min-w-0">
         {greeting && <p className="text-[var(--color-muted)] text-sm mb-1">{greeting}</p>}
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-secondary)] tracking-tight">
+        <h1 className="text-[28px] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--color-secondary)] sm:text-[36px]">
           {title}
         </h1>
-        {subtitle && <p className="text-[var(--color-muted)] text-sm mt-1.5">{subtitle}</p>}
+        {subtitle && <p className="mt-1.5 text-[var(--color-muted)]">{subtitle}</p>}
       </div>
       {trailingAction && <div className="shrink-0">{trailingAction}</div>}
     </header>

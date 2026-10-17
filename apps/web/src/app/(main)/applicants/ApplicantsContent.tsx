@@ -15,10 +15,10 @@ import {
 import { cn } from '@/lib/utils';
 
 const STATUS_STYLES: Record<ApplicationStatus, string> = {
-  pending: 'bg-amber-50 text-amber-700',
-  reviewing: 'bg-blue-50 text-blue-700',
+  pending: 'bg-[var(--color-accent-light)] text-[#7A5A12]',
+  reviewing: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
   shortlisted: 'bg-violet-50 text-violet-700',
-  accepted: 'bg-emerald-50 text-emerald-700',
+  accepted: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
   rejected: 'bg-red-50 text-red-600',
   withdrawn: 'bg-gray-100 text-gray-500',
 };
@@ -109,7 +109,7 @@ export function ApplicantsContent() {
                 <button
                   type="button"
                   onClick={() => setStatus(a.id, 'accepted')}
-                  className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-emerald-50 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100"
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-[var(--color-primary-light)] py-2 text-sm font-semibold text-[var(--color-primary)] transition-colors hover:bg-[var(--color-primary)]/15"
                 >
                   <Check className="h-4 w-4" /> Qabul
                 </button>

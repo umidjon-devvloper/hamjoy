@@ -18,7 +18,7 @@ export function Step2SalaryDescription({ form, errors, onChange }: Step2SalaryDe
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-orange-100 bg-orange-50/70 px-4 py-3">
+      <div className="rounded-2xl border border-[var(--color-accent-light)] bg-[var(--color-accent-light)] px-4 py-3">
         <h2 className="text-lg font-bold text-[var(--color-secondary)]">Maosh va tavsif</h2>
         <p className="mt-1 text-sm leading-6 text-[var(--color-muted)]">
           Nomzod ish sharoiti, maosh va vazifalarni tez tushunishi uchun qisqa, lekin aniq

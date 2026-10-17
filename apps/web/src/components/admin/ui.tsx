@@ -7,10 +7,10 @@ import type { BadgeTone } from '@/lib/admin/access';
 import { cn } from '@/lib/utils';
 
 export const BADGE_TONES: Record<BadgeTone, string> = {
-  green: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-  orange: 'bg-amber-50 text-amber-700 ring-amber-200',
+  green: 'bg-[var(--color-primary-light)] text-[var(--color-primary)] ring-[var(--color-primary)]/20',
+  orange: 'bg-[var(--color-accent-light)] text-[#7A5A12] ring-[var(--color-brand-gold)]/40',
   red: 'bg-red-50 text-red-600 ring-red-200',
-  blue: 'bg-blue-50 text-blue-700 ring-blue-200',
+  blue: 'bg-[var(--color-primary-light)] text-[var(--color-primary)] ring-[var(--color-primary)]/20',
   purple: 'bg-violet-50 text-violet-700 ring-violet-200',
   gray: 'bg-slate-100 text-slate-600 ring-slate-200',
 };
@@ -27,7 +27,7 @@ export function AdminPageHeader({ title, subtitle, action }: { title: string; su
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h1>
+        <h1 className="text-[28px] font-extrabold tracking-[-0.03em] text-[var(--color-secondary)]">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}
       </div>
       {action}
@@ -36,10 +36,10 @@ export function AdminPageHeader({ title, subtitle, action }: { title: string; su
 }
 
 const STAT_TONES = {
-  blue: 'bg-blue-50 text-blue-600',
-  green: 'bg-emerald-50 text-emerald-600',
-  purple: 'bg-violet-50 text-violet-600',
-  orange: 'bg-amber-50 text-amber-600',
+  blue: 'bg-[#EEF0F3] text-[#26303B]',
+  green: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
+  purple: 'bg-[#FBEAE8] text-[#B42318]',
+  orange: 'bg-[var(--color-accent-light)] text-[#7A5A12]',
 };
 
 export function StatCard({
@@ -56,15 +56,13 @@ export function StatCard({
   tone: keyof typeof STAT_TONES;
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-sm font-semibold text-slate-600">{label}</p>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{value}</p>
-        </div>
-        <span className={cn('flex h-11 w-11 items-center justify-center rounded-xl', STAT_TONES[tone])}>
-          <Icon className="h-5 w-5" />
-        </span>
+    <div className="flex flex-col gap-3.5 rounded-[20px] border border-[var(--color-border)] bg-white p-[18px] shadow-[0_1px_2px_rgb(15_31_22/0.04)]">
+      <span className={cn('flex h-11 w-11 items-center justify-center rounded-[14px]', STAT_TONES[tone])}>
+        <Icon className="h-[22px] w-[22px]" />
+      </span>
+      <div>
+        <p className="font-semibold text-[var(--color-muted)]">{label}</p>
+        <p className="tabular text-[32px] font-extrabold leading-[1.15] tracking-[-0.02em] text-[var(--color-secondary)]">{value}</p>
       </div>
       {hint && <p className="mt-2 text-xs font-medium text-slate-500">{hint}</p>}
     </div>
@@ -73,7 +71,7 @@ export function StatCard({
 
 export function Panel({ title, action, children, className }: { title?: string; action?: React.ReactNode; children: React.ReactNode; className?: string }) {
   return (
-    <section className={cn('rounded-2xl border border-slate-200 bg-white shadow-sm', className)}>
+    <section className={cn('rounded-[20px] border border-[var(--color-border)] bg-white', className)}>
       {title && (
         <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
           <h2 className="font-semibold text-slate-900">{title}</h2>
@@ -105,7 +103,7 @@ export function Tabs<T extends string>({
           onClick={() => onChange(t.id)}
           className={cn(
             'rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors',
-            value === t.id ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+            value === t.id ? 'bg-[var(--color-primary)] text-white' : 'text-slate-600 hover:bg-slate-100'
           )}
         >
           {t.label}
@@ -126,7 +124,7 @@ export function SearchField({ value, onChange, placeholder }: { value: string; o
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+        className="h-10 w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/20"
       />
     </label>
   );
@@ -157,7 +155,7 @@ export function Pagination({ page, pageCount, total, onChange, unit = 'ta' }: { 
             type="button"
             onClick={() => onChange(p)}
             aria-current={p === page ? 'page' : undefined}
-            className={cn('h-8 min-w-8 rounded-lg px-2 font-semibold', p === page ? 'bg-blue-600 text-white' : 'hover:bg-slate-100')}
+            className={cn('h-8 min-w-8 rounded-lg px-2 font-semibold', p === page ? 'bg-[var(--color-primary)] text-white' : 'hover:bg-slate-100')}
           >
             {p}
           </button>
@@ -189,9 +187,9 @@ export function ActionButton({
 }) {
   const tones = {
     gray: 'text-slate-500 hover:bg-slate-100 hover:text-slate-900',
-    green: 'text-emerald-600 hover:bg-emerald-50',
+    green: 'text-[var(--color-primary)] hover:bg-[var(--color-primary-light)]',
     red: 'text-red-600 hover:bg-red-50',
-    blue: 'text-blue-600 hover:bg-blue-50',
+    blue: 'text-[var(--color-primary)] hover:bg-[var(--color-primary-light)]',
   };
   return (
     <button
@@ -253,14 +251,14 @@ export function LineChart({ labels, series }: { labels: string[]; series: { labe
       <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={series.map((s) => `${s.label}: ${s.values.join(', ')}`).join('; ')}>
         {[0, 1, 2, 3, 4].map((i) => (
           <g key={i}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(step * i)} y2={y(step * i)} stroke="#E2E8F0" strokeDasharray={i ? '3 4' : undefined} />
-            <text x={pad.l - 8} y={y(step * i) + 4} textAnchor="end" fontSize="11" fill="#64748B">
+            <line x1={pad.l} x2={W - pad.r} y1={y(step * i)} y2={y(step * i)} stroke="#E6E7E3" strokeDasharray={i ? '3 4' : undefined} />
+            <text x={pad.l - 8} y={y(step * i) + 4} textAnchor="end" fontSize="11" fill="#4B5160">
               {step * i}
             </text>
           </g>
         ))}
         {labels.map((l, i) => (
-          <text key={l} x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#64748B">
+          <text key={l} x={x(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#4B5160">
             {l}
           </text>
         ))}

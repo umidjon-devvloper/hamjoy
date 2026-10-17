@@ -1,5 +1,6 @@
 import React from 'react';
 import { PlatformNavbar } from '@/components/layout/PlatformNavbar';
+import { SiteFooter } from '@/components/layout/SiteFooter';
 
 /**
  * Pages under the platform navbar (/home, /home/ish, /uy-joy/*). The navbar lives here so it
@@ -10,6 +11,7 @@ export default function PlatformLayout({ children }: { children: React.ReactNode
     <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
       <PlatformNavbar />
       {children}
+      <SiteFooter />
     </div>
   );
 }

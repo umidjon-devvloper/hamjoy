@@ -39,7 +39,7 @@ export function JobCardMiniMap({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-gradient-to-br from-blue-50 via-slate-50 to-emerald-50',
+        'relative overflow-hidden rounded-xl border border-[var(--color-border)] bg-gradient-to-br from-[#EAF4EE] via-slate-50 to-[#F3DE9C]/30',
         className
       )}
       role="img"

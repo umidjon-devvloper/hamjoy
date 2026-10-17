@@ -26,6 +26,7 @@ export function ProfileContent() {
             src={user.avatarUrl}
             alt={user.name}
             size="xl"
+            eager
             className="ring-2 ring-[var(--color-primary-light)]"
           />
           <div className="flex-1 text-center sm:text-left min-w-0">

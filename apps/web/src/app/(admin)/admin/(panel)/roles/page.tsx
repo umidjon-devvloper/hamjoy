@@ -96,7 +96,7 @@ export default function AdminRolesPage() {
                           <td key={role} className={`${tdClass} text-center`}>
                             {locked ? (
                               <span className="inline-flex items-center justify-center" title={role === 'super_admin' ? 'Super Admin har doim toʻliq huquqli' : undefined}>
-                                {allowed ? <Check className="h-5 w-5 text-emerald-600" /> : <X className="h-5 w-5 text-red-500" />}
+                                {allowed ? <Check className="h-5 w-5 text-[var(--color-primary)]" /> : <X className="h-5 w-5 text-red-500" />}
                                 {role === 'super_admin' && <Lock className="ml-1 h-3 w-3 text-slate-300" />}
                               </span>
                             ) : (
@@ -105,7 +105,7 @@ export default function AdminRolesPage() {
                                 checked={allowed}
                                 onChange={() => toggle(role, permission)}
                                 aria-label={`${ROLE_META[role].label}: ${PERMISSIONS[permission]}`}
-                                className="h-4 w-4 accent-blue-600"
+                                className="h-4 w-4 accent-[var(--color-primary)]"
                               />
                             )}
                           </td>

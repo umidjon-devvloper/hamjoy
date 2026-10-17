@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
+/* HamJoy design system (see the "Joymee Web Redesign" canvas): one brand green as the
+   primary action colour, gold as the highlight, warm-neutral ground, Geist throughout. */
 @theme {
-  --color-primary: #2563EB;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-light: #EFF6FF;
-  --color-secondary: #111827;
-  --color-muted: #6B7280;
-  --color-success: #10B981;
-  --color-success-light: #ECFDF5;
-  --color-accent: #F97316;
-  --color-accent-light: #FFF7ED;
-  --color-background: #F3F4F6;
+  --color-primary: #1F6B3F;
+  --color-primary-hover: #123F26;
+  --color-primary-light: #EAF4EE;
+  --color-secondary: #0B0B0C;
+  --color-muted: #4B5160;
+  --color-success: #1F6B3F;
+  --color-success-light: #EAF4EE;
+  /* Deep gold: white text on it stays ≥4.5:1. Light gold fills use --color-brand-gold. */
+  --color-accent: #8A6212;
+  --color-accent-light: #FBF3DD;
+  --color-background: #F5F5F2;
   --color-surface: #FFFFFF;
-  --color-border: #E5E7EB;
+  --color-border: #E6E7E3;
 
   --radius-xl: 1rem;
   --radius-2xl: 1.25rem;
-  --radius-3xl: 1.5rem;
+  --radius-3xl: 1.375rem;
 
-  --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-card-hover: 0 10px 25px -5px rgb(0 0 0 / 0.08), 0 4px 10px -6px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 1px 2px 0 rgb(18 63 38 / 0.04);
+  --shadow-card-hover: 0 18px 40px -18px rgb(18 63 38 / 0.35);
   --shadow-nav: 0 -4px 24px rgb(0 0 0 / 0.06);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Brand (from the logo) + the platform navbar. Plain :root (not @theme) so the
@@ -37,18 +44,23 @@
   --nav-fg-subtle: #4B5160; /* descriptions/placeholder; ≥7:1 on white */
   --nav-hover: #EAF4EE; /* light brand-green tint */
   --nav-hover-fg: #1F6B3F; /* brand green */
-  --nav-field: #F3F4F6;
+  --nav-field: #F1F2EE;
   --nav-field-focus: #FFFFFF;
-  --nav-border: #E5E7EB;
+  --nav-border: #E6E7E3;
   --nav-panel: #FFFFFF;
   /* Gold is too light on white, so light mode accents use the brand green. */
   --nav-accent: #1F6B3F;
   --nav-shadow: rgb(15 23 42 / 0.12);
-  --nav-tab-open-border: #E5E7EB;
+  --nav-tab-open-border: #E6E7E3;
 
   /* Hero carousel price badge */
-  --brand-primary: #0F766E;
+  --brand-primary: #1F6B3F;
   --brand-on: #FFFFFF;
+
+  --color-brand-green-deep: #123F26;
+  --color-brand-gold-soft: #F3DE9C;
+  --color-ink-on-gold: #2B2006;
+  --color-field: #F1F2EE;
 }
 
 :root[data-theme="dark"] {
@@ -66,8 +78,8 @@
   --nav-shadow: rgb(0 0 0 / 0.45);
   --nav-tab-open-border: transparent;
 
-  --brand-primary: #2DD4BF;
-  --brand-on: #042F2A;
+  --brand-primary: #6FCF97;
+  --brand-on: #08200F;
 }
 
 /* Hero carousel entrance */
@@ -115,7 +127,7 @@
 
   .card-hover:hover {
     box-shadow: var(--shadow-card-hover);
-    border-color: #D1D5DB;
+    border-color: #C9D8CE;
   }
 
   .card-hover:active {
@@ -126,12 +138,16 @@
     touch-action: manipulation;
   }
 
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
   .skeleton-shimmer {
     background: linear-gradient(
       90deg,
-      rgb(229 231 235 / 0.85) 0%,
-      rgb(243 244 246 / 0.95) 50%,
-      rgb(229 231 235 / 0.85) 100%
+      rgb(236 237 232 / 0.9) 0%,
+      rgb(246 246 243 / 0.95) 50%,
+      rgb(236 237 232 / 0.9) 100%
     );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.4s ease-in-out infinite;

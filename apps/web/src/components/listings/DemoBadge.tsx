@@ -7,7 +7,7 @@ export function DemoBadge({ className }: { className?: string }) {
     <span
       title="Namuna eʼlonlar — haqiqiy eʼlonlar tez orada qoʻshiladi"
       className={cn(
-        'inline-flex shrink-0 items-center rounded-full border border-[var(--color-brand-gold)]/50 bg-[var(--color-brand-gold-light)]/40 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#7A5A12]',
+        'inline-flex shrink-0 items-center h-6 rounded-md bg-[var(--color-accent-light)] px-2 text-[11px] font-bold uppercase tracking-[0.08em] text-[#7A5A12]',
         className
       )}
     >

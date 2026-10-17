@@ -62,10 +62,10 @@ function writeStore(items: Application[]): void {
 }
 
 async function restRepo() {
-  const { restApplicationsRepository } = await import(
-    '@/lib/rest/repositories/applications.repository'
+  const { joymeeApplicationsRepository } = await import(
+    '@/lib/joymee/applications.repository'
   );
-  return restApplicationsRepository;
+  return joymeeApplicationsRepository;
 }
 
 export const applicationsService = {

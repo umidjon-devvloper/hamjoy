@@ -108,8 +108,8 @@ export function JobsTileMap({
           aria-label="Sizning joylashuvingiz"
         >
           <span className="relative flex h-4 w-4">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-blue-400 opacity-60" />
-            <span className="relative inline-flex h-4 w-4 rounded-full bg-blue-600 ring-2 ring-white" />
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-primary)]/50 opacity-60" />
+            <span className="relative inline-flex h-4 w-4 rounded-full bg-[var(--color-primary)] ring-2 ring-white" />
           </span>
         </span>
       )}
