@@ -1,11 +1,11 @@
 import * as SecureStore from 'expo-secure-store';
-import { createClient, type TokenStore } from '@joymee/sdk';
 import Constants from 'expo-constants';
+import { createClient, type JoymeeClient, type TokenStore } from '@joymee/sdk';
 
 const ACCESS_KEY = 'joymee.access';
 const REFRESH_KEY = 'joymee.refresh';
 
-const secureTokens: TokenStore = {
+export const tokens: TokenStore = {
   getAccess: () => SecureStore.getItemAsync(ACCESS_KEY),
   getRefresh: () => SecureStore.getItemAsync(REFRESH_KEY),
   setTokens: async (access, refresh) => {
@@ -18,11 +18,13 @@ const secureTokens: TokenStore = {
   },
 };
 
-const baseUrl =
-  (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
-  'http://localhost:4000';
+const extra = (Constants.expoConfig?.extra ?? {}) as { apiUrl?: string };
+export const API_URL = extra.apiUrl ?? 'http://localhost:4001';
 
-export const api = createClient({
-  baseUrl,
-  tokens: secureTokens,
-});
+let singleton: JoymeeClient | null = null;
+export function getApi(): JoymeeClient {
+  if (!singleton) {
+    singleton = createClient({ baseUrl: API_URL, tokens });
+  }
+  return singleton;
+}
