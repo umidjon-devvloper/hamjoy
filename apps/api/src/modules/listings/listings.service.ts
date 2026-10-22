@@ -1,11 +1,12 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
-import { listingAttrs, listingMedia, listings } from '../../db/schema';
+import { chats, favorites, listingAttrs, listingMedia, listings } from '../../db/schema';
 import type { AuthUser } from '../../common/current-user.decorator';
 import type { CreateListingDto, SearchQueryDto, UpdateListingDto } from './dto';
 import { ListingsSearch, type ListingSearchDoc } from './listings.search';
 import { PromotionsService } from '../promotions/promotions.service';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ListingsService {
@@ -13,6 +14,7 @@ export class ListingsService {
     @Inject(DB) private readonly db: DbClient,
     private readonly search: ListingsSearch,
     private readonly promotions: PromotionsService,
+    private readonly notifications: NotificationsService,
   ) {}
 
   private async hydrate(ids: string[]) {
@@ -232,12 +234,32 @@ export class ListingsService {
   }
 
   async markSold(user: AuthUser, id: string) {
-    await this.getOwned(user, id);
+    const owned = await this.getOwned(user, id);
     await this.db.update(listings).set({ status: 'sold' }).where(eq(listings.id, id));
     // De-index so searches don't surface sold items, but the listing stays
     // reachable via its URL (and shows the SOTILDI stamp in the UI).
     await this.search.remove(id);
+    // Notify everyone who was interested: favoriters + anyone with a chat
+    // about this listing (excluding the owner). Fire-and-forget.
+    void this.notifyInterested(id, owned.title, user.id).catch(() => {});
     return (await this.hydrate([id]))[0]!;
+  }
+
+  private async notifyInterested(listingId: string, title: string, sellerId: string) {
+    const favRows = await this.db
+      .select({ userId: favorites.userId })
+      .from(favorites)
+      .where(eq(favorites.listingId, listingId));
+    const chatRows = await this.db
+      .select({ buyerId: chats.buyerId })
+      .from(chats)
+      .where(eq(chats.listingId, listingId));
+    const targets = new Set<string>();
+    for (const r of favRows) if (r.userId !== sellerId) targets.add(r.userId);
+    for (const r of chatRows) if (r.buyerId !== sellerId) targets.add(r.buyerId);
+    for (const userId of targets) {
+      await this.notifications.create(userId, 'listing_sold', { listingId, title });
+    }
   }
 
   async reopen(user: AuthUser, id: string) {

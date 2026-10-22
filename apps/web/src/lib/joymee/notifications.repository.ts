@@ -28,6 +28,8 @@ const toKind = (t: string): NotificationKind => {
       return 'application';
     case 'review_received':
       return 'review_received';
+    case 'listing_sold':
+      return 'system';
     default: return 'system';
   }
 };
@@ -40,6 +42,7 @@ const titleFor = (n: JoymeeNotif): string => {
     case 'listing_approved': return "E'loningiz tasdiqlandi";
     case 'listing_rejected': return "E'loningiz rad etildi";
     case 'review_received': return 'Yangi baho';
+    case 'listing_sold': return "E'lon sotildi";
     default: return 'Yangilik';
   }
 };
@@ -52,6 +55,9 @@ function bodyFor(n: JoymeeNotif): string | undefined {
     const base = `${rating} yulduz`;
     return preview ? `${base} · "${preview}"` : base;
   }
+  if (n.type === 'listing_sold') {
+    return typeof p.title === 'string' ? (p.title as string) : undefined;
+  }
   return typeof p.body === 'string' ? (p.body as string) : undefined;
 }
 
@@ -63,6 +69,7 @@ function linkFor(n: JoymeeNotif): string | undefined {
     return `/u/${toUser}`;
   }
   if (n.type === 'new_message' && typeof p.chatId === 'string') return `/chat/${p.chatId}`;
+  if (n.type === 'listing_sold' && typeof p.listingId === 'string') return `/listing/${p.listingId}`;
   return undefined;
 }
 
