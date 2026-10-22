@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, Icon, RoundButton, type IconName } from '@/components/ui';
+import { UserHistory } from '@/components/UserHistory';
 import { getApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
 import { useSaved } from '@/lib/saved';
@@ -74,6 +75,8 @@ export default function Profile() {
             <Stat value={(chats ?? []).reduce((n, c) => n + c.unread, 0)} label="Yangi xabar" onPress={() => router.push('/chat')} />
           </View>
         </View>
+
+        {me?.user?.id ? <UserHistory userId={me.user.id} /> : null}
 
         <Group>
           <Row icon="plus-circle" tone="mint" label="Eʼlon joylash" onPress={() => router.push('/post')} />

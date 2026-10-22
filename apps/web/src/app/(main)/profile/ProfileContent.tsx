@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Mail, Phone, Globe, Briefcase, Pencil } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { UserAvatar } from '@/components/profile/UserAvatar';
+import { UserHistoryPanel } from '@/components/user/UserHistoryPanel';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/context/AuthContext';
 import { PROFILE_ROLE_LABELS, LANGUAGE_LABELS } from '@/types';
@@ -85,6 +86,12 @@ export function ProfileContent() {
           </div>
         </div>
       </div>
+
+      {isAuthenticated && user.id ? (
+        <div className="mt-6">
+          <UserHistoryPanel userId={user.id} />
+        </div>
+      ) : null}
 
       {!isAuthenticated && (
         <div className="card p-5 mt-6 text-center">

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { MessageCircle, Phone, Share2 } from 'lucide-react';
 import type { ListingSeller } from '@/types/listing';
 import { appToast } from '@/lib/feedback/toast';
@@ -55,10 +56,20 @@ export function ListingContact({
           {seller.name.charAt(0)}
         </span>
         <div className="min-w-0">
-          <p className="flex items-center gap-1.5 truncate font-semibold text-[var(--color-secondary)]">
-            {seller.name}
-            {seller.trusted ? <TrustBadge size="xs" /> : null}
-          </p>
+          {sellerUserId ? (
+            <Link
+              href={`/u/${sellerUserId}`}
+              className="flex items-center gap-1.5 truncate font-semibold text-[var(--color-secondary)] hover:text-[var(--color-brand-green)]"
+            >
+              {seller.name}
+              {seller.trusted ? <TrustBadge size="xs" /> : null}
+            </Link>
+          ) : (
+            <p className="flex items-center gap-1.5 truncate font-semibold text-[var(--color-secondary)]">
+              {seller.name}
+              {seller.trusted ? <TrustBadge size="xs" /> : null}
+            </p>
+          )}
           <p className="text-xs text-[var(--color-muted)]">
             {seller.type === 'agentlik' ? 'Agentlik' : 'Mulkdor'}
             {seller.trusted ? ' · Ishonchli' : ''}
