@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { getApi, tokens } from './api';
+import { registerPushToken } from './push';
 
 interface MeUser {
   id: string;
@@ -80,6 +81,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await getApi().auth.otpVerify(phone, code);
       await tokens.setTokens(res.access, res.refresh);
       await refresh();
+      // Register the device for background pushes once signed in. The push
+      // helper swallows its own errors (missing permission, simulator, offline).
+      void registerPushToken().catch(() => {});
     },
     [refresh],
   );

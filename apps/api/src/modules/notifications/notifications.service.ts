@@ -3,12 +3,33 @@ import { and, count, desc, eq, isNull } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
 import { notifications } from '../../db/schema';
 import { NotificationsGateway } from './notifications.gateway';
+import { PushService } from './push.service';
+
+/** User-visible title + body for a push, derived from the stored type/payload. */
+function pushCopy(type: string, payload: Record<string, unknown>): { title: string; body: string } | null {
+  switch (type) {
+    case 'review_received': {
+      const rating = typeof payload.rating === 'number' ? payload.rating : 0;
+      const preview = typeof payload.preview === 'string' ? payload.preview.trim() : '';
+      return { title: 'Yangi baho', body: preview ? `${rating} yulduz · "${preview}"` : `${rating} yulduz` };
+    }
+    case 'listing_sold':
+      return { title: "E'lon sotildi", body: typeof payload.title === 'string' ? (payload.title as string) : "Qiziqtirgan e'lon sotildi" };
+    case 'new_message':
+      return { title: 'Yangi xabar', body: typeof payload.body === 'string' ? (payload.body as string) : 'Chatni oching' };
+    case 'application_received':
+      return { title: 'Yangi ariza', body: 'Sizning e\'loningizga yangi ariza keldi' };
+    default:
+      return null;
+  }
+}
 
 @Injectable()
 export class NotificationsService {
   constructor(
     @Inject(DB) private readonly db: DbClient,
     private readonly gateway: NotificationsGateway,
+    private readonly push: PushService,
   ) {}
 
   async list(userId: string) {
@@ -60,6 +81,17 @@ export class NotificationsService {
       });
     } catch {
       /* no-op */
+    }
+    // Background push to registered devices — fire-and-forget.
+    const copy = pushCopy(type, payload);
+    if (copy) {
+      void this.push
+        .sendToUser(userId, {
+          title: copy.title,
+          body: copy.body,
+          data: { type, notificationId: row!.id },
+        })
+        .catch(() => {});
     }
     return row!;
   }
