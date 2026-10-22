@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, Globe, Briefcase, Pencil } from 'lucide-react';
+import { Mail, Phone, Globe, Briefcase, Pencil, ListChecks } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { UserAvatar } from '@/components/profile/UserAvatar';
 import { UserHistoryPanel } from '@/components/user/UserHistoryPanel';
@@ -39,14 +39,24 @@ export function ProfileContent() {
               {PROFILE_ROLE_LABELS[user.profileRole]}
             </span>
           </div>
-          <Button
-            variant="outline"
-            className="gap-2 shrink-0"
-            onClick={() => router.push('/profile/edit')}
-          >
-            <Pencil className="w-4 h-4" />
-            Tahrirlash
-          </Button>
+          <div className="flex flex-col gap-2 shrink-0 sm:flex-row">
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => router.push('/my-listings')}
+            >
+              <ListChecks className="w-4 h-4" />
+              Eʼlonlarim
+            </Button>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => router.push('/profile/edit')}
+            >
+              <Pencil className="w-4 h-4" />
+              Tahrirlash
+            </Button>
+          </div>
         </div>
       </div>
 
