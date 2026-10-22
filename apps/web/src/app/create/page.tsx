@@ -18,11 +18,19 @@ const INTENT_BY_PARAM: Record<string, ListingIntent> = {
 /** Single posting entry: /create (or ?tur=uy-joy) → listing form with a category menu, ?tur=ish → job wizard. */
 function CreateInner() {
   const searchParams = useSearchParams();
-  const editJobId = searchParams.get('edit') ?? undefined;
+  const editId = searchParams.get('edit') ?? undefined;
   const type = searchParams.get('tur');
 
-  // Editing always means a job (only jobs are editable today).
-  if (editJobId || type === 'ish') return <CreateJobWizard editJobId={editJobId} />;
+  // Explicit uy-joy edit → the listing form; without ?tur we assume job (back-compat).
+  if (type === 'uy-joy') {
+    return (
+      <CreateListingForm
+        editId={editId}
+        initialIntent={INTENT_BY_PARAM[searchParams.get('bitim') ?? ''] ?? 'sotuv'}
+      />
+    );
+  }
+  if (editId || type === 'ish') return <CreateJobWizard editJobId={editId} />;
   // Default: the Uy-joy form; its left menu also links to the job wizard.
   return <CreateListingForm initialIntent={INTENT_BY_PARAM[searchParams.get('bitim') ?? ''] ?? 'sotuv'} />;
 }

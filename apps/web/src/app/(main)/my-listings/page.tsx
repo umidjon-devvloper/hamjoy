@@ -46,7 +46,11 @@ function Row({
       : null;
   const viewHref = item.vertical === 'ish' ? `/job/${item.id}` : `/listing/${item.id}`;
   const editHref =
-    item.vertical === 'ish' ? `/create?edit=${item.id}` : null; // uy-joy edit kelgusida
+    item.vertical === 'ish'
+      ? `/create?edit=${item.id}`
+      : item.vertical === 'uy-joy'
+        ? `/create?tur=uy-joy&edit=${item.id}`
+        : null; // avto / bepul edit — kelgusi faza
 
   return (
     <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">

@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Check, ImagePlus, Loader2, Star, X } from 'lucide-react';
+import { getJoymeeClient } from '@/lib/joymee/client';
+import { listingToFormData, updatePropertyListing } from '@/lib/joymee/edit-property-listing';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
@@ -98,7 +100,14 @@ function Segmented<T extends string>({
 }
 
 /** Uy-joy posting form — one page, validated on submit, saved via the listings store. */
-export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?: ListingIntent }) {
+export function CreateListingForm({
+  initialIntent = 'sotuv',
+  editId,
+}: {
+  initialIntent?: ListingIntent;
+  /** When set, load that listing and PATCH on submit instead of creating. */
+  editId?: string;
+}) {
   const router = useRouter();
   const { user } = useAuth();
   const [form, setForm] = useState<ListingFormData>(() => ({
@@ -109,6 +118,21 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
   const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!editId) return;
+    let cancelled = false;
+    void getJoymeeClient()
+      .listings.get(editId)
+      .then((l) => {
+        if (cancelled) return;
+        setForm(listingToFormData(l, user.name, user.phone ?? '+998 '));
+      })
+      .catch((err) => appToast.error(err, 'Eʼlonni yuklab boʻlmadi'));
+    return () => {
+      cancelled = true;
+    };
+  }, [editId, user.name, user.phone]);
 
   const set = <K extends keyof ListingFormData>(key: K, value: ListingFormData[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
@@ -161,10 +185,17 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
     setIsSubmitting(true);
     try {
       const draft = toPropertyListing(form, user.id);
-      const listing = isRestBackendEnabled()
-        ? await postPropertyListing(draft)
-        : addUserListing(draft);
-      appToast.success('Eʼlon joylandi');
+      let listing;
+      if (editId) {
+        listing = await updatePropertyListing(editId, draft);
+        appToast.success('Eʼlon yangilandi');
+      } else if (isRestBackendEnabled()) {
+        listing = await postPropertyListing(draft);
+        appToast.success('Eʼlon joylandi');
+      } else {
+        listing = addUserListing(draft);
+        appToast.success('Eʼlon joylandi');
+      }
       router.push(ROUTES.listing(listing.id));
     } catch (err) {
       appToast.error(err, 'Eʼlonni saqlab boʻlmadi');
@@ -193,9 +224,13 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
             <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="min-w-0">
-            <h1 className="truncate text-xl font-black sm:text-2xl">Eʼlon joylash</h1>
+            <h1 className="truncate text-xl font-black sm:text-2xl">
+              {editId ? 'Eʼlonni tahrirlash' : 'Eʼlon joylash'}
+            </h1>
             <p className="text-sm font-medium text-white/85">
-              Sotuv, ijara yoki xarid soʻrovi — bir sahifada
+              {editId
+                ? 'O\'zgarishlarni saqlang — eʼlon dasturda darhol yangilanadi'
+                : 'Sotuv, ijara yoki xarid soʻrovi — bir sahifada'}
             </p>
           </div>
         </div>
@@ -603,7 +638,7 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
                   isLoading={isSubmitting}
                   disabled={isUploading}
                 >
-                  Eʼlonni joylash
+                  {editId ? 'O\'zgarishlarni saqlash' : 'Eʼlonni joylash'}
                 </Button>
               </div>
             </div>
@@ -629,7 +664,7 @@ export function CreateListingForm({ initialIntent = 'sotuv' }: { initialIntent?:
               isLoading={isSubmitting}
               disabled={isUploading}
             >
-              Eʼlonni joylash
+              {editId ? 'O\'zgarishlarni saqlash' : 'Eʼlonni joylash'}
             </Button>
           </div>
         </div>
