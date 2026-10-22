@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useChats } from '@/context/ChatsContext';
 import { authService } from '@/services/auth.service';
 import { chatsService } from '@/services/chats.service';
+import { getJoymeeSocket } from '@/lib/joymee/socket';
 import type { ChatHeaderInfo, Message } from '@/types';
 
 export function useChat(chatId: string) {
@@ -75,6 +76,42 @@ export function useChat(chatId: string) {
     return () => unsubscribe?.();
   }, [chatId]);
 
+  // Typing indicator: track the other party's "I'm typing" pings, hide after
+  // 3.5s of silence, and expose an emitter the composer can throttle.
+  const [peerTyping, setPeerTyping] = useState(false);
+  const typingHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingEmitAtRef = useRef(0);
+  const socketRef = useRef<Awaited<ReturnType<typeof getJoymeeSocket>> | null>(null);
+  const meId = authService.getCurrentUserId();
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const sock = await getJoymeeSocket();
+      if (cancelled || !sock) return;
+      socketRef.current = sock;
+      const onTyping = (payload: { chatId: string; userId: string }) => {
+        if (payload.chatId !== chatId || payload.userId === meId) return;
+        setPeerTyping(true);
+        if (typingHideTimer.current) clearTimeout(typingHideTimer.current);
+        typingHideTimer.current = setTimeout(() => setPeerTyping(false), 3500);
+      };
+      sock.on('chat:typing', onTyping);
+    })();
+    return () => {
+      cancelled = true;
+      socketRef.current?.off('chat:typing');
+      if (typingHideTimer.current) clearTimeout(typingHideTimer.current);
+    };
+  }, [chatId, meId]);
+
+  const notifyTyping = useCallback(() => {
+    const now = Date.now();
+    if (now - typingEmitAtRef.current < 1500) return;
+    typingEmitAtRef.current = now;
+    socketRef.current?.emit('chat:typing', chatId);
+  }, [chatId]);
+
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
@@ -114,5 +151,7 @@ export function useChat(chatId: string) {
     isLoading,
     error,
     refetch,
+    peerTyping,
+    notifyTyping,
   };
 }

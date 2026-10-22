@@ -37,6 +37,10 @@ export default function ChatDetail() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [peerTyping, setPeerTyping] = useState(false);
+  const typingHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const typingEmitAt = useRef(0);
+  const socketRef = useRef<Awaited<ReturnType<typeof getSocket>> | null>(null);
 
   const { data: chats } = useQuery({
     queryKey: ['chats'],
@@ -88,10 +92,21 @@ export default function ChatDetail() {
       };
       socket.on('chat:read', onRead);
 
+      socketRef.current = socket;
+      const onTyping = (payload: { chatId: string; userId: string }) => {
+        if (payload.chatId !== id || payload.userId === myId) return;
+        setPeerTyping(true);
+        if (typingHideTimer.current) clearTimeout(typingHideTimer.current);
+        typingHideTimer.current = setTimeout(() => setPeerTyping(false), 3500);
+      };
+      socket.on('chat:typing', onTyping);
+
       cleanup = () => {
         socket.emit('chat:unsubscribe', id);
         socket.off('chat:message', onMessage);
         socket.off('chat:read', onRead);
+        socket.off('chat:typing', onTyping);
+        if (typingHideTimer.current) clearTimeout(typingHideTimer.current);
       };
 
       // Mark as read on open
@@ -118,6 +133,15 @@ export default function ChatDetail() {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
     } finally {
       setSending(false);
+    }
+  };
+
+  const onDraftChange = (next: string) => {
+    setDraft(next);
+    const now = Date.now();
+    if (next.trim() && now - typingEmitAt.current > 1500 && socketRef.current) {
+      typingEmitAt.current = now;
+      socketRef.current.emit('chat:typing', id);
     }
   };
 
@@ -181,10 +205,20 @@ export default function ChatDetail() {
               );
             }}
           />
+          {peerTyping ? (
+            <View style={styles.typingBar}>
+              <View style={styles.typingDots}>
+                <View style={[styles.typingDot, styles.typingDot1]} />
+                <View style={[styles.typingDot, styles.typingDot2]} />
+                <View style={[styles.typingDot, styles.typingDot3]} />
+              </View>
+              <Text style={styles.typingLabel}>yozmoqda…</Text>
+            </View>
+          ) : null}
           <View style={styles.composer}>
             <TextInput
               value={draft}
-              onChangeText={setDraft}
+              onChangeText={onDraftChange}
               placeholder="Xabar yozing…"
               placeholderTextColor={colors.dim}
               style={styles.composerInput}
@@ -246,4 +280,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   sendBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.green, alignItems: 'center', justifyContent: 'center' },
+  typingBar: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, paddingBottom: 4 },
+  typingDots: { flexDirection: 'row', gap: 3 },
+  typingDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.muted, opacity: 0.5 },
+  typingDot1: {},
+  typingDot2: { opacity: 0.75 },
+  typingDot3: { opacity: 1 },
+  typingLabel: { fontSize: 12, color: colors.muted, fontStyle: 'italic' },
 });

@@ -6,12 +6,14 @@ import { cn } from '@/lib/utils';
 
 interface MessageInputProps {
   onSend: (body: string) => void;
+  onTyping?: () => void;
   disabled?: boolean;
   placeholder?: string;
 }
 
 export function MessageInput({
   onSend,
+  onTyping,
   disabled,
   placeholder = 'Xabar yozing...',
 }: MessageInputProps) {
@@ -52,7 +54,11 @@ export function MessageInput({
             'outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20 focus:bg-white focus:border-[var(--color-border)] transition-all text-sm resize-none'
           )}
           value={message}
-          onChange={(e) => setMessage(e.target.value.slice(0, 2000))}
+          onChange={(e) => {
+            const next = e.target.value.slice(0, 2000);
+            setMessage(next);
+            if (next.trim()) onTyping?.();
+          }}
           onKeyDown={handleKeyDown}
           aria-label="Message"
         />

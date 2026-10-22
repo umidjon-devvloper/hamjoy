@@ -16,7 +16,7 @@ function ChatDetailContent() {
   const params = useParams();
   const router = useRouter();
   const chatId = params.id as string;
-  const { header, messages, send, bottomRef, isEmpty, thread, isLoading, error, refetch } =
+  const { header, messages, send, bottomRef, isEmpty, thread, isLoading, error, refetch, peerTyping, notifyTyping } =
     useChat(chatId);
 
   if (isLoading) {
@@ -50,7 +50,17 @@ function ChatDetailContent() {
     <div className="flex flex-col h-dvh bg-[var(--color-background)]">
       <ChatHeader header={header} />
       <MessageList messages={messages} bottomRef={bottomRef} isEmpty={isEmpty} />
-      <MessageInput onSend={send} />
+      {peerTyping ? (
+        <div className="flex items-center gap-2 px-4 pb-1 text-xs italic text-[var(--color-muted)]">
+          <span className="flex gap-0.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)] opacity-50 animate-pulse" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)] opacity-70 animate-pulse [animation-delay:150ms]" />
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-muted)] animate-pulse [animation-delay:300ms]" />
+          </span>
+          yozmoqda…
+        </div>
+      ) : null}
+      <MessageInput onSend={send} onTyping={notifyTyping} />
     </div>
   );
 }
