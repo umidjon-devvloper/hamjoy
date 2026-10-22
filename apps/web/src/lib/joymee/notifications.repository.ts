@@ -26,6 +26,8 @@ const toKind = (t: string): NotificationKind => {
     case 'listing_approved':
     case 'listing_rejected':
       return 'application';
+    case 'review_received':
+      return 'review_received';
     default: return 'system';
   }
 };
@@ -37,19 +39,40 @@ const titleFor = (n: JoymeeNotif): string => {
     case 'application_status_changed': return 'Arizangiz holati o\'zgardi';
     case 'listing_approved': return "E'loningiz tasdiqlandi";
     case 'listing_rejected': return "E'loningiz rad etildi";
+    case 'review_received': return 'Yangi baho';
     default: return 'Yangilik';
   }
 };
 
+function bodyFor(n: JoymeeNotif): string | undefined {
+  const p = n.payload ?? {};
+  if (n.type === 'review_received') {
+    const rating = typeof p.rating === 'number' ? (p.rating as number) : 0;
+    const preview = typeof p.preview === 'string' ? (p.preview as string).trim() : '';
+    const base = `${rating} yulduz`;
+    return preview ? `${base} · "${preview}"` : base;
+  }
+  return typeof p.body === 'string' ? (p.body as string) : undefined;
+}
+
+function linkFor(n: JoymeeNotif): string | undefined {
+  const p = n.payload ?? {};
+  if (typeof p.link === 'string') return p.link as string;
+  if (n.type === 'review_received') {
+    const toUser = typeof p.toUserId === 'string' ? (p.toUserId as string) : n.userId;
+    return `/u/${toUser}`;
+  }
+  if (n.type === 'new_message' && typeof p.chatId === 'string') return `/chat/${p.chatId}`;
+  return undefined;
+}
+
 function mapRow(n: JoymeeNotif): AppNotification {
-  const body = typeof n.payload?.body === 'string' ? (n.payload.body as string) : undefined;
-  const link = typeof n.payload?.link === 'string' ? (n.payload.link as string) : undefined;
   return {
     id: n.id,
     kind: toKind(n.type),
     title: titleFor(n),
-    body,
-    link,
+    body: bodyFor(n),
+    link: linkFor(n),
     read: n.readAt != null,
     createdAt: n.createdAt,
   };
