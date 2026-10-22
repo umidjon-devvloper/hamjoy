@@ -1,6 +1,15 @@
 import type { Currency, GeoPoint, Timestamp, UUID } from './common';
 
-export type ListingType = 'job' | 'rent' | 'sale' | 'service';
+export type ListingType =
+  | 'job'
+  | 'rent'
+  | 'sale'
+  | 'service'
+  | 'worker_offer'
+  | 'car_sale'
+  | 'car_salon'
+  | 'free_give';
+export type ListingVertical = 'uy-joy' | 'ish' | 'avto' | 'bepul';
 export type ListingStatus = 'draft' | 'pending' | 'active' | 'sold' | 'archived' | 'blocked';
 
 export interface ListingMedia {
@@ -14,6 +23,7 @@ export interface Listing {
   id: UUID;
   userId: UUID;
   type: ListingType;
+  vertical: ListingVertical;
   categoryId: number;
   title: string;
   description: string;
@@ -36,6 +46,7 @@ export interface Listing {
 
 export interface ListingSearchQuery {
   q?: string;
+  vertical?: ListingVertical;
   type?: ListingType;
   categoryId?: number;
   locationId?: number;

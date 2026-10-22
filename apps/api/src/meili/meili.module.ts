@@ -31,7 +31,7 @@ export class MeiliModule implements OnModuleInit {
       }
       await client.index(LISTINGS_INDEX).updateSettings({
         searchableAttributes: ['title', 'description'],
-        filterableAttributes: ['type', 'categoryId', 'locationId', 'status', 'priceAmount', 'currency'],
+        filterableAttributes: ['type', 'vertical', 'categoryId', 'locationId', 'status', 'priceAmount', 'currency'],
         sortableAttributes: ['publishedAt', 'priceAmount', 'viewsCount'],
       });
     } catch (err) {

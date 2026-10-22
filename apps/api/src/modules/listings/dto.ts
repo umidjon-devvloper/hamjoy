@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const CreateListingSchema = z.object({
-  type: z.enum(['job', 'rent', 'sale', 'service']),
+  type: z.enum(['job', 'rent', 'sale', 'service', 'worker_offer', 'car_sale', 'car_salon', 'free_give']),
+  vertical: z.enum(['uy-joy', 'ish', 'avto', 'bepul']).optional(),
   categoryId: z.number().int().positive(),
   locationId: z.number().int().positive(),
   title: z.string().min(3).max(140),
@@ -28,7 +29,8 @@ export type UpdateListingDto = z.infer<typeof UpdateListingSchema>;
 
 export const SearchQuerySchema = z.object({
   q: z.string().max(200).optional(),
-  type: z.enum(['job', 'rent', 'sale', 'service']).optional(),
+  vertical: z.enum(['uy-joy', 'ish', 'avto', 'bepul']).optional(),
+  type: z.enum(['job', 'rent', 'sale', 'service', 'worker_offer', 'car_sale', 'car_salon', 'free_give']).optional(),
   categoryId: z.coerce.number().int().positive().optional(),
   locationId: z.coerce.number().int().positive().optional(),
   lat: z.coerce.number().optional(),

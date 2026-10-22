@@ -15,22 +15,29 @@ async function main() {
   const { categories, locations } = await import('./schema');
 
   const CATEGORIES = [
-    { id: 1, parentId: null, slug: 'uy-joy', nameUz: 'Uy-joy', nameRu: 'Недвижимость', icon: 'home' },
-    { id: 10, parentId: 1, slug: 'kvartira-ijara', nameUz: 'Kvartira ijara', nameRu: 'Квартира аренда', icon: 'key' },
-    { id: 11, parentId: 1, slug: 'kvartira-sotuv', nameUz: 'Kvartira sotuv', nameRu: 'Квартира продажа', icon: 'tag' },
-    { id: 12, parentId: 1, slug: 'uy-sotuv', nameUz: 'Hovli uy', nameRu: 'Частный дом', icon: 'house' },
-    { id: 2, parentId: null, slug: 'ish', nameUz: 'Ish', nameRu: 'Работа', icon: 'briefcase' },
-    { id: 20, parentId: 2, slug: 'it-dasturchi', nameUz: 'IT va dasturchi', nameRu: 'IT и разработка', icon: 'code' },
-    { id: 21, parentId: 2, slug: 'savdo', nameUz: 'Savdo', nameRu: 'Продажи', icon: 'store' },
-    { id: 22, parentId: 2, slug: 'quruvchi', nameUz: 'Quruvchi', nameRu: 'Строитель', icon: 'hard-hat' },
-    { id: 23, parentId: 2, slug: 'oshpaz', nameUz: 'Oshpaz', nameRu: 'Повар', icon: 'chef-hat' },
-    { id: 3, parentId: null, slug: 'xizmatlar', nameUz: 'Xizmatlar', nameRu: 'Услуги', icon: 'wrench' },
-    { id: 30, parentId: 3, slug: 'tozalash', nameUz: 'Tozalash', nameRu: 'Уборка', icon: 'sparkles' },
-    { id: 31, parentId: 3, slug: 'tarjima', nameUz: 'Tarjima', nameRu: 'Перевод', icon: 'languages' },
-    { id: 32, parentId: 3, slug: 'tamir', nameUz: "Ta'mir", nameRu: 'Ремонт', icon: 'hammer' },
-    { id: 4, parentId: null, slug: 'transport', nameUz: 'Transport', nameRu: 'Транспорт', icon: 'car' },
-    { id: 40, parentId: 4, slug: 'avto-sotuv', nameUz: 'Avto sotuv', nameRu: 'Авто продажа', icon: 'car' },
-    { id: 41, parentId: 4, slug: 'avto-ijara', nameUz: 'Avto ijara', nameRu: 'Авто аренда', icon: 'car-front' },
+    // --- Uy-joy ---
+    { id: 1, parentId: null, vertical: 'uy-joy', slug: 'uy-joy', nameUz: 'Uy-joy', nameRu: 'Недвижимость', icon: 'home' },
+    { id: 10, parentId: 1, vertical: 'uy-joy', slug: 'kvartira-ijara', nameUz: 'Kvartira ijara', nameRu: 'Квартира аренда', icon: 'key' },
+    { id: 11, parentId: 1, vertical: 'uy-joy', slug: 'kvartira-sotuv', nameUz: 'Kvartira sotuv', nameRu: 'Квартира продажа', icon: 'tag' },
+    { id: 12, parentId: 1, vertical: 'uy-joy', slug: 'uy-sotuv', nameUz: 'Hovli uy', nameRu: 'Частный дом', icon: 'house' },
+    { id: 13, parentId: 1, vertical: 'uy-joy', slug: 'kunlik-ijara', nameUz: 'Kunlik ijara', nameRu: 'Посуточно', icon: 'bed' },
+    { id: 14, parentId: 1, vertical: 'uy-joy', slug: 'tijorat', nameUz: 'Tijorat obyekti', nameRu: 'Коммерческая', icon: 'building' },
+
+    // --- Ish ---
+    { id: 2, parentId: null, vertical: 'ish', slug: 'ish', nameUz: 'Ish', nameRu: 'Работа', icon: 'briefcase' },
+    { id: 20, parentId: 2, vertical: 'ish', slug: 'doimiy-ish', nameUz: 'Doimiy ish', nameRu: 'Постоянная работа', icon: 'briefcase' },
+    { id: 21, parentId: 2, vertical: 'ish', slug: 'kunlik-ish', nameUz: 'Kunlik ish', nameRu: 'Поденная работа', icon: 'calendar-clock' },
+    { id: 22, parentId: 2, vertical: 'ish', slug: 'men-qila-olaman', nameUz: "Men qila olaman", nameRu: 'Я могу выполнить', icon: 'hand' },
+    { id: 23, parentId: 2, vertical: 'ish', slug: 'ish-xizmatlar', nameUz: 'Xizmatlar', nameRu: 'Услуги', icon: 'wrench' },
+
+    // --- Avto ---
+    { id: 3, parentId: null, vertical: 'avto', slug: 'avto', nameUz: 'Avto', nameRu: 'Авто', icon: 'car' },
+    { id: 30, parentId: 3, vertical: 'avto', slug: 'avto-sotuv', nameUz: 'Avto sotuv', nameRu: 'Авто продажа', icon: 'car' },
+    { id: 31, parentId: 3, vertical: 'avto', slug: 'avto-salon', nameUz: 'Avtosalon', nameRu: 'Автосалон', icon: 'store' },
+    { id: 32, parentId: 3, vertical: 'avto', slug: 'avto-ijara', nameUz: 'Avto ijara', nameRu: 'Авто аренда', icon: 'car-front' },
+
+    // --- Bepul ---
+    { id: 4, parentId: null, vertical: 'bepul', slug: 'bepul', nameUz: 'Bepul beraman', nameRu: 'Отдам бесплатно', icon: 'gift' },
   ];
 
   const LOCATIONS = [
@@ -60,7 +67,20 @@ async function main() {
   const client = postgres(url, { max: 1 });
   const db = drizzle(client);
 
-  await db.insert(categories).values(CATEGORIES).onConflictDoNothing();
+  await db
+    .insert(categories)
+    .values(CATEGORIES as never)
+    .onConflictDoUpdate({
+      target: categories.id,
+      set: {
+        vertical: sql`EXCLUDED.vertical`,
+        parentId: sql`EXCLUDED.parent_id`,
+        slug: sql`EXCLUDED.slug`,
+        nameUz: sql`EXCLUDED.name_uz`,
+        nameRu: sql`EXCLUDED.name_ru`,
+        icon: sql`EXCLUDED.icon`,
+      },
+    });
   await db.insert(locations).values(LOCATIONS).onConflictDoNothing();
 
   await db.execute(sql`

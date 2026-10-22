@@ -41,11 +41,24 @@ export class ListingsService {
   }
 
   async create(user: AuthUser, dto: CreateListingDto) {
+    // Derive vertical from type when caller didn't supply it, so the client
+    // never has to think about two overlapping concepts.
+    const vertical =
+      dto.vertical ??
+      (dto.type === 'job' || dto.type === 'service' || dto.type === 'worker_offer'
+        ? 'ish'
+        : dto.type === 'car_sale' || dto.type === 'car_salon'
+          ? 'avto'
+          : dto.type === 'free_give'
+            ? 'bepul'
+            : 'uy-joy');
+
     const [row] = await this.db
       .insert(listings)
       .values({
         userId: user.id,
         type: dto.type,
+        vertical,
         categoryId: dto.categoryId,
         locationId: dto.locationId,
         title: dto.title,
@@ -180,6 +193,7 @@ export class ListingsService {
     const doc: ListingSearchDoc = {
       id: row.id,
       type: row.type,
+      vertical: row.vertical,
       categoryId: row.categoryId,
       locationId: row.locationId,
       title: row.title,

@@ -6,6 +6,7 @@ import type { SearchQueryDto } from './dto';
 export interface ListingSearchDoc {
   id: string;
   type: string;
+  vertical: string;
   categoryId: number;
   locationId: number;
   title: string;
@@ -46,6 +47,7 @@ export class ListingsSearch {
 
   async search(q: SearchQueryDto): Promise<{ ids: string[]; total: number }> {
     const filters: string[] = ['status = "active"'];
+    if (q.vertical) filters.push(`vertical = "${q.vertical}"`);
     if (q.type) filters.push(`type = "${q.type}"`);
     if (q.categoryId) filters.push(`categoryId = ${q.categoryId}`);
     if (q.locationId) filters.push(`locationId = ${q.locationId}`);

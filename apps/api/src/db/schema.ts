@@ -18,7 +18,17 @@ import {
 // --- enums ---
 export const userRole = pgEnum('user_role', ['user', 'moderator', 'admin']);
 export const userStatus = pgEnum('user_status', ['active', 'blocked', 'pending']);
-export const listingType = pgEnum('listing_type', ['job', 'rent', 'sale', 'service']);
+export const listingType = pgEnum('listing_type', [
+  'job',
+  'rent',
+  'sale',
+  'service',
+  'worker_offer',
+  'car_sale',
+  'car_salon',
+  'free_give',
+]);
+export const vertical = pgEnum('vertical', ['uy-joy', 'ish', 'avto', 'bepul']);
 export const listingStatus = pgEnum('listing_status', [
   'draft',
   'pending',
@@ -85,6 +95,7 @@ export const otpCodes = pgTable(
 export const categories = pgTable('categories', {
   id: integer('id').primaryKey(),
   parentId: integer('parent_id'),
+  vertical: vertical('vertical').notNull().default('uy-joy'),
   slug: text('slug').notNull().unique(),
   nameUz: text('name_uz').notNull(),
   nameRu: text('name_ru').notNull(),
@@ -109,6 +120,7 @@ export const listings = pgTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     type: listingType('type').notNull(),
+    vertical: vertical('vertical').notNull().default('uy-joy'),
     categoryId: integer('category_id')
       .notNull()
       .references(() => categories.id),
