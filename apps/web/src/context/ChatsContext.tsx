@@ -13,6 +13,7 @@ import { chatsService } from '@/services/chats.service';
 import { formatUserError } from '@/lib/errors/format-user-error';
 import { isBackendEnabled } from '@/lib/backend/config';
 import { isRestBackendEnabled } from '@/lib/api/config';
+import { getJoymeeSocket } from '@/lib/joymee/socket';
 
 const usesRemoteChats = () => isBackendEnabled() || isRestBackendEnabled();
 import { useAuth } from '@/context/AuthContext';
@@ -77,6 +78,27 @@ export function ChatsProvider({ children }: { children: React.ReactNode }) {
       cancelled = true;
     };
   }, [version, authHydrated, isAuthenticated]);
+
+  // Live chat list: refresh on any new message or read event so the server's
+  // unread count and last-message preview stay authoritative.
+  useEffect(() => {
+    if (!isRestBackendEnabled() || !authHydrated || !isAuthenticated) return;
+    let sockRef: Awaited<ReturnType<typeof getJoymeeSocket>> | null = null;
+    let cancelled = false;
+    void (async () => {
+      const sock = await getJoymeeSocket();
+      if (cancelled || !sock) return;
+      sockRef = sock;
+      const bump = () => refresh();
+      sock.on('chat:message', bump);
+      sock.on('chat:read', bump);
+    })();
+    return () => {
+      cancelled = true;
+      sockRef?.off('chat:message');
+      sockRef?.off('chat:read');
+    };
+  }, [authHydrated, isAuthenticated, refresh]);
 
   const totalUnread = useMemo(
     () => chats.reduce((sum, chat) => sum + (chat.unread ?? 0), 0),

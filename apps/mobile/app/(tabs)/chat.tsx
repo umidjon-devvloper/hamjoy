@@ -1,11 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Avatar, EmptyState, Icon, Segmented } from '@/components/ui';
 import { getApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
+import { getSocket } from '@/lib/socket';
 import { timeAgo } from '@/lib/data';
 import { colors, radius, shadow, TAB_BAR_SPACE, type } from '@/lib/theme';
 
@@ -29,6 +30,28 @@ export default function ChatList() {
     queryFn: async () => (await getApi().chats.list()) as unknown as ChatRow[],
     refetchInterval: 15_000,
   });
+
+  // Live chat list: any new message or read event just refetches so the
+  // unread count and last-message time stay authoritative.
+  useEffect(() => {
+    let sockRef: Awaited<ReturnType<typeof getSocket>> | null = null;
+    let cancelled = false;
+    void (async () => {
+      const sock = await getSocket();
+      if (cancelled || !sock) return;
+      sockRef = sock;
+      const bump = () => {
+        void refetch();
+      };
+      sock.on('chat:message', bump);
+      sock.on('chat:read', bump);
+    })();
+    return () => {
+      cancelled = true;
+      sockRef?.off('chat:message');
+      sockRef?.off('chat:read');
+    };
+  }, [refetch]);
 
   const rows = (data ?? [])
     .filter((c) => filter === 'all' || c.unread > 0)
