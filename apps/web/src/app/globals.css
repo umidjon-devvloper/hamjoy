@@ -194,3 +194,28 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Seasonal background effect — leaves (autumn), snow (winter), petals (spring).
+   Lives behind the page content; z-index 0 keeps it below the header/cards. */
+.seasonal-overlay {
+  pointer-events: none;
+}
+.seasonal-piece {
+  position: absolute;
+  top: -40px;
+  display: block;
+  will-change: transform;
+  animation-name: seasonal-fall;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  user-select: none;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.08));
+}
+@keyframes seasonal-fall {
+  0%   { transform: translate3d(0, -8vh, 0) rotate(0deg); }
+  50%  { transform: translate3d(var(--drift, 0), 50vh, 0) rotate(180deg); }
+  100% { transform: translate3d(0, 110vh, 0) rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seasonal-overlay { display: none; }
+}

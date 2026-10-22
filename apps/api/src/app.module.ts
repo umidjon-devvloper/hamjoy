@@ -18,6 +18,7 @@ import { ChatsModule } from './modules/chats/chats.module';
 import { ApplicationsModule } from './modules/applications/applications.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
+import { ReviewsModule } from './modules/reviews/reviews.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PromotionsModule } from './modules/promotions/promotions.module';
     ApplicationsModule,
     NotificationsModule,
     PromotionsModule,
+    ReviewsModule,
   ],
   controllers: [HealthController],
   providers: [

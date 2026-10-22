@@ -5,6 +5,7 @@ import type { PropertyListing } from '@/types/listing';
 import { cn } from '@/lib/utils';
 import { ListingGallery } from './ListingGallery';
 import { ListingContact } from './ListingContact';
+import { SellerReviewsPanel } from './SellerReviewsPanel';
 import { ListingCard } from './ListingCard';
 import { DemoBadge } from './DemoBadge';
 import {
@@ -128,6 +129,10 @@ export function ListingDetail({
               </>
             )}
           </section>
+
+          {listing.ownerId ? (
+            <SellerReviewsPanel sellerUserId={listing.ownerId} listingId={listing.id} />
+          ) : null}
         </div>
 
         <aside className="space-y-3.5 lg:sticky lg:top-36 lg:self-start">
@@ -140,7 +145,12 @@ export function ListingDetail({
             </p>
             {perSquareMeter && <p className="tabular text-sm text-[var(--color-muted)]">{perSquareMeter}</p>}
             <div className="mt-5">
-              <ListingContact listingId={listing.id} title={listing.title} seller={listing.seller} />
+              <ListingContact
+                listingId={listing.id}
+                title={listing.title}
+                seller={listing.seller}
+                sellerUserId={listing.ownerId}
+              />
             </div>
             <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 border-t border-[#EEEFEA] pt-4 text-sm">
               <dt className="text-[var(--color-muted)]">Eʼlon turi</dt>

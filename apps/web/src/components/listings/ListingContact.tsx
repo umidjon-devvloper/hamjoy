@@ -1,24 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MessageCircle, Phone, Share2 } from 'lucide-react';
 import type { ListingSeller } from '@/types/listing';
 import { appToast } from '@/lib/feedback/toast';
 import { SaveListingButton } from './SaveListingButton';
 import { TrustBadge } from '@/components/ui/TrustBadge';
+import { StarRating } from '@/components/ui/StarRating';
+import { joymeeReviews, type UserStats } from '@/lib/joymee/reviews';
+import { isRestBackendEnabled } from '@/lib/api/config';
 
 /** Seller block on the listing page: reveal-then-call phone, save, share. */
 export function ListingContact({
   listingId,
   title,
   seller,
+  sellerUserId,
 }: {
   listingId: string;
   title: string;
   seller: ListingSeller;
+  /** When present, we fetch the real user's rating stats and show stars. */
+  sellerUserId?: string;
 }) {
   const [phoneShown, setPhoneShown] = useState(false);
   const masked = seller.phone.replace(/\d{2} \d{2}$/, 'XX XX');
+
+  const [stats, setStats] = useState<UserStats | null>(null);
+  useEffect(() => {
+    if (!isRestBackendEnabled() || !sellerUserId) return;
+    void joymeeReviews.stats(sellerUserId).then(setStats);
+  }, [sellerUserId]);
 
   const share = async () => {
     const url = window.location.href;
@@ -51,6 +63,11 @@ export function ListingContact({
             {seller.type === 'agentlik' ? 'Agentlik' : 'Mulkdor'}
             {seller.trusted ? ' · Ishonchli' : ''}
           </p>
+          {stats && stats.count > 0 ? (
+            <div className="mt-1">
+              <StarRating value={stats.avg} count={stats.count} size={12} />
+            </div>
+          ) : null}
         </div>
       </div>
 

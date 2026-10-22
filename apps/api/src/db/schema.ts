@@ -285,6 +285,29 @@ export const deviceTokens = pgTable(
   (t) => ({ userIdx: index('device_tokens_user_idx').on(t.userId) }),
 );
 
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    toUserId: uuid('to_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    fromUserId: uuid('from_user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    /** Optional — review attached to a specific transaction. */
+    listingId: uuid('listing_id').references(() => listings.id, { onDelete: 'set null' }),
+    rating: integer('rating').notNull(),
+    comment: text('comment'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    toUserIdx: index('reviews_to_user_idx').on(t.toUserId, t.createdAt),
+    // One review per (from, to, listing) — "yulduzlab bo'lgan odam yana baho qo'ya olmasin"
+    uniquePair: uniqueIndex('reviews_unique_pair').on(t.fromUserId, t.toUserId, t.listingId),
+  }),
+);
+
 export const promotions = pgTable(
   'promotions',
   {

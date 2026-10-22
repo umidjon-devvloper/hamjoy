@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { Toaster } from 'sonner';
 import { AppProviders } from '@/context/AppProviders';
+import { SeasonalEffects } from '@/components/ui/SeasonalEffects';
 import { createPageMetadata, siteConfig } from '@/lib/seo/metadata';
 import { THEME_INIT_SCRIPT } from '@/lib/theme-script';
 import "./globals.css";
@@ -53,7 +54,8 @@ export default function RootLayout({
           Asosiy kontentga oʻtish
         </a>
         <AppProviders>
-          <div id="main-content" className="flex-1 flex flex-col">
+          <SeasonalEffects />
+          <div id="main-content" className="relative z-10 flex-1 flex flex-col">
             {children}
           </div>
         </AppProviders>
