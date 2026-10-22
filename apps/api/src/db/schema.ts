@@ -29,6 +29,7 @@ export const listingType = pgEnum('listing_type', [
   'free_give',
 ]);
 export const vertical = pgEnum('vertical', ['uy-joy', 'ish', 'avto', 'bepul']);
+export const promoTier = pgEnum('promo_tier', ['bronze', 'silver', 'gold']);
 export const listingStatus = pgEnum('listing_status', [
   'draft',
   'pending',
@@ -280,6 +281,28 @@ export const deviceTokens = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({ userIdx: index('device_tokens_user_idx').on(t.userId) }),
+);
+
+export const promotions = pgTable(
+  'promotions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    listingId: uuid('listing_id')
+      .notNull()
+      .references(() => listings.id, { onDelete: 'cascade' }),
+    tier: promoTier('tier').notNull(),
+    durationDays: integer('duration_days').notNull(),
+    paidAmount: numeric('paid_amount', { precision: 12, scale: 2 }),
+    paidCurrency: currency('paid_currency'),
+    /** Null until the payment provider confirms; admin grants bypass this. */
+    paidAt: timestamp('paid_at', { withTimezone: true }),
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    expiresAt: timestamp('expires_at', { withTimezone: true }).notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    listingExpiresIdx: index('promotions_listing_expires_idx').on(t.listingId, t.expiresAt),
+  }),
 );
 
 // Silence unused imports when a column that uses them is commented out.

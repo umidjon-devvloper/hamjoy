@@ -11,7 +11,9 @@ import { QueryErrorBanner } from '@/components/ui/QueryErrorBanner';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { useMyJobPosts } from '@/hooks/useMyJobs';
 import { useScrollRestore } from '@/hooks/useScrollRestore';
-import { Briefcase, CheckCircle2, Pencil, RotateCcw, Trash2, Loader2 } from 'lucide-react';
+import { Briefcase, CheckCircle2, Pencil, RotateCcw, Sparkles, Trash2, Loader2 } from 'lucide-react';
+import { joymeeTokens } from '@/lib/joymee/client';
+import { isRestBackendEnabled } from '@/lib/api/config';
 import { JOB_STATUS_LABELS } from '@/types';
 import { jobsService } from '@/services';
 import { appToast } from '@/lib/feedback/toast';
@@ -36,6 +38,30 @@ export default function MyJobsPage() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleBuyTop = async (id: string) => {
+    if (!isRestBackendEnabled()) {
+      appToast.info?.('Mock rejimda pullik top mavjud emas');
+      return;
+    }
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    const token = await joymeeTokens.getAccess();
+    const res = await fetch(`${base}/promotions`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        ...(token ? { authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ listingId: id, tier: 'gold' }),
+    });
+    if (!res.ok) {
+      appToast.error(new Error(`${res.status}`), "Top sotib bo'lmadi");
+      return;
+    }
+    const row = (await res.json()) as { tier: string; expiresAt: string };
+    appToast.success(`${row.tier.toUpperCase()} TOP — ${new Date(row.expiresAt).toLocaleDateString('uz-UZ')} gacha`);
+    await refetch();
   };
 
   const handleToggleSold = async (id: string, isClosed: boolean) => {
@@ -99,6 +125,15 @@ export default function MyJobsPage() {
                       Tahrirlash
                     </span>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => handleBuyTop(job.id)}
+                    className="flex flex-1 min-w-[120px] items-center justify-center gap-1.5 rounded-xl border border-[#c7a052]/40 bg-gradient-to-r from-[#fff8e8] to-white py-2.5 text-sm font-semibold text-[#8a6b1f] transition-colors hover:border-[#c7a052]"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    Top (Gold)
+                  </button>
 
                   <button
                     type="button"

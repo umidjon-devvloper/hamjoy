@@ -5,10 +5,15 @@ import { listingAttrs, listingMedia, listings } from '../../db/schema';
 import type { AuthUser } from '../../common/current-user.decorator';
 import type { CreateListingDto, SearchQueryDto, UpdateListingDto } from './dto';
 import { ListingsSearch, type ListingSearchDoc } from './listings.search';
+import { PromotionsService } from '../promotions/promotions.service';
 
 @Injectable()
 export class ListingsService {
-  constructor(@Inject(DB) private readonly db: DbClient, private readonly search: ListingsSearch) {}
+  constructor(
+    @Inject(DB) private readonly db: DbClient,
+    private readonly search: ListingsSearch,
+    private readonly promotions: PromotionsService,
+  ) {}
 
   private async hydrate(ids: string[]) {
     if (ids.length === 0) return [];
@@ -136,13 +141,51 @@ export class ListingsService {
   async searchActive(q: SearchQueryDto) {
     const { ids, total } = await this.search.search(q);
     const items = ids.length ? await this.hydrate(ids) : [];
+
+    // Decorate with active promotion tier so the UI can draw the right ramka.
+    // On the first page, also pull promoted listings to the front so paid
+    // Gold → Silver → Bronze always lands above the regular feed.
     const offset = Number(q.cursor ?? 0);
+    const isFirstPage = offset === 0;
+
+    let ordered = items;
+    if (isFirstPage) {
+      const top = await this.promotions.topListingIds(50);
+      const matching = q.vertical
+        ? await this.filterTopByVertical(top.map((t) => t.id), q.vertical)
+        : new Set(top.map((t) => t.id));
+      const topIds = top.filter((t) => matching.has(t.id)).map((t) => t.id);
+      if (topIds.length) {
+        const hydratedTop = await this.hydrate(topIds);
+        const seen = new Set(topIds);
+        ordered = [...hydratedTop, ...items.filter((i) => !seen.has(i.id))];
+      }
+    }
+
+    const promoMap = await this.promotions.activeForListings(ordered.map((i) => i.id));
+    const withPromo = ordered.map((i) => {
+      const p = promoMap.get(i.id);
+      return {
+        ...i,
+        promotion: p ? { tier: p.tier, expiresAt: p.expiresAt.toISOString() } : null,
+      };
+    });
+
     const nextOffset = offset + items.length;
     return {
-      items,
+      items: withPromo,
       total,
       cursor: nextOffset < total ? String(nextOffset) : null,
     };
+  }
+
+  private async filterTopByVertical(ids: string[], vertical: string): Promise<Set<string>> {
+    if (ids.length === 0) return new Set();
+    const rows = await this.db
+      .select({ id: listings.id })
+      .from(listings)
+      .where(and(inArray(listings.id, ids), eq(listings.vertical, vertical as 'uy-joy' | 'ish' | 'avto' | 'bepul')));
+    return new Set(rows.map((r) => r.id));
   }
 
   async mine(user: AuthUser, status?: string) {

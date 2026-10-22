@@ -40,8 +40,36 @@ export function ListingCard({
     setIndex(Math.round(track.scrollLeft / track.clientWidth));
   };
 
+  const tierFrame =
+    listing.promoTier === 'gold'
+      ? 'ring-2 ring-[#c7a052] shadow-[0_18px_42px_-18px_rgb(199,160,82,0.65)]'
+      : listing.promoTier === 'silver'
+        ? 'ring-2 ring-[#8690a0] shadow-[0_14px_32px_-14px_rgb(134,144,160,0.55)]'
+        : listing.promoTier === 'bronze'
+          ? 'ring-2 ring-[#c58353]'
+          : '';
+
   return (
-    <article className="card card-hover group relative flex flex-col overflow-hidden">
+    <article
+      className={cn(
+        'card card-hover group relative flex flex-col overflow-hidden',
+        tierFrame,
+      )}
+    >
+      {listing.promoTier ? (
+        <span
+          className={cn(
+            'absolute left-0 right-0 top-0 z-20 text-center text-[10px] font-black uppercase tracking-[0.22em] text-white',
+            listing.promoTier === 'gold' && 'bg-gradient-to-r from-[#c7a052] via-[#e4c478] to-[#c7a052]',
+            listing.promoTier === 'silver' && 'bg-[#8690a0]',
+            listing.promoTier === 'bronze' && 'bg-[#c58353]',
+          )}
+        >
+          <span className="inline-block py-[3px]">
+            {listing.promoTier === 'gold' ? '★ GOLD · TAVSIYA' : listing.promoTier === 'silver' ? 'SILVER' : 'TOP'}
+          </span>
+        </span>
+      ) : null}
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         <Link
           href={href}

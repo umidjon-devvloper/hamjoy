@@ -46,4 +46,6 @@ export interface PropertyListing {
   ownerId?: string;
   /** True once the owner marked the listing as sold. The card stays, with a stamp. */
   sold?: boolean;
+  /** Active paid-promotion tier, if any. Drives the gold / silver / bronze card frame. */
+  promoTier?: 'bronze' | 'silver' | 'gold';
 }
