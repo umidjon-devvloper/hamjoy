@@ -7,11 +7,11 @@ import { FeaturedCard, GigCard, HomeRow, JobCard } from '@/components/cards';
 import { Scrim } from '@/components/Scrim';
 import { Chip, Icon, RoundButton, SectionHeader, Segmented, FocusStatusBar } from '@/components/ui';
 import { useAuth } from '@/lib/auth';
-import { greeting, useHomes, useJobs, type Deal } from '@/lib/data';
+import { greeting, useHomes, useJobs, useVerticalFeed, type Deal } from '@/lib/data';
 import { photos } from '@/lib/images';
 import { colors, radius, shadow, TAB_BAR_SPACE, type } from '@/lib/theme';
 
-type Section = 'uyjoy' | 'ish';
+type Section = 'uyjoy' | 'ish' | 'avto' | 'bepul';
 
 const CATS: { id: Deal | 'all'; label: string }[] = [
   { id: 'all', label: 'Hammasi' },
@@ -23,6 +23,8 @@ const CATS: { id: Deal | 'all'; label: string }[] = [
 const SECTIONS = [
   { value: 'uyjoy' as const, label: 'Uy-joy' },
   { value: 'ish' as const, label: 'Ish' },
+  { value: 'avto' as const, label: 'Avto' },
+  { value: 'bepul' as const, label: 'Bepul' },
 ];
 
 function useFirstName() {
@@ -32,7 +34,9 @@ function useFirstName() {
 
 export default function Home() {
   const [section, setSection] = useState<Section>('uyjoy');
-  return section === 'uyjoy' ? <HomesFeed onSection={setSection} /> : <JobsFeed onSection={setSection} />;
+  if (section === 'uyjoy') return <HomesFeed onSection={setSection} />;
+  if (section === 'ish') return <JobsFeed onSection={setSection} />;
+  return <SimpleVerticalFeed vertical={section} onSection={setSection} />;
 }
 
 function HomesFeed({ onSection }: { onSection: (s: Section) => void }) {
@@ -224,6 +228,109 @@ function JobsFeed({ onSection }: { onSection: (s: Section) => void }) {
         </View>
       </ScrollView>
     </View>
+  );
+}
+
+/**
+ * Minimal per-vertical feed for the new Avto and Bepul tabs.
+ * Mirrors the HomesFeed/JobsFeed structure (greeting + segment switch +
+ * list) but renders a plain list of titles so the two new verticals are
+ * usable while their full UIs catch up.
+ */
+function SimpleVerticalFeed({
+  vertical,
+  onSection,
+}: {
+  vertical: 'avto' | 'bepul';
+  onSection: (s: Section) => void;
+}) {
+  const router = useRouter();
+  const name = useFirstName();
+  const { data, isLoading, isRefetching, refetch } = useVerticalFeed(vertical);
+  const items = data ?? [];
+  const label = vertical === 'avto' ? 'Avto bozori' : 'Bepul beraman';
+  const sub =
+    vertical === 'avto'
+      ? 'Avto sotuv, salonlar va haridorlar.'
+      : "Kerakmas narsalarni bepul ulashing.";
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: TAB_BAR_SPACE }}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.green} />
+        }
+      >
+        <View style={styles.header}>
+          <View style={{ flex: 1 }}>
+            <Text style={type.small}>
+              {greeting()}
+              {name ? `, ${name}` : ''}
+            </Text>
+            <View style={styles.city}>
+              <Icon name="map-pin" size={16} color={colors.green} />
+              <Text style={styles.cityText}>{label}</Text>
+            </View>
+          </View>
+          <RoundButton icon="bell" label="Bildirishnomalar" dot onPress={() => router.push('/notifications')} />
+        </View>
+
+        <View style={styles.pad}>
+          <Segmented options={SECTIONS} value={vertical} onChange={onSection} />
+        </View>
+
+        <View style={[styles.pad, { marginTop: 18, gap: 8 }]}>
+          <Text style={type.small}>{sub}</Text>
+          {isLoading ? (
+            <ActivityIndicator color={colors.green} style={{ marginTop: 48 }} />
+          ) : items.length === 0 ? (
+            <View style={{ marginTop: 32, alignItems: 'center' }}>
+              <Text style={{ color: colors.muted, fontSize: 14 }}>Hali e&apos;lon yoʻq</Text>
+            </View>
+          ) : (
+            items.map((it) => (
+              <Pressable
+                key={it.id}
+                onPress={() => router.push(`/listing/${it.id}`)}
+                style={({ pressed }) => [
+                  {
+                    backgroundColor: colors.surface,
+                    borderRadius: radius.lg,
+                    padding: 16,
+                    gap: 4,
+                    opacity: pressed ? 0.85 : 1,
+                    ...shadow.soft,
+                  },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: colors.muted,
+                    fontSize: 10,
+                    fontWeight: '800',
+                    letterSpacing: 1.4,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {String(it.type)}
+                </Text>
+                <Text style={{ color: colors.ink, fontSize: 16, fontWeight: '700' }} numberOfLines={2}>
+                  {it.title}
+                </Text>
+                {it.priceAmount != null ? (
+                  <Text style={{ color: colors.green, fontSize: 16, fontWeight: '700', marginTop: 2 }}>
+                    {Number(it.priceAmount).toLocaleString('uz-UZ')}{' '}
+                    <Text style={{ color: colors.muted, fontSize: 13 }}>{it.priceCurrency ?? 'UZS'}</Text>
+                  </Text>
+                ) : null}
+              </Pressable>
+            ))
+          )}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

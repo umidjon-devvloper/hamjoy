@@ -167,10 +167,18 @@ export function getActiveSectionId(pathname: string | null): PlatformSectionId |
   return section?.id ?? null;
 }
 
-/** The platform navbar shows either housing or jobs, never both at once. */
-export type PlatformMode = 'uy-joy' | 'ish';
+/** The platform navbar shows one of four verticals, never two at once. */
+export type PlatformMode = 'uy-joy' | 'ish' | 'avto' | 'bepul';
 
-/** Ish mode = /home/ish and its views (list, map); every other platform page is Uy-joy. */
+/**
+ * Which vertical the current page belongs to. Matches by first path segment
+ * for the new verticals; falls back to the existing /home/ish detection
+ * for backwards compat.
+ */
 export function getPlatformMode(pathname: string | null): PlatformMode {
-  return isRouteActive(pathname, ROUTES.jobs) ? 'ish' : 'uy-joy';
+  if (!pathname) return 'uy-joy';
+  if (pathname.startsWith('/avto')) return 'avto';
+  if (pathname.startsWith('/bepul')) return 'bepul';
+  if (isRouteActive(pathname, ROUTES.jobs)) return 'ish';
+  return 'uy-joy';
 }

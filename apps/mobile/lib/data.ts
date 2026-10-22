@@ -220,14 +220,32 @@ function toJob(raw: RawListing): Job {
   };
 }
 
-async function searchRaw(params: { q?: string; type?: 'job' | 'rent' | 'sale' }): Promise<RawListing[]> {
+async function searchRaw(params: {
+  q?: string;
+  type?: 'job' | 'rent' | 'sale' | 'car_sale' | 'car_salon' | 'free_give' | 'worker_offer' | 'service';
+  vertical?: 'uy-joy' | 'ish' | 'avto' | 'bepul';
+}): Promise<RawListing[]> {
   try {
-    const res = await getApi().listings.search({ ...params, limit: 30 });
+    const res = await getApi().listings.search({ ...params, limit: 30 } as never);
     return res.items as unknown as RawListing[];
   } catch {
     // API offline → the app still works on demo data.
     return [];
   }
+}
+
+/**
+ * Generic per-vertical feed hook — used by the new /avto and /bepul
+ * sections which don't need the richer homes/jobs transformations.
+ */
+export function useVerticalFeed(vertical: 'avto' | 'bepul', q?: string) {
+  return useQuery({
+    queryKey: ['vertical', vertical, q ?? ''],
+    queryFn: async () => {
+      const raw = await searchRaw({ vertical, q: q || undefined });
+      return raw.filter((r) => matches(q, r.title, r.description ?? ''));
+    },
+  });
 }
 
 const matches = (q: string | undefined, ...fields: string[]) =>
@@ -240,7 +258,11 @@ export function useHomes(opts: { q?: string; deal?: Deal | 'all' } = {}) {
   return useQuery({
     queryKey: ['homes', q ?? '', deal],
     queryFn: async () => {
-      const raw = await searchRaw({ q: q || undefined, type: deal === 'sotuv' ? 'sale' : deal === 'all' ? undefined : 'rent' });
+      const raw = await searchRaw({
+        q: q || undefined,
+        vertical: 'uy-joy',
+        type: deal === 'sotuv' ? 'sale' : deal === 'all' ? undefined : 'rent',
+      });
       const live = raw.filter((r) => r.type === 'sale' || r.type === 'rent').map(toHome);
       const demo = DEMO_HOMES.filter((h) => matches(q, h.title, h.district));
       return [...live, ...demo].filter((h) => deal === 'all' || h.deal === deal);
@@ -264,7 +286,7 @@ export function useJobs(q?: string) {
   return useQuery({
     queryKey: ['jobs', q ?? ''],
     queryFn: async () => {
-      const live = (await searchRaw({ q: q || undefined, type: 'job' })).map(toJob);
+      const live = (await searchRaw({ q: q || undefined, vertical: 'ish' })).map(toJob);
       const demo = DEMO_JOBS.filter((j) => matches(q, j.title, j.company));
       return [...live, ...demo];
     },
