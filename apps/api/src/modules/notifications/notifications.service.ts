@@ -2,10 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { and, count, desc, eq, isNull } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
 import { notifications } from '../../db/schema';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
-  constructor(@Inject(DB) private readonly db: DbClient) {}
+  constructor(
+    @Inject(DB) private readonly db: DbClient,
+    private readonly gateway: NotificationsGateway,
+  ) {}
 
   async list(userId: string) {
     return this.db
@@ -46,6 +50,17 @@ export class NotificationsService {
       .insert(notifications)
       .values({ userId, type, payload })
       .returning();
+    // Real-time push; failure to emit must not fail the write.
+    try {
+      this.gateway.push(userId, {
+        id: row!.id,
+        type: row!.type,
+        payload: (row!.payload as Record<string, unknown>) ?? {},
+        createdAt: row!.createdAt,
+      });
+    } catch {
+      /* no-op */
+    }
     return row!;
   }
 }

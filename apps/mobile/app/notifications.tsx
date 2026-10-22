@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Icon, ScreenHeader, type IconName } from '@/components/ui';
 import { notificationsApi, type AppNotification } from '@/lib/reviews';
+import { getSocket } from '@/lib/socket';
 import { colors, radius, type } from '@/lib/theme';
 
 const KIND_ICON: Record<string, IconName> = {
@@ -120,6 +121,24 @@ export default function Notifications() {
 
   useEffect(() => {
     void load();
+  }, [load]);
+
+  // Real-time: refresh the list whenever the server pushes a new one.
+  useEffect(() => {
+    let sockRef: Awaited<ReturnType<typeof getSocket>> | null = null;
+    let cancelled = false;
+    void (async () => {
+      const sock = await getSocket();
+      if (cancelled || !sock) return;
+      sockRef = sock;
+      sock.on('notification:new', () => {
+        void load();
+      });
+    })();
+    return () => {
+      cancelled = true;
+      sockRef?.off('notification:new');
+    };
   }, [load]);
 
   const groups = useMemo(() => groupByBucket(items), [items]);

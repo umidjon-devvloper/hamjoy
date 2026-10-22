@@ -11,6 +11,8 @@ import React, {
 import type { AppNotification } from '@/types';
 import { notificationsService } from '@/services/notifications.service';
 import { useAuth } from '@/context/AuthContext';
+import { getJoymeeSocket } from '@/lib/joymee/socket';
+import { isRestBackendEnabled } from '@/lib/api/config';
 
 interface NotificationsContextValue {
   notifications: AppNotification[];
@@ -49,6 +51,25 @@ export function NotificationsProvider({ children }: { children: React.ReactNode 
       cancelled = true;
     };
   }, [version, authHydrated]);
+
+  // Live push: when the user receives a notification via Socket.io, refresh
+  // the list so the mapper produces the right title/body/link.
+  useEffect(() => {
+    if (!isRestBackendEnabled() || !authHydrated) return;
+    let socketRef: Awaited<ReturnType<typeof getJoymeeSocket>> | null = null;
+    let cancelled = false;
+    void (async () => {
+      const sock = await getJoymeeSocket();
+      if (cancelled || !sock) return;
+      socketRef = sock;
+      const onNew = () => refresh();
+      sock.on('notification:new', onNew);
+    })();
+    return () => {
+      cancelled = true;
+      socketRef?.off('notification:new');
+    };
+  }, [authHydrated, refresh]);
 
   const unreadCount = useMemo(
     () => notifications.filter((n) => !n.read).length,
