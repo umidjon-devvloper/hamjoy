@@ -101,4 +101,17 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(this.chatRoom(message.chatId)).emit('chat:message', payload);
     void senderId;
   }
+
+  notifyRead(
+    chatId: string,
+    readerId: string,
+    otherId: string,
+    readAt: Date,
+  ) {
+    const payload = { chatId, readerId, readAt: readAt.toISOString() };
+    // Deliver to the other party both in their user room (chat list badge
+    // clear) and inside the chat room (per-message seen marker).
+    this.server.to(this.userRoom(otherId)).emit('chat:read', payload);
+    this.server.to(this.chatRoom(chatId)).emit('chat:read', payload);
+  }
 }

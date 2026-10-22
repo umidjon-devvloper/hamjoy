@@ -75,9 +75,23 @@ export default function ChatDetail() {
         setTimeout(() => listRef.current?.scrollToEnd({ animated: true }), 50);
       };
       socket.on('chat:message', onMessage);
+
+      const onRead = (payload: { chatId: string; readerId: string; readAt: string }) => {
+        if (payload.chatId !== id) return;
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.senderId !== payload.readerId && !m.readAt && m.createdAt <= payload.readAt
+              ? { ...m, readAt: payload.readAt }
+              : m,
+          ),
+        );
+      };
+      socket.on('chat:read', onRead);
+
       cleanup = () => {
         socket.emit('chat:unsubscribe', id);
         socket.off('chat:message', onMessage);
+        socket.off('chat:read', onRead);
       };
 
       // Mark as read on open
@@ -150,9 +164,18 @@ export default function ChatDetail() {
                 <View style={[styles.msgRow, mine ? styles.msgRowMine : styles.msgRowTheirs]}>
                   <View style={[styles.bubble, mine ? styles.bubbleMine : styles.bubbleTheirs]}>
                     <Text style={[styles.bubbleText, mine && styles.bubbleTextMine]}>{item.body}</Text>
-                    <Text style={[styles.bubbleTime, mine && { color: 'rgba(255,255,255,0.7)' }]}>
-                      {new Date(item.createdAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
+                    <View style={styles.bubbleMeta}>
+                      <Text style={[styles.bubbleTime, mine && { color: 'rgba(255,255,255,0.7)' }]}>
+                        {new Date(item.createdAt).toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' })}
+                      </Text>
+                      {mine ? (
+                        <Icon
+                          name={item.readAt ? 'check-circle' : 'check'}
+                          size={12}
+                          color={item.readAt ? '#BFE5CC' : 'rgba(255,255,255,0.55)'}
+                        />
+                      ) : null}
+                    </View>
                   </View>
                 </View>
               );
@@ -207,7 +230,8 @@ const styles = StyleSheet.create({
   bubbleTheirs: { backgroundColor: colors.surface, borderBottomLeftRadius: 6 },
   bubbleText: { color: colors.ink, fontSize: 15, lineHeight: 21 },
   bubbleTextMine: { color: colors.white },
-  bubbleTime: { alignSelf: 'flex-end', fontSize: 10, color: colors.muted },
+  bubbleTime: { fontSize: 10, color: colors.muted },
+  bubbleMeta: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-end' },
   composer: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
   composerInput: {
     flex: 1,

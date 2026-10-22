@@ -309,6 +309,34 @@ export const chatsService = {
     return firebaseChatsRepository.subscribeToMessages(chatId, onInsert);
   },
 
+  /**
+   * Listen for "chat:read" events from the backend — fired when the other
+   * party opens the thread. The handler receives the readAt timestamp so the
+   * UI can flip "seen" markers on every message sent at or before that time.
+   */
+  subscribeToReads(
+    chatId: string,
+    onRead: (ev: { readerId: string; readAt: string }) => void,
+  ): (() => void) | null {
+    if (!isRestBackendEnabled()) return null;
+    let cleanup = () => {};
+    let active = true;
+    void (async () => {
+      const socket = await getJoymeeSocket();
+      if (!socket || !active) return;
+      const onPayload = (payload: { chatId: string; readerId: string; readAt: string }) => {
+        if (payload.chatId !== chatId) return;
+        onRead({ readerId: payload.readerId, readAt: payload.readAt });
+      };
+      socket.on('chat:read', onPayload);
+      cleanup = () => socket.off('chat:read', onPayload);
+    })();
+    return () => {
+      active = false;
+      cleanup();
+    };
+  },
+
   getOtherParticipantId(chat: Chat): string | undefined {
     return getOtherParticipantId(chat);
   },

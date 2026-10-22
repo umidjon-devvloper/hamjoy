@@ -103,7 +103,8 @@ export class ChatsService {
   }
 
   async markRead(userId: string, chatId: string) {
-    await this.getById(userId, chatId);
+    const chat = await this.getById(userId, chatId);
+    const readAt = new Date();
     await this.db.execute(sql`
       UPDATE chats
       SET unread_counts = jsonb_set(coalesce(unread_counts, '{}'::jsonb), ${sql.raw(`'{${userId}}'`)}, '0'::jsonb, true)
@@ -111,8 +112,9 @@ export class ChatsService {
     `);
     await this.db
       .update(messages)
-      .set({ readAt: new Date() })
+      .set({ readAt })
       .where(and(eq(messages.chatId, chatId), sql`${messages.senderId} != ${userId}`, sql`${messages.readAt} IS NULL`));
-    return { ok: true as const };
+    const otherId = chat.buyerId === userId ? chat.sellerId : chat.buyerId;
+    return { ok: true as const, otherId, readAt };
   }
 }

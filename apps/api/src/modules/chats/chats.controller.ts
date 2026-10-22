@@ -53,7 +53,9 @@ export class ChatsController {
   }
 
   @Post(':id/read')
-  read(@CurrentUser() user: AuthUser, @Param('id', new ParseUUIDPipe()) id: string) {
-    return this.svc.markRead(user.id, id);
+  async read(@CurrentUser() user: AuthUser, @Param('id', new ParseUUIDPipe()) id: string) {
+    const { otherId, readAt } = await this.svc.markRead(user.id, id);
+    this.gateway.notifyRead(id, user.id, otherId, readAt);
+    return { ok: true as const };
   }
 }

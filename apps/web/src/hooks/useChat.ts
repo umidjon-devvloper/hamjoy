@@ -63,6 +63,18 @@ export function useChat(chatId: string) {
     return () => unsubscribe?.();
   }, [chatId]);
 
+  useEffect(() => {
+    const unsubscribe = chatsService.subscribeToReads(chatId, ({ readerId, readAt }) => {
+      const cutoff = readAt;
+      setLocalMessages((prev) =>
+        prev.map((m) =>
+          m.senderId !== readerId && !m.read && m.createdAt <= cutoff ? { ...m, read: true } : m,
+        ),
+      );
+    });
+    return () => unsubscribe?.();
+  }, [chatId]);
+
   const scrollToBottom = useCallback(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
