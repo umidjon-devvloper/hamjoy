@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Link from 'next/link';
 import { getJoymeeClient } from '@/lib/joymee/client';
 import { formatPostedAt } from '@/lib/mappers/job.mapper';
+import { NearbyFilter, type NearbyState } from './NearbyFilter';
 
 interface Props {
   vertical: 'avto' | 'bepul' | 'ish' | 'uy-joy';
@@ -30,11 +32,18 @@ interface RawListing {
  * and ish.
  */
 export function VerticalFeed({ vertical, title, subtitle, emptyHint, accent }: Props) {
+  const [near, setNear] = useState<NearbyState | null>(null);
   const { data, isLoading, error } = useQuery({
-    queryKey: ['listings', 'vertical', vertical],
+    queryKey: ['listings', 'vertical', vertical, near?.lat, near?.lng, near?.radiusKm],
     queryFn: async () => {
       const client = getJoymeeClient();
-      const res = await client.listings.search({ vertical, limit: 30 } as never);
+      const query: Record<string, unknown> = { vertical, limit: 30 };
+      if (near) {
+        query.lat = near.lat;
+        query.lng = near.lng;
+        query.radiusKm = near.radiusKm;
+      }
+      const res = await client.listings.search(query as never);
       return res.items as unknown as RawListing[];
     },
   });
@@ -56,6 +65,10 @@ export function VerticalFeed({ vertical, title, subtitle, emptyHint, accent }: P
         </h1>
         <p className="max-w-[520px] text-[15px] text-[var(--color-muted)]">{subtitle}</p>
       </header>
+
+      <div className="mb-5">
+        <NearbyFilter value={near} onChange={setNear} />
+      </div>
 
       {isLoading ? (
         <p className="text-[var(--color-muted)]">Yuklanmoqda…</p>
