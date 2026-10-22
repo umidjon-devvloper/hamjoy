@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Sparkles,
   CheckCheck,
+  Star,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNotifications } from '@/context/NotificationsContext';
@@ -22,6 +23,7 @@ const KIND_ICON: Record<NotificationKind, LucideIcon> = {
   application: FileText,
   application_update: CheckCircle2,
   job_match: Sparkles,
+  review_received: Star,
   system: Bell,
 };
 
@@ -30,6 +32,7 @@ const KIND_STYLE: Record<NotificationKind, string> = {
   application: 'bg-[var(--color-field)] text-[var(--color-muted)]',
   application_update: 'bg-[var(--color-primary-light)] text-[var(--color-primary)]',
   job_match: 'bg-[var(--color-accent-light)] text-[#7A5A12]',
+  review_received: 'bg-[var(--color-accent-light)] text-[var(--color-accent)]',
   system: 'bg-gray-100 text-gray-500',
 };
 

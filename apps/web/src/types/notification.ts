@@ -3,6 +3,7 @@ export type NotificationKind =
   | 'application'
   | 'application_update'
   | 'job_match'
+  | 'review_received'
   | 'system';
 
 /** A feed notification (distinct from the user's NotificationSettings prefs). */

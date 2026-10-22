@@ -39,4 +39,13 @@ export class NotificationsService {
       .where(and(eq(notifications.id, id), eq(notifications.userId, userId)));
     return { ok: true };
   }
+
+  /** Internal — called by other services (e.g. reviews) to drop a row for a user. */
+  async create(userId: string, type: string, payload: Record<string, unknown>) {
+    const [row] = await this.db
+      .insert(notifications)
+      .values({ userId, type, payload })
+      .returning();
+    return row!;
+  }
 }

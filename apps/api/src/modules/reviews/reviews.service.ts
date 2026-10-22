@@ -3,10 +3,14 @@ import { and, avg, count, desc, eq, sql } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
 import { listings, reviews } from '../../db/schema';
 import type { AuthUser } from '../../common/current-user.decorator';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ReviewsService {
-  constructor(@Inject(DB) private readonly db: DbClient) {}
+  constructor(
+    @Inject(DB) private readonly db: DbClient,
+    private readonly notifications: NotificationsService,
+  ) {}
 
   async create(user: AuthUser, dto: {
     toUserId: string;
@@ -28,6 +32,16 @@ export class ReviewsService {
           comment: dto.comment ?? null,
         })
         .returning();
+      // Fire-and-forget: a failed notification should not fail the review.
+      void this.notifications
+        .create(dto.toUserId, 'review_received', {
+          reviewId: row!.id,
+          fromUserId: user.id,
+          listingId: dto.listingId ?? null,
+          rating: dto.rating,
+          preview: dto.comment ?? null,
+        })
+        .catch(() => {});
       return row!;
     } catch (err) {
       // Unique index on (from,to,listing) — guard the message so UIs can
