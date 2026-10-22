@@ -22,6 +22,36 @@ async function authHeader(): Promise<Record<string, string>> {
     : { 'content-type': 'application/json' };
 }
 
+/** Thin wrapper for owner-only listing actions used by /my-listings. */
+export const listingsApi = {
+  async markSold(id: string): Promise<void> {
+    const res = await fetch(`${API_URL}/listings/${id}/mark-sold`, { method: 'POST', headers: await authHeader() });
+    if (!res.ok) throw new Error('mark_sold_failed');
+  },
+  async reopen(id: string): Promise<void> {
+    const res = await fetch(`${API_URL}/listings/${id}/reopen`, { method: 'POST', headers: await authHeader() });
+    if (!res.ok) throw new Error('reopen_failed');
+  },
+  async remove(id: string): Promise<void> {
+    const res = await fetch(`${API_URL}/listings/${id}`, { method: 'DELETE', headers: await authHeader() });
+    if (!res.ok) throw new Error('delete_failed');
+  },
+  async myHistory(userId: string) {
+    const res = await fetch(`${API_URL}/users/${userId}/history`);
+    if (!res.ok) return [] as const;
+    return (await res.json()) as Array<{
+      id: string;
+      title: string;
+      type: string;
+      vertical: string;
+      status: string;
+      priceAmount: string | null;
+      priceCurrency: string | null;
+      createdAt: string;
+    }>;
+  },
+};
+
 export const reviewsApi = {
   async stats(userId: string): Promise<UserStats> {
     const res = await fetch(`${API_URL}/users/${userId}/stats`);

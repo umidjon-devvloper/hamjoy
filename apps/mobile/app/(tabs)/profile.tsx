@@ -80,6 +80,7 @@ export default function Profile() {
 
         <Group>
           <Row icon="plus-circle" tone="mint" label="Eʼlon joylash" onPress={() => router.push('/post')} />
+          <Row icon="list" tone="soft" label="Mening eʼlonlarim" onPress={() => router.push('/my-listings')} />
           <Row icon="heart" tone="soft" label="Saqlanganlar" onPress={() => router.push('/saved')} />
           <Row icon="bell" tone="gold" label="Bildirishnomalar" onPress={() => router.push('/notifications')} last />
         </Group>
