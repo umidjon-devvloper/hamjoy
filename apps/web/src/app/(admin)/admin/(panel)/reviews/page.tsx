@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { Trash2, Star } from 'lucide-react';
 import {
@@ -22,6 +23,9 @@ interface AdminReview {
   rating: number;
   comment: string | null;
   createdAt: string;
+  fromUserName: string | null;
+  toUserName: string | null;
+  listingTitle: string | null;
 }
 
 const base = () => process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
@@ -110,11 +114,34 @@ export default function AdminReviewsPage() {
                       <td className={`${tdClass} max-w-[320px] truncate`}>
                         {r.comment ?? <span className="text-slate-400">(izohsiz)</span>}
                       </td>
-                      <td className={`${tdClass} font-mono text-xs text-slate-500`}>
-                        {r.fromUserId.slice(0, 8)} → {r.toUserId.slice(0, 8)}
+                      <td className={tdClass}>
+                        <div className="flex min-w-0 items-center gap-1 text-sm">
+                          <Link
+                            href={`/u/${r.fromUserId}`}
+                            className="truncate text-slate-700 hover:text-emerald-700"
+                          >
+                            {r.fromUserName ?? r.fromUserId.slice(0, 8)}
+                          </Link>
+                          <span className="shrink-0 text-slate-400">→</span>
+                          <Link
+                            href={`/u/${r.toUserId}`}
+                            className="truncate font-semibold text-slate-900 hover:text-emerald-700"
+                          >
+                            {r.toUserName ?? r.toUserId.slice(0, 8)}
+                          </Link>
+                        </div>
                       </td>
-                      <td className={`${tdClass} font-mono text-xs text-slate-500`}>
-                        {r.listingId ? r.listingId.slice(0, 8) : <span className="text-slate-400">—</span>}
+                      <td className={`${tdClass} max-w-[240px] truncate`}>
+                        {r.listingId ? (
+                          <Link
+                            href={`/listing/${r.listingId}`}
+                            className="text-sm text-slate-700 hover:text-emerald-700"
+                          >
+                            {r.listingTitle ?? r.listingId.slice(0, 8)}
+                          </Link>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
                       </td>
                       <td className={tdClass}>
                         {new Date(r.createdAt).toLocaleDateString('uz-UZ')}

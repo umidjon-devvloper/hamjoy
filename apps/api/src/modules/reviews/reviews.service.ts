@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { and, avg, count, desc, eq, sql } from 'drizzle-orm';
+import { aliasedTable, and, avg, count, desc, eq, sql } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
-import { listings, reviews } from '../../db/schema';
+import { listings, profiles, reviews } from '../../db/schema';
 import type { AuthUser } from '../../common/current-user.decorator';
 import { NotificationsService } from '../notifications/notifications.service';
 
@@ -78,9 +78,25 @@ export class ReviewsService {
 
   /** Admin: recent reviews across all users (for moderation). */
   async listRecent(limit = 100) {
+    const fromProfile = aliasedTable(profiles, 'from_profile');
+    const toProfile = aliasedTable(profiles, 'to_profile');
     return this.db
-      .select()
+      .select({
+        id: reviews.id,
+        fromUserId: reviews.fromUserId,
+        toUserId: reviews.toUserId,
+        listingId: reviews.listingId,
+        rating: reviews.rating,
+        comment: reviews.comment,
+        createdAt: reviews.createdAt,
+        fromUserName: fromProfile.fullName,
+        toUserName: toProfile.fullName,
+        listingTitle: listings.title,
+      })
       .from(reviews)
+      .leftJoin(fromProfile, eq(fromProfile.userId, reviews.fromUserId))
+      .leftJoin(toProfile, eq(toProfile.userId, reviews.toUserId))
+      .leftJoin(listings, eq(listings.id, reviews.listingId))
       .orderBy(desc(reviews.createdAt))
       .limit(Math.min(limit, 200));
   }
