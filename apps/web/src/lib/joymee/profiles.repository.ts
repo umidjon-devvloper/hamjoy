@@ -3,6 +3,7 @@ import { DEFAULT_NOTIFICATION_SETTINGS } from '@/types';
 import { getJoymeeClient } from './client';
 
 function mapMe(me: Awaited<ReturnType<ReturnType<typeof getJoymeeClient>['users']['me']>>): User {
+  const trusted = (me.user as { trusted?: boolean }).trusted ?? false;
   return {
     id: me.user.id,
     email: me.user.email ?? '',
@@ -15,6 +16,7 @@ function mapMe(me: Awaited<ReturnType<ReturnType<typeof getJoymeeClient>['users'
     language: 'uz',
     notifications: { ...DEFAULT_NOTIFICATION_SETTINGS },
     blocked: me.user.status === 'blocked',
+    trusted,
   };
 }
 

@@ -9,6 +9,8 @@ export interface User {
   email: string | null;
   role: UserRole;
   status: UserStatus;
+  /** Admin-granted trust mark (Telegram-style ✓). */
+  trusted?: boolean;
   createdAt: Timestamp;
 }
 

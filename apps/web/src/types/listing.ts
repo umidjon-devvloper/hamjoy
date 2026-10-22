@@ -12,6 +12,8 @@ export interface ListingSeller {
   name: string;
   type: 'mulkdor' | 'agentlik';
   phone: string;
+  /** Admin-granted ✓ (Telegram-style). */
+  trusted?: boolean;
 }
 
 export interface PropertyListing {

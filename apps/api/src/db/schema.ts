@@ -50,6 +50,8 @@ export const users = pgTable(
     passwordHash: text('password_hash'),
     role: userRole('role').notNull().default('user'),
     status: userStatus('status').notNull().default('active'),
+    /** Admin-granted trust badge (Telegram-style ✓). Only admins can toggle. */
+    trusted: boolean('trusted').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({

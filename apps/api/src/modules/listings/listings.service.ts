@@ -140,7 +140,25 @@ export class ListingsService {
 
   async searchActive(q: SearchQueryDto) {
     const { ids, total } = await this.search.search(q);
-    const items = ids.length ? await this.hydrate(ids) : [];
+    let items = ids.length ? await this.hydrate(ids) : [];
+
+    // Geo radius filter: PostGIS is the source of truth for distance, Meili
+    // doesn't know about it. If the caller passed lat/lng/radiusKm, cull the
+    // Meili result set by whichever ids fall inside the circle.
+    if (q.lat != null && q.lng != null && q.radiusKm != null && ids.length > 0) {
+      const point = sql`ST_SetSRID(ST_MakePoint(${q.lng}, ${q.lat}), 4326)::geography`;
+      const rows = await this.db
+        .select({ id: listings.id })
+        .from(listings)
+        .where(
+          and(
+            inArray(listings.id, ids),
+            sql`geo IS NOT NULL AND ST_DWithin(geo, ${point}, ${q.radiusKm * 1000})`,
+          ),
+        );
+      const keep = new Set(rows.map((r) => r.id));
+      items = items.filter((i) => keep.has(i.id));
+    }
 
     // Decorate with active promotion tier so the UI can draw the right ramka.
     // On the first page, also pull promoted listings to the front so paid
@@ -151,9 +169,26 @@ export class ListingsService {
     let ordered = items;
     if (isFirstPage) {
       const top = await this.promotions.topListingIds(50);
-      const matching = q.vertical
+      let matching = q.vertical
         ? await this.filterTopByVertical(top.map((t) => t.id), q.vertical)
         : new Set(top.map((t) => t.id));
+
+      // Radius filter also applies to TOP — a promoted listing far away is
+      // still useless to a nearby buyer.
+      if (q.lat != null && q.lng != null && q.radiusKm != null && matching.size > 0) {
+        const point = sql`ST_SetSRID(ST_MakePoint(${q.lng}, ${q.lat}), 4326)::geography`;
+        const rows = await this.db
+          .select({ id: listings.id })
+          .from(listings)
+          .where(
+            and(
+              inArray(listings.id, Array.from(matching)),
+              sql`geo IS NOT NULL AND ST_DWithin(geo, ${point}, ${q.radiusKm * 1000})`,
+            ),
+          );
+        matching = new Set(rows.map((r) => r.id));
+      }
+
       const topIds = top.filter((t) => matching.has(t.id)).map((t) => t.id);
       if (topIds.length) {
         const hydratedTop = await this.hydrate(topIds);

@@ -24,6 +24,7 @@ export class UsersService {
         email: row.user.email,
         role: row.user.role,
         status: row.user.status,
+        trusted: row.user.trusted,
         createdAt: row.user.createdAt.toISOString(),
       },
       profile: row.profile ?? null,
@@ -34,5 +35,16 @@ export class UsersService {
     const [updated] = await this.db.update(profiles).set(patch).where(eq(profiles.userId, userId)).returning();
     if (!updated) throw new NotFoundException({ code: 'profile_not_found', message: 'Profil topilmadi' });
     return updated;
+  }
+
+  /** Admin-only. Grants or revokes the ✓ trust badge. */
+  async setTrusted(userId: string, trusted: boolean) {
+    const [updated] = await this.db
+      .update(users)
+      .set({ trusted })
+      .where(eq(users.id, userId))
+      .returning();
+    if (!updated) throw new NotFoundException({ code: 'user_not_found', message: 'Topilmadi' });
+    return { id: updated.id, trusted: updated.trusted };
   }
 }

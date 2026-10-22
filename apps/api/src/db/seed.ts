@@ -41,6 +41,7 @@ async function main() {
   ];
 
   const LOCATIONS = [
+    // --- Toshkent shahri + 11 tumani ---
     { id: 1, parentId: null, nameUz: 'Toshkent sh.', nameRu: 'г. Ташкент' },
     { id: 11, parentId: 1, nameUz: 'Yunusobod', nameRu: 'Юнусабад' },
     { id: 12, parentId: 1, nameUz: 'Chilonzor', nameRu: 'Чиланзар' },
@@ -48,18 +49,65 @@ async function main() {
     { id: 14, parentId: 1, nameUz: 'Shayxontohur', nameRu: 'Шайхантахур' },
     { id: 15, parentId: 1, nameUz: 'Sergeli', nameRu: 'Сергели' },
     { id: 16, parentId: 1, nameUz: 'Yakkasaroy', nameRu: 'Яккасарай' },
+    { id: 17, parentId: 1, nameUz: 'Mirobod', nameRu: 'Мирабад' },
+    { id: 18, parentId: 1, nameUz: 'Olmazor', nameRu: 'Алмазар' },
+    { id: 19, parentId: 1, nameUz: 'Uchtepa', nameRu: 'Учтепа' },
+    { id: 101, parentId: 1, nameUz: 'Bektemir', nameRu: 'Бектемир' },
+    { id: 102, parentId: 1, nameUz: 'Yashnobod', nameRu: 'Яшнабад' },
+
+    // --- Viloyatlar + yirik tumanlari ---
     { id: 2, parentId: null, nameUz: 'Samarqand', nameRu: 'Самарканд' },
+    { id: 201, parentId: 2, nameUz: 'Samarqand sh.', nameRu: 'г. Самарканд' },
+    { id: 202, parentId: 2, nameUz: 'Kattaqo‘rg‘on', nameRu: 'Каттакурган' },
+    { id: 203, parentId: 2, nameUz: 'Urgut', nameRu: 'Ургут' },
+
     { id: 3, parentId: null, nameUz: 'Buxoro', nameRu: 'Бухара' },
+    { id: 301, parentId: 3, nameUz: 'Buxoro sh.', nameRu: 'г. Бухара' },
+    { id: 302, parentId: 3, nameUz: 'G‘ijduvon', nameRu: 'Гиждуван' },
+
     { id: 4, parentId: null, nameUz: 'Namangan', nameRu: 'Наманган' },
+    { id: 401, parentId: 4, nameUz: 'Namangan sh.', nameRu: 'г. Наманган' },
+    { id: 402, parentId: 4, nameUz: 'Chust', nameRu: 'Чуст' },
+
     { id: 5, parentId: null, nameUz: 'Andijon', nameRu: 'Андижан' },
+    { id: 501, parentId: 5, nameUz: 'Andijon sh.', nameRu: 'г. Андижан' },
+    { id: 502, parentId: 5, nameUz: 'Asaka', nameRu: 'Асака' },
+
     { id: 6, parentId: null, nameUz: "Farg'ona", nameRu: 'Фергана' },
+    { id: 601, parentId: 6, nameUz: "Farg'ona sh.", nameRu: 'г. Фергана' },
+    { id: 602, parentId: 6, nameUz: "Qo'qon", nameRu: 'Коканд' },
+    { id: 603, parentId: 6, nameUz: 'Marg‘ilon', nameRu: 'Маргилан' },
+
     { id: 7, parentId: null, nameUz: 'Qashqadaryo', nameRu: 'Кашкадарья' },
+    { id: 701, parentId: 7, nameUz: 'Qarshi', nameRu: 'Карши' },
+    { id: 702, parentId: 7, nameUz: 'Shahrisabz', nameRu: 'Шахрисабз' },
+
     { id: 8, parentId: null, nameUz: 'Surxondaryo', nameRu: 'Сурхандарья' },
+    { id: 801, parentId: 8, nameUz: 'Termiz', nameRu: 'Термез' },
+
     { id: 9, parentId: null, nameUz: 'Jizzax', nameRu: 'Джизак' },
+    { id: 901, parentId: 9, nameUz: 'Jizzax sh.', nameRu: 'г. Джизак' },
+
     { id: 10, parentId: null, nameUz: 'Sirdaryo', nameRu: 'Сырдарья' },
+    { id: 1001, parentId: 10, nameUz: 'Guliston', nameRu: 'Гулистан' },
+
     { id: 20, parentId: null, nameUz: 'Navoiy', nameRu: 'Навои' },
+    { id: 2001, parentId: 20, nameUz: 'Navoiy sh.', nameRu: 'г. Навои' },
+    { id: 2002, parentId: 20, nameUz: 'Zarafshon', nameRu: 'Зарафшан' },
+
     { id: 21, parentId: null, nameUz: 'Xorazm', nameRu: 'Хорезм' },
+    { id: 2101, parentId: 21, nameUz: 'Urganch', nameRu: 'Ургенч' },
+    { id: 2102, parentId: 21, nameUz: 'Xiva', nameRu: 'Хива' },
+
     { id: 22, parentId: null, nameUz: "Qoraqalpog'iston", nameRu: 'Каракалпакстан' },
+    { id: 2201, parentId: 22, nameUz: 'Nukus', nameRu: 'Нукус' },
+
+    // --- Toshkent viloyati va yirik shaharlari ---
+    { id: 23, parentId: null, nameUz: 'Toshkent viloyati', nameRu: 'Ташкентская область' },
+    { id: 2301, parentId: 23, nameUz: 'Chirchiq', nameRu: 'Чирчик' },
+    { id: 2302, parentId: 23, nameUz: 'Olmaliq', nameRu: 'Алмалык' },
+    { id: 2303, parentId: 23, nameUz: 'Qibray', nameRu: 'Кибрай' },
+    { id: 2304, parentId: 23, nameUz: 'Zangiota', nameRu: 'Зангиата' },
   ];
 
   const url = process.env.DATABASE_URL;
@@ -81,7 +129,17 @@ async function main() {
         icon: sql`EXCLUDED.icon`,
       },
     });
-  await db.insert(locations).values(LOCATIONS).onConflictDoNothing();
+  await db
+    .insert(locations)
+    .values(LOCATIONS)
+    .onConflictDoUpdate({
+      target: locations.id,
+      set: {
+        parentId: sql`EXCLUDED.parent_id`,
+        nameUz: sql`EXCLUDED.name_uz`,
+        nameRu: sql`EXCLUDED.name_ru`,
+      },
+    });
 
   await db.execute(sql`
     UPDATE locations SET geo = ST_SetSRID(ST_MakePoint(69.2797, 41.3111), 4326)::geography

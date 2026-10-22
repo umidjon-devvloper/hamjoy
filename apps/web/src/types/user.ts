@@ -45,6 +45,8 @@ export interface User {
   badge?: string;
   companyId?: string;
   blocked?: boolean;
+  /** Admin-granted trust badge (Telegram-style ✓). */
+  trusted?: boolean;
 }
 
 export interface UserProfileUpdate {

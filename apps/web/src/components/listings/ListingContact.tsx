@@ -5,6 +5,7 @@ import { MessageCircle, Phone, Share2 } from 'lucide-react';
 import type { ListingSeller } from '@/types/listing';
 import { appToast } from '@/lib/feedback/toast';
 import { SaveListingButton } from './SaveListingButton';
+import { TrustBadge } from '@/components/ui/TrustBadge';
 
 /** Seller block on the listing page: reveal-then-call phone, save, share. */
 export function ListingContact({
@@ -42,9 +43,13 @@ export function ListingContact({
           {seller.name.charAt(0)}
         </span>
         <div className="min-w-0">
-          <p className="truncate font-semibold text-[var(--color-secondary)]">{seller.name}</p>
+          <p className="flex items-center gap-1.5 truncate font-semibold text-[var(--color-secondary)]">
+            {seller.name}
+            {seller.trusted ? <TrustBadge size="xs" /> : null}
+          </p>
           <p className="text-xs text-[var(--color-muted)]">
             {seller.type === 'agentlik' ? 'Agentlik' : 'Mulkdor'}
+            {seller.trusted ? ' · Ishonchli' : ''}
           </p>
         </div>
       </div>

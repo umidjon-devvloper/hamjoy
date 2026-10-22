@@ -87,9 +87,11 @@ export function ListingDetail({
         <h1 className="text-[clamp(1.75rem,3.4vw,2.5rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--color-secondary)]">
           {listing.title}
         </h1>
-        <p className="flex items-center gap-1.5 text-[var(--color-muted)]">
+        <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[var(--color-muted)]">
           <MapPin className="h-4 w-4 shrink-0" aria-hidden />
-          {listing.district}, {listing.region} · <time dateTime={listing.postedAt}>{formatListingDate(listing.postedAt)}</time>
+          {listing.district}, {listing.region} ·{' '}
+          <time dateTime={listing.postedAt}>{formatListingDate(listing.postedAt)}</time>
+          <MapsLink district={listing.district} region={listing.region} />
         </p>
       </header>
 
@@ -173,5 +175,27 @@ export function ListingDetail({
         </section>
       )}
     </main>
+  );
+}
+
+/**
+ * Opens the listing's location in Yandex Maps. Falls back to the browser web
+ * version if the native app isn't installed (web just follows the https URL).
+ * Deep-linking a specific pin without lat/lng isn't possible, so we send a
+ * text query — "Yunusobod, Toshkent shahri" — which lands on the right area.
+ */
+function MapsLink({ district, region }: { district: string; region: string }) {
+  const q = encodeURIComponent(`${district}, ${region}`);
+  const url = `https://yandex.uz/maps/?text=${q}`;
+  return (
+    <a
+      href={url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1 rounded-full border border-[var(--color-border)] px-2.5 py-0.5 text-[11px] font-semibold text-[var(--color-brand-green)] transition-colors hover:border-[var(--color-brand-green)]/40"
+    >
+      <MapPin className="h-3 w-3" />
+      Yandex xaritada
+    </a>
   );
 }
