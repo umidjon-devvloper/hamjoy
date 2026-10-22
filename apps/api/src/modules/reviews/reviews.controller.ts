@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CurrentUser, type AuthUser } from '../../common/current-user.decorator';
 import { Public } from '../../common/jwt-auth.guard';
+import { Roles } from '../../common/roles.guard';
 import { ZodValidationPipe } from '../../common/zod-validation.pipe';
 import { CreateReviewSchema, type CreateReviewDto } from './dto';
 import { ReviewsService } from './reviews.service';
@@ -36,5 +37,20 @@ export class ReviewsController {
   @Get('users/:id/history')
   history(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.svc.userHistory(id);
+  }
+
+  @ApiBearerAuth()
+  @Roles('admin', 'moderator')
+  @Get('admin/reviews')
+  recent(@Query('limit') limit?: string) {
+    const n = limit ? Number(limit) : 100;
+    return this.svc.listRecent(Number.isFinite(n) ? n : 100);
+  }
+
+  @ApiBearerAuth()
+  @Roles('admin', 'moderator')
+  @Delete('admin/reviews/:id')
+  remove(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.svc.adminDelete(id);
   }
 }

@@ -76,6 +76,21 @@ export class ReviewsService {
     };
   }
 
+  /** Admin: recent reviews across all users (for moderation). */
+  async listRecent(limit = 100) {
+    return this.db
+      .select()
+      .from(reviews)
+      .orderBy(desc(reviews.createdAt))
+      .limit(Math.min(limit, 200));
+  }
+
+  /** Admin: delete a review outright. */
+  async adminDelete(id: string) {
+    await this.db.delete(reviews).where(eq(reviews.id, id));
+    return { ok: true as const };
+  }
+
   /**
    * Public user history — their sold or still-active listings. Powers the
    * "istoriyalari tursin" requirement from the spec.
