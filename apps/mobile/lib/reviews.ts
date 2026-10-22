@@ -52,6 +52,29 @@ export const listingsApi = {
   },
 };
 
+export interface AppNotification {
+  id: string;
+  userId: string;
+  type: string;
+  payload: Record<string, unknown>;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export const notificationsApi = {
+  async list(): Promise<AppNotification[]> {
+    const res = await fetch(`${API_URL}/notifications`, { headers: await authHeader() });
+    if (!res.ok) return [];
+    return (await res.json()) as AppNotification[];
+  },
+  async markAllRead(): Promise<void> {
+    await fetch(`${API_URL}/notifications/read-all`, { method: 'POST', headers: await authHeader() });
+  },
+  async markRead(id: string): Promise<void> {
+    await fetch(`${API_URL}/notifications/${id}/read`, { method: 'POST', headers: await authHeader() });
+  },
+};
+
 export const reviewsApi = {
   async stats(userId: string): Promise<UserStats> {
     const res = await fetch(`${API_URL}/users/${userId}/stats`);
