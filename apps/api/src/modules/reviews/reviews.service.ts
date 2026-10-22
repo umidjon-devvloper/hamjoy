@@ -107,6 +107,22 @@ export class ReviewsService {
     return { ok: true as const };
   }
 
+  /** Admin: counts + averages for the dashboard. */
+  async adminStats() {
+    const [overall] = await this.db
+      .select({ avg: avg(reviews.rating), count: count() })
+      .from(reviews);
+    const [recent] = await this.db
+      .select({ count: count() })
+      .from(reviews)
+      .where(sql`${reviews.createdAt} >= NOW() - INTERVAL '7 days'`);
+    return {
+      total: Number(overall?.count ?? 0),
+      avg: overall?.avg ? Number(overall.avg) : 0,
+      last7: Number(recent?.count ?? 0),
+    };
+  }
+
   /**
    * Public user history — their sold or still-active listings. Powers the
    * "istoriyalari tursin" requirement from the spec.

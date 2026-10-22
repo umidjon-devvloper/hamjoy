@@ -49,6 +49,13 @@ export class ReviewsController {
 
   @ApiBearerAuth()
   @Roles('admin', 'moderator')
+  @Get('admin/reviews/stats')
+  adminStats() {
+    return this.svc.adminStats();
+  }
+
+  @ApiBearerAuth()
+  @Roles('admin', 'moderator')
   @Delete('admin/reviews/:id')
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.svc.adminDelete(id);

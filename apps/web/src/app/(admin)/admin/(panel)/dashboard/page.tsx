@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Briefcase, FileText, Home, Users } from 'lucide-react';
+import { Briefcase, FileText, Home, Star, Users } from 'lucide-react';
 import { AdminPageHeader, LineChart, Panel, StatCard } from '@/components/admin/ui';
 import { adminService } from '@/services/admin.service';
 import { useAsyncQuery } from '@/hooks/useAsyncQuery';
@@ -12,9 +12,13 @@ import { useUserListings } from '@/lib/listings/user-listings';
 import { useListingModeration } from '@/lib/listings/moderation';
 import { formatListingPrice } from '@/lib/listings/format';
 import { ROUTES } from '@/lib/navigation/routes';
+import { joymeeTokens } from '@/lib/joymee/client';
+import { isRestBackendEnabled } from '@/lib/api/config';
 
 const DAYS = 7;
 const isoDay = (d: Date) => d.toISOString().slice(0, 10);
+
+interface ReviewStats { total: number; avg: number; last7: number }
 
 export default function AdminDashboardPage() {
   const jobs = useAsyncQuery(() => adminService.listAllJobs(), [], []);
@@ -22,6 +26,19 @@ export default function AdminDashboardPage() {
   const reports = useAsyncQuery(() => adminService.listReports(), [], []);
   const userListings = useUserListings();
   const { statusOf } = useListingModeration();
+  const [reviewStats, setReviewStats] = useState<ReviewStats | null>(null);
+
+  useEffect(() => {
+    if (!isRestBackendEnabled()) return;
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    void (async () => {
+      const token = await joymeeTokens.getAccess();
+      const res = await fetch(`${base}/admin/reviews/stats`, {
+        headers: token ? { authorization: `Bearer ${token}` } : {},
+      });
+      if (res.ok) setReviewStats((await res.json()) as ReviewStats);
+    })();
+  }, []);
 
   const listings = useMemo(
     () => [...userListings, ...DEMO_LISTINGS].filter((l) => statusOf(l.id) !== 'removed'),
@@ -83,6 +100,25 @@ export default function AdminDashboardPage() {
         <StatCard label="Ish eʼlonlari" value={jobs.data.length} icon={Briefcase} tone="purple" hint={`${pendingJobs} tasi tekshiruvda`} />
         <StatCard label="Foydalanuvchilar" value={users.data.length} icon={Users} tone="orange" hint={`${openReports} ta yangi murojaat`} />
       </div>
+
+      {reviewStats ? (
+        <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label="Jami sharhlar"
+            value={reviewStats.total}
+            icon={Star}
+            tone="orange"
+            hint={`So'nggi 7 kunda ${reviewStats.last7} ta yangi`}
+          />
+          <StatCard
+            label="O'rtacha reyting"
+            value={(Math.round(reviewStats.avg * 10) / 10).toFixed(1)}
+            icon={Star}
+            tone="green"
+            hint="5 ballik shkala bo'yicha"
+          />
+        </div>
+      ) : null}
 
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <Panel title="Eʼlonlar statistikasi" action={<span className="text-xs font-medium text-slate-500">Soʻnggi 7 kun</span>}>
