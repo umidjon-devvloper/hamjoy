@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { SaveButton } from '@/components/cards';
 import { Photo } from '@/components/Photo';
 import { Scrim } from '@/components/Scrim';
+import { SellerReviews } from '@/components/SellerReviews';
 import { Avatar, BackButton, Button, EmptyState, Icon, Pill, RoundButton, FocusStatusBar } from '@/components/ui';
 import { getApi } from '@/lib/api';
 import { useAuth } from '@/lib/auth';
@@ -169,6 +170,8 @@ export default function ListingDetail() {
             </View>
             {!isOwn ? <RoundButton icon="message-circle" label="Yozish" onPress={write} style={{ backgroundColor: colors.mint }} /> : null}
           </View>
+
+          {home.userId ? <SellerReviews sellerUserId={home.userId} listingId={home.id} /> : null}
 
           <View style={styles.warn}>
             <Icon name="shield" size={18} color={colors.goldInk} />
