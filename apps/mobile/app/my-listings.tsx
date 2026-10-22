@@ -145,6 +145,15 @@ export default function MyListings() {
                   </Pressable>
 
                   <View style={styles.actions}>
+                    {r.vertical !== 'ish' ? (
+                      <Pressable
+                        onPress={() => router.push({ pathname: '/post', params: { edit: r.id } })}
+                        style={[styles.action, { backgroundColor: colors.field }]}
+                      >
+                        <Icon name="edit-2" size={14} color={colors.ink} />
+                        <Text style={[styles.actionText, { color: colors.ink }]}>Tahrir</Text>
+                      </Pressable>
+                    ) : null}
                     {r.status === 'active' ? (
                       <Pressable onPress={() => onMarkSold(r.id)} style={[styles.action, { backgroundColor: colors.goldWash }]}>
                         <Icon name="check-circle" size={14} color={colors.goldInk} />

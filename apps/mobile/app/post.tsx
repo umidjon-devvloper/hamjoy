@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Chip, Icon, RoundButton, Segmented, type IconName } from '@/components/ui';
@@ -34,6 +34,9 @@ export default function Post() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const qc = useQueryClient();
+  const { edit } = useLocalSearchParams<{ edit?: string }>();
+  const editId = typeof edit === 'string' && edit.length > 0 ? edit : null;
+
   const [kind, setKind] = useState<Kind>('sotuv');
   const [title, setTitle] = useState('');
   const [price, setPrice] = useState('');
@@ -45,6 +48,42 @@ export default function Post() {
   const [description, setDescription] = useState('');
 
   const isJob = kind === 'ish';
+
+  // Edit mode: pull the existing listing and prefill the form.
+  const existing = useQuery({
+    queryKey: ['listing', editId],
+    enabled: !!editId,
+    queryFn: async () => (await getApi().listings.get(editId!)) as unknown as {
+      type: string;
+      title: string;
+      description: string;
+      price: { amount: number; currency: 'USD' | 'UZS' } | null;
+      locationId: number;
+      attrs: Record<string, unknown>;
+    },
+  });
+
+  useEffect(() => {
+    const l = existing.data;
+    if (!l) return;
+    const period = typeof l.attrs?.period === 'string' ? (l.attrs.period as string) : '';
+    const next: Kind = l.type === 'job' ? 'ish' : l.type === 'rent' ? (period === 'kun' ? 'kunlik' : 'ijara') : 'sotuv';
+    setKind(next);
+    setTitle(l.title ?? '');
+    setDescription(l.description ?? '');
+    if (l.price) {
+      setPrice(String(l.price.amount).replace(/\B(?=(\d{3})+(?!\d))/g, ' '));
+      setCurrency(l.price.currency === 'UZS' ? 'UZS' : 'USD');
+    }
+    const roomsV = l.attrs?.rooms;
+    if (roomsV != null) setRooms(String(roomsV));
+    const areaV = l.attrs?.area;
+    if (areaV != null) setArea(String(areaV));
+    const companyV = l.attrs?.company;
+    if (typeof companyV === 'string') setCompany(companyV);
+    const match = LOCATIONS.find((loc) => loc.id === l.locationId);
+    if (match) setLocation(match);
+  }, [existing.data]);
   const pickKind = (k: Kind) => {
     setKind(k);
     setCurrency(k === 'sotuv' ? 'USD' : 'UZS');
@@ -59,7 +98,7 @@ export default function Post() {
       if (kind === 'kunlik') attrs.period = 'kun';
       if (isJob && company.trim()) attrs.company = company.trim();
       const api = getApi();
-      const created = await api.listings.create({
+      const body = {
         type: isJob ? 'job' : kind === 'sotuv' ? 'sale' : 'rent',
         categoryId: CATEGORY[kind],
         locationId: location.id,
@@ -67,7 +106,11 @@ export default function Post() {
         description: description.trim(),
         price: amount ? { amount, currency, negotiable: false } : null,
         attrs,
-      } as never);
+      };
+      if (editId) {
+        return (await api.listings.update(editId, body as never)) as unknown as { id: string };
+      }
+      const created = await api.listings.create(body as never);
       try {
         await api.listings.publish(created.id);
       } catch {
@@ -77,9 +120,12 @@ export default function Post() {
     },
     onSuccess: async () => {
       await qc.invalidateQueries({ queryKey: [isJob ? 'jobs' : 'homes'] });
-      Alert.alert('Eʼlon yuborildi', 'Moderatsiyadan soʻng hammaga koʻrinadi.', [{ text: 'Yaxshi', onPress: () => router.back() }]);
+      if (editId) await qc.invalidateQueries({ queryKey: ['listing', editId] });
+      const title = editId ? "Eʼlon yangilandi" : 'Eʼlon yuborildi';
+      const body = editId ? "O'zgarishlar saqlandi." : 'Moderatsiyadan soʻng hammaga koʻrinadi.';
+      Alert.alert(title, body, [{ text: 'Yaxshi', onPress: () => router.back() }]);
     },
-    onError: (err) => Alert.alert('Eʼlon joylanmadi', (err as Error).message),
+    onError: (err) => Alert.alert(editId ? "Saqlab bo'lmadi" : 'Eʼlon joylanmadi', (err as Error).message),
   });
 
   const valid = title.trim().length >= 3;
@@ -88,7 +134,7 @@ export default function Post() {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.top}>
         <RoundButton icon="x" label="Yopish" onPress={() => router.back()} />
-        <Text style={styles.topTitle}>Yangi eʼlon</Text>
+        <Text style={styles.topTitle}>{editId ? "Eʼlonni tahrirlash" : 'Yangi eʼlon'}</Text>
         <View style={{ width: 46 }} />
       </View>
 
@@ -192,7 +238,13 @@ export default function Post() {
         </ScrollView>
 
         <View style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
-          <Button label="Eʼlonni joylash" tone="green" onPress={() => submit.mutate()} loading={submit.isPending} disabled={!valid} />
+          <Button
+            label={editId ? "O'zgarishlarni saqlash" : 'Eʼlonni joylash'}
+            tone="green"
+            onPress={() => submit.mutate()}
+            loading={submit.isPending}
+            disabled={!valid}
+          />
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
