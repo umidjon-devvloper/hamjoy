@@ -271,6 +271,13 @@ export const jobsService = {
   },
 
   async getMyJobPosts(userId: string, savedJobIds: Set<string>): Promise<JobListItem[]> {
+    if (isRestBackendEnabled()) {
+      // REST mode: the mock userId doesn't match Joymee userIds, so use
+      // the dedicated /listings/mine endpoint instead of filtering by posterId.
+      const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+      const jobs = await joymeeListingsRepository.getMine();
+      return jobs.map((j) => toJobListItem(j, savedJobIds));
+    }
     return this.listJobs(savedJobIds, { posterId: userId });
   },
 
@@ -307,8 +314,8 @@ export const jobsService = {
 
   async deleteJob(id: string): Promise<void> {
     if (isRestBackendEnabled()) {
-      const { restJobsRepository } = await import('@/lib/rest/repositories/jobs.repository');
-      await restJobsRepository.delete(id);
+      const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+      await joymeeListingsRepository.remove(id);
       return;
     }
     if (isBackendEnabled()) {
@@ -319,5 +326,24 @@ export const jobsService = {
     // don't reappear from the static dataset.
     userJobsStore.remove(id);
     jobModerationStore.markDeleted(id);
+  },
+
+  async markSold(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+      await joymeeListingsRepository.markSold(id);
+      return;
+    }
+    // Mock: keep the job but tag it as "closed" via the moderation store.
+    jobModerationStore.setStatus(id, 'closed');
+  },
+
+  async reopen(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      const { joymeeListingsRepository } = await import('@/lib/joymee/listings.repository');
+      await joymeeListingsRepository.reopen(id);
+      return;
+    }
+    jobModerationStore.setStatus(id, 'active');
   },
 };

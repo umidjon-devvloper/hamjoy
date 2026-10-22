@@ -56,6 +56,18 @@ export class ListingsController {
   }
 
   @ApiBearerAuth()
+  @Post(':id/mark-sold')
+  markSold(@CurrentUser() user: AuthUser, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.svc.markSold(user, id);
+  }
+
+  @ApiBearerAuth()
+  @Post(':id/reopen')
+  reopen(@CurrentUser() user: AuthUser, @Param('id', new ParseUUIDPipe()) id: string) {
+    return this.svc.reopen(user, id);
+  }
+
+  @ApiBearerAuth()
   @Delete(':id')
   remove(@CurrentUser() user: AuthUser, @Param('id', new ParseUUIDPipe()) id: string) {
     return this.svc.remove(user, id);

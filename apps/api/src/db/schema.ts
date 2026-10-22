@@ -23,6 +23,7 @@ export const listingStatus = pgEnum('listing_status', [
   'draft',
   'pending',
   'active',
+  'sold',
   'archived',
   'blocked',
 ]);

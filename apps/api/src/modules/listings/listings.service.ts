@@ -134,10 +134,27 @@ export class ListingsService {
 
   async mine(user: AuthUser, status?: string) {
     const where = status
-      ? and(eq(listings.userId, user.id), eq(listings.status, status as 'draft' | 'pending' | 'active' | 'archived' | 'blocked'))
+      ? and(eq(listings.userId, user.id), eq(listings.status, status as 'draft' | 'pending' | 'active' | 'sold' | 'archived' | 'blocked'))
       : eq(listings.userId, user.id);
     const rows = await this.db.select().from(listings).where(where).orderBy(desc(listings.createdAt)).limit(100);
     return this.hydrate(rows.map((r) => r.id));
+  }
+
+  async markSold(user: AuthUser, id: string) {
+    await this.getOwned(user, id);
+    await this.db.update(listings).set({ status: 'sold' }).where(eq(listings.id, id));
+    // De-index so searches don't surface sold items, but the listing stays
+    // reachable via its URL (and shows the SOTILDI stamp in the UI).
+    await this.search.remove(id);
+    return (await this.hydrate([id]))[0]!;
+  }
+
+  async reopen(user: AuthUser, id: string) {
+    const existing = await this.getOwned(user, id);
+    if (existing.status !== 'sold') return (await this.hydrate([id]))[0]!;
+    await this.db.update(listings).set({ status: 'active' }).where(eq(listings.id, id));
+    await this.indexOne(id);
+    return (await this.hydrate([id]))[0]!;
   }
 
   async moderate(id: string, decision: 'approve' | 'reject' | 'block') {

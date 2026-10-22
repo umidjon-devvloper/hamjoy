@@ -102,6 +102,18 @@ export function ListingCard({
 
         <SaveListingButton listingId={listing.id} className="absolute right-2 top-2 z-10" />
 
+        {listing.sold ? (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" aria-hidden />
+            <span
+              aria-label="Sotildi"
+              className="relative -rotate-[8deg] rounded-md border-[3px] border-[#c73a7f] bg-white/95 px-5 py-2 text-xl font-extrabold uppercase tracking-[0.14em] text-[#c73a7f] shadow-[0_8px_28px_-14px_rgb(199,58,127,0.9)]"
+            >
+              Sotildi
+            </span>
+          </div>
+        ) : null}
+
         {count > 1 && (
           <>
             <button

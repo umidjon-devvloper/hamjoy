@@ -44,4 +44,6 @@ export interface PropertyListing {
   seeking?: boolean;
   /** Set on listings posted from this app (not demo data). */
   ownerId?: string;
+  /** True once the owner marked the listing as sold. The card stays, with a stamp. */
+  sold?: boolean;
 }

@@ -11,7 +11,7 @@ import { QueryErrorBanner } from '@/components/ui/QueryErrorBanner';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { useMyJobPosts } from '@/hooks/useMyJobs';
 import { useScrollRestore } from '@/hooks/useScrollRestore';
-import { Briefcase, Pencil, Trash2, Loader2 } from 'lucide-react';
+import { Briefcase, CheckCircle2, Pencil, RotateCcw, Trash2, Loader2 } from 'lucide-react';
 import { JOB_STATUS_LABELS } from '@/types';
 import { jobsService } from '@/services';
 import { appToast } from '@/lib/feedback/toast';
@@ -22,6 +22,7 @@ export default function MyJobsPage() {
   const { jobs, isLoading, error, refetch } = useMyJobPosts();
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     setDeletingId(id);
@@ -34,6 +35,24 @@ export default function MyJobsPage() {
       appToast.error(err, 'Oʻchirib boʻlmadi');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleToggleSold = async (id: string, isClosed: boolean) => {
+    setTogglingId(id);
+    try {
+      if (isClosed) {
+        await jobsService.reopen(id);
+        appToast.success('Eʼlon qayta ochildi');
+      } else {
+        await jobsService.markSold(id);
+        appToast.success('Eʼlon “Sotildi” deb belgilandi');
+      }
+      await refetch();
+    } catch (err) {
+      appToast.error(err, 'Amal bajarilmadi');
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -73,13 +92,39 @@ export default function MyJobsPage() {
                 <JobCard job={job} index={index} />
 
                 {/* Owner actions */}
-                <div className="mt-2 flex gap-2">
-                  <Link href={`/create?edit=${job.id}`} className="flex-1">
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Link href={`/create?edit=${job.id}`} className="flex-1 min-w-[120px]">
                     <span className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-[var(--color-border)] bg-white py-2.5 text-sm font-semibold text-[var(--color-secondary)] transition-colors hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]">
                       <Pencil className="h-4 w-4" />
                       Tahrirlash
                     </span>
                   </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleSold(job.id, job.status === 'closed')}
+                    disabled={togglingId === job.id}
+                    className={cn(
+                      'flex flex-1 min-w-[120px] items-center justify-center gap-1.5 rounded-xl border py-2.5 text-sm font-semibold transition-colors disabled:opacity-60',
+                      job.status === 'closed'
+                        ? 'border-[var(--color-border)] bg-white text-[var(--color-secondary)] hover:border-[var(--color-primary)]/40 hover:text-[var(--color-primary)]'
+                        : 'border-[#c73a7f]/30 bg-[#c73a7f]/5 text-[#c73a7f] hover:bg-[#c73a7f]/10'
+                    )}
+                  >
+                    {togglingId === job.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : job.status === 'closed' ? (
+                      <>
+                        <RotateCcw className="h-4 w-4" />
+                        Qayta ochish
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-4 w-4" />
+                        Sotildi
+                      </>
+                    )}
+                  </button>
 
                   {confirmId === job.id ? (
                     <div className="flex flex-[1.4] gap-2">

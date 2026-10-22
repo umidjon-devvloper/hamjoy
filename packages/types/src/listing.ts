@@ -1,7 +1,7 @@
 import type { Currency, GeoPoint, Timestamp, UUID } from './common';
 
 export type ListingType = 'job' | 'rent' | 'sale' | 'service';
-export type ListingStatus = 'draft' | 'pending' | 'active' | 'archived' | 'blocked';
+export type ListingStatus = 'draft' | 'pending' | 'active' | 'sold' | 'archived' | 'blocked';
 
 export interface ListingMedia {
   id: UUID;

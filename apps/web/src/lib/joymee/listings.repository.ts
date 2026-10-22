@@ -23,7 +23,7 @@ function listingToJob(l: Listing & { priceAmount?: string | number | null; price
     posterId: l.userId,
     description: l.description,
     requirements: [],
-    status: l.status === 'active' ? 'active' : l.status === 'archived' ? 'closed' : 'pending',
+    status: l.status === 'active' ? 'active' : l.status === 'archived' || l.status === 'sold' ? 'closed' : 'pending',
     workType: 'onsite',
     scheduleType: 'full-time',
     schedulePattern: 'standard',
@@ -56,5 +56,39 @@ export const joymeeListingsRepository = {
     } catch {
       return undefined;
     }
+  },
+
+  async getMine(): Promise<Job[]> {
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    const token = await (await import('./client')).joymeeTokens.getAccess();
+    if (!token) return [];
+    const res = await fetch(`${base}/listings/mine`, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) return [];
+    const items = (await res.json()) as Array<Parameters<typeof listingToJob>[0]>;
+    return items.map(listingToJob);
+  },
+
+  async remove(id: string): Promise<void> {
+    await getJoymeeClient().listings.remove(id);
+  },
+
+  async markSold(id: string): Promise<void> {
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    const token = await (await import('./client')).joymeeTokens.getAccess();
+    await fetch(`${base}/listings/${id}/mark-sold`, {
+      method: 'POST',
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
+  },
+
+  async reopen(id: string): Promise<void> {
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    const token = await (await import('./client')).joymeeTokens.getAccess();
+    await fetch(`${base}/listings/${id}/reopen`, {
+      method: 'POST',
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
   },
 };
