@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, BadgeCheck, Clock, XCircle } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, Clock, Upload, XCircle } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import { appToast } from '@/lib/feedback/toast';
 import { joymeeTokens } from '@/lib/joymee/client';
+import { joymeeUploads } from '@/lib/joymee/uploads';
 import { useAuth } from '@/context/AuthContext';
 import { isRestBackendEnabled } from '@/lib/api/config';
 import { cn } from '@/lib/utils';
@@ -51,13 +51,35 @@ const STATUS_UI: Record<Verification['status'], { label: string; icon: typeof Cl
 };
 
 function VerifyForm() {
-  const router = useRouter();
   const { user } = useAuth();
   const [current, setCurrent] = useState<Verification | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [idDoc, setIdDoc] = useState('');
   const [selfie, setSelfie] = useState('');
+  const [uploading, setUploading] = useState<'id' | 'selfie' | null>(null);
+  const [uploadsEnabled, setUploadsEnabled] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const idRef = useRef<HTMLInputElement>(null);
+  const selfieRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!isRestBackendEnabled()) return;
+    void joymeeUploads.enabled().then(setUploadsEnabled);
+  }, []);
+
+  const pickAndUpload = async (which: 'id' | 'selfie', file: File) => {
+    setUploading(which);
+    try {
+      const url = await joymeeUploads.upload('verify', file);
+      if (which === 'id') setIdDoc(url);
+      else setSelfie(url);
+      appToast.success('Yuklandi');
+    } catch (err) {
+      appToast.error(err, "Yuklab bo'lmadi");
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const load = async () => {
     try {
@@ -174,32 +196,106 @@ function VerifyForm() {
         <form onSubmit={submit} className="card space-y-4 rounded-2xl p-5">
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--color-secondary)]">
-              Pasport yoki ID rasm URL
+              Pasport yoki ID rasm
             </label>
-            <Input
-              value={idDoc}
-              onChange={(e) => setIdDoc(e.target.value)}
-              type="url"
-              placeholder="https://…"
-              required
-            />
-            <p className="mt-1 text-xs text-[var(--color-muted)]">
-              Rasmlarni yuklash xizmati ulanmaguncha, URL kiriting (masalan, imgur, Google Drive public link).
-            </p>
+            {uploadsEnabled ? (
+              <div className="space-y-2">
+                <input
+                  ref={idRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void pickAndUpload('id', f);
+                    if (idRef.current) idRef.current.value = '';
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => idRef.current?.click()}
+                  isLoading={uploading === 'id'}
+                  className="w-full gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {idDoc ? 'Qayta yuklash' : 'Rasm yuklash'}
+                </Button>
+                {idDoc ? (
+                  <a
+                    href={idDoc}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block truncate text-xs text-[var(--color-brand-green)] hover:underline"
+                  >
+                    {idDoc}
+                  </a>
+                ) : null}
+              </div>
+            ) : (
+              <>
+                <Input
+                  value={idDoc}
+                  onChange={(e) => setIdDoc(e.target.value)}
+                  type="url"
+                  placeholder="https://…"
+                  required
+                />
+                <p className="mt-1 text-xs text-[var(--color-muted)]">
+                  Yuklash xizmati sozlanmagan — URL kiriting.
+                </p>
+              </>
+            )}
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium text-[var(--color-secondary)]">
-              Hujjat ushlagan holdagi selfie URL
+              Hujjat ushlagan holdagi selfie
             </label>
-            <Input
-              value={selfie}
-              onChange={(e) => setSelfie(e.target.value)}
-              type="url"
-              placeholder="https://…"
-              required
-            />
+            {uploadsEnabled ? (
+              <div className="space-y-2">
+                <input
+                  ref={selfieRef}
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void pickAndUpload('selfie', f);
+                    if (selfieRef.current) selfieRef.current.value = '';
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => selfieRef.current?.click()}
+                  isLoading={uploading === 'selfie'}
+                  className="w-full gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {selfie ? 'Qayta yuklash' : 'Selfie yuklash'}
+                </Button>
+                {selfie ? (
+                  <a
+                    href={selfie}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block truncate text-xs text-[var(--color-brand-green)] hover:underline"
+                  >
+                    {selfie}
+                  </a>
+                ) : null}
+              </div>
+            ) : (
+              <Input
+                value={selfie}
+                onChange={(e) => setSelfie(e.target.value)}
+                type="url"
+                placeholder="https://…"
+                required
+              />
+            )}
           </div>
-          <Button type="submit" variant="primary" size="lg" isLoading={submitting} className="w-full">
+          <Button type="submit" variant="primary" size="lg" isLoading={submitting} disabled={!idDoc || !selfie} className="w-full">
             So'rovni yuborish
           </Button>
         </form>

@@ -18,10 +18,15 @@ const schema = z.object({
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('30d'),
 
+  // S3 / Cloudflare R2 — bucket is accessed via the S3 API; public URL base
+  // is where uploaded objects are read from (usually the public R2 domain or
+  // a custom domain in front of it).
   S3_ENDPOINT: z.preprocess(emptyToUndef, z.string().url().optional()),
   S3_BUCKET: z.preprocess(emptyToUndef, z.string().optional()),
   S3_ACCESS_KEY: z.preprocess(emptyToUndef, z.string().optional()),
   S3_SECRET_KEY: z.preprocess(emptyToUndef, z.string().optional()),
+  S3_REGION: z.preprocess(emptyToUndef, z.string().optional()),
+  S3_PUBLIC_URL: z.preprocess(emptyToUndef, z.string().url().optional()),
 
   ESKIZ_EMAIL: z.preprocess(emptyToUndef, z.string().email().optional()),
   ESKIZ_PASSWORD: z.preprocess(emptyToUndef, z.string().optional()),
