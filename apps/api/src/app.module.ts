@@ -20,6 +20,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { VerificationsModule } from './modules/verifications/verifications.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { VerificationsModule } from './modules/verifications/verifications.modul
     PromotionsModule,
     ReviewsModule,
     VerificationsModule,
+    ModerationModule,
   ],
   controllers: [HealthController],
   providers: [

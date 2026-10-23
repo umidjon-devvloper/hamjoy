@@ -2,18 +2,25 @@ import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundEx
 import { and, desc, eq, lt, or, sql } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
 import { chats, listings, messages } from '../../db/schema';
+import { ModerationService } from '../moderation/moderation.service';
 
 type UnreadMap = Record<string, number>;
 
 @Injectable()
 export class ChatsService {
-  constructor(@Inject(DB) private readonly db: DbClient) {}
+  constructor(
+    @Inject(DB) private readonly db: DbClient,
+    private readonly moderation: ModerationService,
+  ) {}
 
   async startOrGet(buyerId: string, listingId: string): Promise<typeof chats.$inferSelect> {
     const [listing] = await this.db.select().from(listings).where(eq(listings.id, listingId)).limit(1);
     if (!listing) throw new NotFoundException({ code: 'listing_not_found', message: "E'lon topilmadi" });
     if (listing.userId === buyerId) {
       throw new BadRequestException({ code: 'self_chat', message: "O'z e'loningizga xabar yoza olmaysiz" });
+    }
+    if (await this.moderation.anyBlock(buyerId, listing.userId)) {
+      throw new ForbiddenException({ code: 'blocked', message: 'Bu foydalanuvchi bilan muloqot cheklangan' });
     }
 
     const sellerId = listing.userId;
