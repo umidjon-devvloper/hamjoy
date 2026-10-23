@@ -11,9 +11,18 @@ import type { PlatformMode } from '@/lib/navigation/platform';
 
 const JOBS_MENU_ID = 'ish';
 
-/** Uy-joy mode: housing menus only (Ish is a mode switch). Ish mode: the jobs menu only. */
-const menusFor = (mode: PlatformMode) =>
-  MEGA_MENUS.filter((m) => (mode === 'ish' ? m.id === JOBS_MENU_ID : m.id !== JOBS_MENU_ID));
+/**
+ * Which mega-menu tabs to show for each vertical.
+ * - uy-joy: housing menus only (Ish is a separate vertical)
+ * - ish: the jobs menu only
+ * - avto / bepul: no mega menus; those verticals use the simpler VerticalFeed
+ *   with its own filters, so showing uy-joy's taxonomy there was broken.
+ */
+const menusFor = (mode: PlatformMode) => {
+  if (mode === 'avto' || mode === 'bepul') return [];
+  if (mode === 'ish') return MEGA_MENUS.filter((m) => m.id === JOBS_MENU_ID);
+  return MEGA_MENUS.filter((m) => m.id !== JOBS_MENU_ID);
+};
 
 const linkTabClass =
   'relative inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-t-xl border border-b-0 border-transparent px-3.5 text-[14px] font-semibold text-[var(--nav-fg-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--color-brand-gold)]/70';
@@ -228,7 +237,7 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
             </button>
           );
         })}
-        {(mode === 'uy-joy' ? UY_JOY_LINKS : ISH_LINKS).map((link) => (
+        {(mode === 'uy-joy' ? UY_JOY_LINKS : mode === 'ish' ? ISH_LINKS : []).map((link) => (
           <Link key={link.label} href={link.href} onClick={close} className={linkTabClass}>
             {link.label}
           </Link>
@@ -236,12 +245,12 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
       </nav>
 
       <Link
-        href={mode === 'ish' ? ROUTES.map : ROUTES.uyJoy.sale}
+        href={mode === 'ish' ? ROUTES.map : mode === 'uy-joy' ? ROUTES.uyJoy.sale : '/yaqinim'}
         onClick={close}
         className="mb-2 ml-auto hidden h-9 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm xl:inline-flex font-semibold text-[var(--nav-hover-fg)] transition-colors hover:bg-[var(--nav-hover)]"
       >
         <MapIcon className="h-4 w-4" />
-        {mode === 'ish' ? 'Xaritadan qidirish' : 'Xaritada koʻrish'}
+        {mode === 'ish' ? 'Xaritadan qidirish' : mode === 'uy-joy' ? 'Xaritada koʻrish' : 'Yaqinimdagi'}
       </Link>
 
       <AnimatePresence>
