@@ -4,6 +4,7 @@ import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CreateJobWizard } from '@/components/jobs/create/CreateJobWizard';
 import { CreateListingForm } from '@/components/listings/create/CreateListingForm';
+import { SimpleListingForm } from '@/components/listings/create/SimpleListingForm';
 import { RequireAuth } from '@/components/auth/RequireAuth';
 import type { ListingIntent } from '@/types/listing';
 
@@ -29,6 +30,9 @@ function CreateInner() {
         initialIntent={INTENT_BY_PARAM[searchParams.get('bitim') ?? ''] ?? 'sotuv'}
       />
     );
+  }
+  if (type === 'avto' || type === 'bepul') {
+    return <SimpleListingForm vertical={type} editId={editId} />;
   }
   if (editId || type === 'ish') return <CreateJobWizard editJobId={editId} />;
   // Default: the Uy-joy form; its left menu also links to the job wizard.

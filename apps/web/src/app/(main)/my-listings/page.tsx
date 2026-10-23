@@ -50,7 +50,9 @@ function Row({
       ? `/create?edit=${item.id}`
       : item.vertical === 'uy-joy'
         ? `/create?tur=uy-joy&edit=${item.id}`
-        : null; // avto / bepul edit — kelgusi faza
+        : item.vertical === 'avto' || item.vertical === 'bepul'
+          ? `/create?tur=${item.vertical}&edit=${item.id}`
+          : null;
 
   return (
     <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
