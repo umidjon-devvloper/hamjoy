@@ -35,6 +35,7 @@ export const ADMIN_NAV: { href: string; label: string; icon: LucideIcon; permiss
   { href: '/admin/jobs', label: 'Ish eʼlonlari', icon: Briefcase, permission: 'jobs.view' },
   { href: '/admin/reports', label: 'Murojaatlar', icon: MessageSquareWarning, permission: 'reports.view' },
   { href: '/admin/reviews', label: 'Sharhlar', icon: Star, permission: 'reports.view' },
+  { href: '/admin/verifications', label: 'Verifikatsiyalar', icon: ShieldCheck, permission: 'reports.view' },
   { href: '/admin/roles', label: 'Rollar va imtiyozlar', icon: ShieldCheck },
   { href: '/admin/settings', label: 'Sozlamalar', icon: Settings, permission: 'settings.manage' },
 ];

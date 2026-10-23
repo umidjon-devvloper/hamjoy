@@ -330,5 +330,25 @@ export const promotions = pgTable(
   }),
 );
 
+export const trustVerifications = pgTable(
+  'trust_verifications',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    idDocumentUrl: text('id_document_url').notNull(),
+    selfieUrl: text('selfie_url').notNull(),
+    status: text('status').notNull().default('pending'),
+    note: text('note'),
+    reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
+    reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    userIdx: index('trust_verifications_user_idx').on(t.userId, t.createdAt),
+  }),
+);
+
 // Silence unused imports when a column that uses them is commented out.
 void bigint;

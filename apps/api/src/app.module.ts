@@ -19,6 +19,7 @@ import { ApplicationsModule } from './modules/applications/applications.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { PromotionsModule } from './modules/promotions/promotions.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
+import { VerificationsModule } from './modules/verifications/verifications.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
     NotificationsModule,
     PromotionsModule,
     ReviewsModule,
+    VerificationsModule,
   ],
   controllers: [HealthController],
   providers: [
