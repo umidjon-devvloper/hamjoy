@@ -60,7 +60,7 @@ export class ReviewsService {
     return this.db
       .select()
       .from(reviews)
-      .where(eq(reviews.toUserId, toUserId))
+      .where(and(eq(reviews.toUserId, toUserId), eq(reviews.hidden, false)))
       .orderBy(desc(reviews.createdAt))
       .limit(50);
   }
@@ -69,11 +69,16 @@ export class ReviewsService {
     const [row] = await this.db
       .select({ avg: avg(reviews.rating), count: count() })
       .from(reviews)
-      .where(eq(reviews.toUserId, toUserId));
+      .where(and(eq(reviews.toUserId, toUserId), eq(reviews.hidden, false)));
     return {
       avg: row?.avg ? Number(row.avg) : 0,
       count: Number(row?.count ?? 0),
     };
+  }
+
+  async setHidden(id: string, hidden: boolean) {
+    await this.db.update(reviews).set({ hidden }).where(eq(reviews.id, id));
+    return { ok: true as const, hidden };
   }
 
   /** Admin: recent reviews across all users (for moderation). */
@@ -88,6 +93,7 @@ export class ReviewsService {
         listingId: reviews.listingId,
         rating: reviews.rating,
         comment: reviews.comment,
+        hidden: reviews.hidden,
         createdAt: reviews.createdAt,
         fromUserName: fromProfile.fullName,
         toUserName: toProfile.fullName,

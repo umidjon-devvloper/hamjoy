@@ -299,6 +299,7 @@ export const reviews = pgTable(
     listingId: uuid('listing_id').references(() => listings.id, { onDelete: 'set null' }),
     rating: integer('rating').notNull(),
     comment: text('comment'),
+    hidden: boolean('hidden').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => ({

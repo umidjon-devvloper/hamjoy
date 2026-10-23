@@ -60,4 +60,18 @@ export class ReviewsController {
   remove(@Param('id', new ParseUUIDPipe()) id: string) {
     return this.svc.adminDelete(id);
   }
+
+  @ApiBearerAuth()
+  @Roles('admin', 'moderator')
+  @Post('admin/reviews/:id/hide')
+  hide(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.svc.setHidden(id, true);
+  }
+
+  @ApiBearerAuth()
+  @Roles('admin', 'moderator')
+  @Post('admin/reviews/:id/unhide')
+  unhide(@Param('id', new ParseUUIDPipe()) id: string) {
+    return this.svc.setHidden(id, false);
+  }
 }
