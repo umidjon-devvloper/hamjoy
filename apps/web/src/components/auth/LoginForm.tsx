@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { MockAuthNotice } from './MockAuthNotice';
@@ -12,6 +12,12 @@ import { appToast } from '@/lib/feedback/toast';
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // ?next= lets the caller (e.g. the navbar's "E'lon joylash" button) send
+  // the user back where they were after sign-in. We only follow in-app
+  // paths — anything that isn't a leading "/" is ignored.
+  const rawNext = searchParams?.get('next') ?? '';
+  const nextHref = rawNext.startsWith('/') ? rawNext : '/home';
   const { login, otpSend, otpVerify, isMockAuth } = useAuth();
 
   const isRest = isRestBackendEnabled();
@@ -57,7 +63,7 @@ export function LoginForm() {
     try {
       await otpVerify(phone, code);
       appToast.success('Xush kelibsiz!');
-      router.push('/home');
+      router.push(nextHref);
     } catch (err) {
       appToast.error(err, 'Kirishda xatolik');
     } finally {
@@ -71,7 +77,7 @@ export function LoginForm() {
     try {
       await login({ email, password });
       appToast.success('Xush kelibsiz!');
-      router.push('/home');
+      router.push(nextHref);
     } catch (err) {
       appToast.error(err, 'Kirishda xatolik');
     } finally {

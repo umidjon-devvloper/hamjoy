@@ -540,47 +540,64 @@ export function PlatformNavbar() {
               />
             )}
             <NavAction
-              href={ROUTES.favorites}
+              href={isAuthenticated ? ROUTES.favorites : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.favorites)}`}
               label="Saqlangan"
               icon={Heart}
-              count={favoriteIds.size}
+              count={isAuthenticated ? favoriteIds.size : 0}
               countLabel="ta eʼlon"
               active={isActive(ROUTES.favorites)}
               onClick={closeAll}
               className="hidden sm:flex"
             />
             <NavAction
-              href={ROUTES.notifications}
+              href={isAuthenticated ? ROUTES.notifications : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.notifications)}`}
               label="Bildirishnomalar"
               icon={Bell}
-              count={unreadCount}
+              count={isAuthenticated ? unreadCount : 0}
               countLabel="ta oʻqilmagan"
               active={isActive(ROUTES.notifications)}
               onClick={closeAll}
             />
 
-            {/* Post a listing — the primary action */}
+            {/* Post a listing — the primary action. Non-authenticated viewers
+                are routed to /login so posting is only ever attempted with an
+                account; the dropdown of post kinds opens once signed in. */}
             <div className="relative ml-1">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  toggle('post');
-                }}
-                ref={postButtonRef}
-                aria-expanded={openMenu === 'post'}
-                aria-controls="nav-post-panel"
-                aria-label="Eʼlon joylash"
-                className={cn(
-                  'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
-                  focusRing
-                )}
-              >
-                <Plus className="h-[18px] w-[18px]" strokeWidth={2.75} />
-                <span className="hidden sm:inline">Eʼlon joylash</span>
-              </button>
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    toggle('post');
+                  }}
+                  ref={postButtonRef}
+                  aria-expanded={openMenu === 'post'}
+                  aria-controls="nav-post-panel"
+                  aria-label="Eʼlon joylash"
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
+                    focusRing
+                  )}
+                >
+                  <Plus className="h-[18px] w-[18px]" strokeWidth={2.75} />
+                  <span className="hidden sm:inline">Eʼlon joylash</span>
+                </button>
+              ) : (
+                <Link
+                  href={`${ROUTES.login}?next=${encodeURIComponent('/create')}`}
+                  onClick={closeAll}
+                  aria-label="Eʼlon joylash uchun kiring"
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
+                    focusRing
+                  )}
+                >
+                  <Plus className="h-[18px] w-[18px]" strokeWidth={2.75} />
+                  <span className="hidden sm:inline">Eʼlon joylash</span>
+                </Link>
+              )}
               <AnimatePresence>
-                {openMenu === 'post' && (
+                {isAuthenticated && openMenu === 'post' && (
                   <motion.div
                     id="nav-post-panel"
                     {...panelMotion}
@@ -639,21 +656,37 @@ export function PlatformNavbar() {
               className="overflow-hidden lg:hidden"
             >
               <div className="max-h-[calc(100dvh-8.5rem)] overflow-y-auto px-4 pb-6 pt-3 sm:px-6">
+                {isAuthenticated ? (
+                  <Link
+                    href={ROUTES.profile}
+                    onClick={closeAll}
+                    className="mb-2 flex items-center gap-3 rounded-2xl bg-[var(--nav-hover)] p-3 sm:hidden"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--nav-hover)] text-[var(--nav-accent)]">
+                      <UserRound className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">{user.name}</span>
+                      <span className="block text-xs text-[var(--nav-fg-subtle)]">Profilni koʻrish</span>
+                    </span>
+                  </Link>
+                ) : (
+                  <Link
+                    href={ROUTES.login}
+                    onClick={closeAll}
+                    className="mb-2 flex items-center gap-3 rounded-2xl bg-[var(--color-brand-green)] p-3 text-white sm:hidden"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15">
+                      <UserRound className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-semibold">Kirish yoki roʻyxatdan oʻtish</span>
+                      <span className="block text-xs text-white/80">E'lon joylash va saqlash uchun</span>
+                    </span>
+                  </Link>
+                )}
                 <Link
-                  href={ROUTES.profile}
-                  onClick={closeAll}
-                  className="mb-2 flex items-center gap-3 rounded-2xl bg-[var(--nav-hover)] p-3 sm:hidden"
-                >
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--nav-hover)] text-[var(--nav-accent)]">
-                    <UserRound className="h-5 w-5" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-semibold">{user.name}</span>
-                    <span className="block text-xs text-[var(--nav-fg-subtle)]">Profilni koʻrish</span>
-                  </span>
-                </Link>
-                <Link
-                  href={ROUTES.favorites}
+                  href={isAuthenticated ? ROUTES.favorites : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.favorites)}`}
                   onClick={closeAll}
                   className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-semibold hover:bg-[var(--nav-hover)] sm:hidden hover:text-[var(--nav-hover-fg)]"
                 >
