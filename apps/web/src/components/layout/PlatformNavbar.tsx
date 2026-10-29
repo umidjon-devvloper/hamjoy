@@ -16,6 +16,7 @@ import {
   Gift,
   Globe,
   Heart,
+  LogIn,
   Menu,
   Moon,
   Plus,
@@ -33,7 +34,6 @@ import { useAuth } from '@/context/AuthContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { appToast } from '@/lib/feedback/toast';
 import { useTheme } from '@/lib/theme';
-import { CategoryBar, MobileCategoryMenu } from '@/components/layout/CategoryBar';
 
 /** What can be posted — the gold "Eʼlon joylash" menu. */
 const POST_LINKS: PlatformLink[] = [
@@ -539,25 +539,29 @@ export function PlatformNavbar() {
                 onClick={closeAll}
               />
             )}
-            <NavAction
-              href={isAuthenticated ? ROUTES.favorites : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.favorites)}`}
-              label="Saqlangan"
-              icon={Heart}
-              count={isAuthenticated ? favoriteIds.size : 0}
-              countLabel="ta eʼlon"
-              active={isActive(ROUTES.favorites)}
-              onClick={closeAll}
-              className="hidden sm:flex"
-            />
-            <NavAction
-              href={isAuthenticated ? ROUTES.notifications : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.notifications)}`}
-              label="Bildirishnomalar"
-              icon={Bell}
-              count={isAuthenticated ? unreadCount : 0}
-              countLabel="ta oʻqilmagan"
-              active={isActive(ROUTES.notifications)}
-              onClick={closeAll}
-            />
+            {isAuthenticated && (
+              <NavAction
+                href={ROUTES.favorites}
+                label="Saqlangan"
+                icon={Heart}
+                count={favoriteIds.size}
+                countLabel="ta eʼlon"
+                active={isActive(ROUTES.favorites)}
+                onClick={closeAll}
+                className="hidden sm:flex"
+              />
+            )}
+            {isAuthenticated && (
+              <NavAction
+                href={ROUTES.notifications}
+                label="Bildirishnomalar"
+                icon={Bell}
+                count={unreadCount}
+                countLabel="ta oʻqilmagan"
+                active={isActive(ROUTES.notifications)}
+                onClick={closeAll}
+              />
+            )}
 
             {/* Post a listing — the primary action. Non-authenticated viewers
                 are routed to /login so posting is only ever attempted with an
@@ -584,16 +588,16 @@ export function PlatformNavbar() {
                 </button>
               ) : (
                 <Link
-                  href={`${ROUTES.login}?next=${encodeURIComponent('/create')}`}
+                  href={ROUTES.login}
                   onClick={closeAll}
-                  aria-label="Eʼlon joylash uchun kiring"
+                  aria-label="Kirish"
                   className={cn(
                     'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
                     focusRing
                   )}
                 >
-                  <Plus className="h-[18px] w-[18px]" strokeWidth={2.75} />
-                  <span className="hidden sm:inline">Eʼlon joylash</span>
+                  <LogIn className="h-[18px] w-[18px]" strokeWidth={2.5} />
+                  <span className="hidden sm:inline">Kirish</span>
                 </Link>
               )}
               <AnimatePresence>
@@ -636,8 +640,6 @@ export function PlatformNavbar() {
           </div>
         </div>
 
-        {/* Category mega-menus (desktop) */}
-        <CategoryBar mode={mode} />
 
         {/* Below lg the search gets its own full-width row */}
         <div className="px-4 pb-3 sm:px-6 lg:hidden">
@@ -685,14 +687,16 @@ export function PlatformNavbar() {
                     </span>
                   </Link>
                 )}
-                <Link
-                  href={isAuthenticated ? ROUTES.favorites : `${ROUTES.login}?next=${encodeURIComponent(ROUTES.favorites)}`}
-                  onClick={closeAll}
-                  className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-semibold hover:bg-[var(--nav-hover)] sm:hidden hover:text-[var(--nav-hover-fg)]"
-                >
-                  <Heart className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
-                  Saqlanganlar
-                </Link>
+                {isAuthenticated && (
+                  <Link
+                    href={ROUTES.favorites}
+                    onClick={closeAll}
+                    className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-semibold hover:bg-[var(--nav-hover)] sm:hidden hover:text-[var(--nav-hover-fg)]"
+                  >
+                    <Heart className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
+                    Saqlanganlar
+                  </Link>
+                )}
 
                 {menuSections.map((section) => (
                   <div key={section.id} className="mt-3 border-t border-[var(--nav-border)] pt-3">
@@ -705,9 +709,7 @@ export function PlatformNavbar() {
                   </div>
                 ))}
 
-                <MobileCategoryMenu mode={mode} onNavigate={closeAll} />
-
-                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[var(--nav-border)] pt-4">
+                                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[var(--nav-border)] pt-4">
                   <button
                     type="button"
                     onClick={() => appToast.info('Boshqa tillar tez orada qoʻshiladi')}

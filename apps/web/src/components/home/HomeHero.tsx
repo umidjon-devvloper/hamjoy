@@ -1,29 +1,14 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, ArrowRight, Search } from 'lucide-react';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ROUTES } from '@/lib/navigation/routes';
 import { DEMO_LISTINGS } from '@/data/listings';
 import { formatListingPrice } from '@/lib/listings/format';
 import type { PropertyListing } from '@/types/listing';
-
-type SearchMode = 'sotib' | 'ijara' | 'kunlik';
-
-const MODES: { id: SearchMode; label: string }[] = [
-  { id: 'sotib', label: 'Sotuv' },
-  { id: 'ijara', label: 'Ijara' },
-  { id: 'kunlik', label: 'Kunlik' },
-];
-
-const REGIONS = [
-  { value: 'toshkent', label: 'Toshkent shahri' },
-  { value: 'toshkent-vil', label: 'Toshkent viloyati' },
-  { value: 'samarqand', label: 'Samarqand' },
-];
 
 const POPULAR_DISTRICTS = ['Yunusobod', 'Chilonzor', 'Mirzo Ulugʻbek', 'Qibray'];
 
@@ -33,11 +18,6 @@ const POPULAR_DISTRICTS = ['Yunusobod', 'Chilonzor', 'Mirzo Ulugʻbek', 'Qibray'
  * listings carousel takes the stage — no big headline, no 2-column split.
  */
 export function HomeHero() {
-  const router = useRouter();
-  const [mode, setMode] = useState<SearchMode>('sotib');
-  const [region, setRegion] = useState('toshkent');
-  const [maxPrice, setMaxPrice] = useState('');
-
   const featured = useMemo<PropertyListing[]>(
     () =>
       DEMO_LISTINGS.filter((l) => !l.seeking && l.images.length > 0)
@@ -50,73 +30,8 @@ export function HomeHero() {
   const prev = () => setSlide((s) => (s - 1 + slideCount) % slideCount);
   const next = () => setSlide((s) => (s + 1) % slideCount);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const base = mode === 'sotib' ? ROUTES.uyJoy.sale : ROUTES.uyJoy.rent;
-    const params = new URLSearchParams();
-    if (region) params.set('hudud', region);
-    if (mode === 'kunlik') params.set('muddat', 'kunlik');
-    if (maxPrice.trim()) params.set('narx', `0-${maxPrice.replace(/\D/g, '')}`);
-    const qs = params.toString();
-    router.push(qs ? `${base}?${qs}` : base);
-  };
-
   return (
     <section className="flex flex-col gap-6">
-      {/* Compact search bar — sits under the global navbar. */}
-      <form
-        onSubmit={submit}
-        className="flex flex-wrap items-stretch gap-2 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-2 shadow-[0_12px_32px_-24px_rgb(18_63_38/0.3)] sm:flex-nowrap"
-      >
-        <div role="tablist" aria-label="Qidiruv turi" className="flex gap-1">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="tab"
-              aria-selected={mode === m.id}
-              onClick={() => setMode(m.id)}
-              className={cn(
-                'h-11 rounded-xl px-4 text-sm font-semibold transition-colors',
-                mode === m.id
-                  ? 'bg-[var(--color-secondary)] text-white'
-                  : 'text-[var(--color-secondary)] hover:bg-[var(--color-field)]'
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
-        <select
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-          aria-label="Hudud"
-          className="h-11 min-w-[160px] rounded-xl border-0 bg-[var(--color-field)] px-3 text-sm font-semibold text-[var(--color-secondary)] outline-none"
-        >
-          {REGIONS.map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          inputMode="numeric"
-          placeholder="Narx, gacha"
-          value={maxPrice}
-          onChange={(e) => setMaxPrice(e.target.value)}
-          aria-label="Narx, gacha"
-          className="h-11 min-w-0 flex-1 rounded-xl border-0 bg-[var(--color-field)] px-3 text-sm font-semibold text-[var(--color-secondary)] placeholder:text-[var(--color-muted)] outline-none"
-        />
-        <button
-          type="submit"
-          className="inline-flex h-11 items-center gap-2 rounded-xl bg-[var(--color-brand-green)] px-5 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)]"
-        >
-          <Search className="h-4 w-4" strokeWidth={2.4} />
-          Qidirish
-        </button>
-      </form>
-
       {/* Full-width featured carousel. One slide at a time. */}
       <div className="relative overflow-hidden rounded-[28px] bg-[#DADBD5]">
         <div

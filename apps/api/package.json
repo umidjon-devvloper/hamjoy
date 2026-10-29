@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "lsof -ti:4001 -sTCP:LISTEN | xargs -r kill -9 2>/dev/null || true",
     "dev": "nest start --watch",
     "build": "nest build",
     "start": "node dist/main.js",
