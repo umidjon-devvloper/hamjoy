@@ -196,11 +196,9 @@ function ModeSwitch({ mode, onNavigate }: { mode: PlatformMode; onNavigate: () =
   const options: { id: PlatformMode; href: string; label: string; icon: typeof Building2 }[] = [
     { id: 'uy-joy', href: ROUTES.home, label: 'Uy-joy', icon: Building2 },
     { id: 'ish', href: ROUTES.jobs, label: 'Ish', icon: Briefcase },
-    { id: 'avto', href: '/avto', label: 'Avto', icon: Car },
-    { id: 'bepul', href: '/bepul', label: 'Bepul', icon: Gift },
   ];
   return (
-    <nav aria-label="Boʻlim" className="mb-3 grid grid-cols-4 gap-1 rounded-xl border border-[var(--nav-border)] p-1">
+    <nav aria-label="Boʻlim" className="mb-3 grid grid-cols-2 gap-1 rounded-xl border border-[var(--nav-border)] p-1">
       {options.map(({ id, href, label, icon: Icon }) => (
         <Link
           key={id}
@@ -425,8 +423,6 @@ export function PlatformNavbar() {
               [
                 { id: 'uy-joy', href: ROUTES.home, label: 'Uy-joy', icon: Building2 },
                 { id: 'ish', href: ROUTES.jobs, label: 'Ish', icon: Briefcase },
-                { id: 'avto', href: '/avto', label: 'Avto', icon: Car },
-                { id: 'bepul', href: '/bepul', label: 'Bepul', icon: Gift },
               ] as const
             ).map(({ id, href, label, icon: Icon }) => (
               <Link
