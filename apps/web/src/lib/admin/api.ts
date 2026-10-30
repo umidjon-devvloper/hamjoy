@@ -119,4 +119,28 @@ export const adminApi = {
       method: 'PATCH',
       body: JSON.stringify({ trusted }),
     }),
+
+  listCategories: () =>
+    adminFetch<Array<{ id: number; slug: string; nameUz: string; nameRu: string; icon: string | null; parentId: number | null }>>('/admin/categories'),
+
+  createCategory: (data: { slug: string; nameUz: string; nameRu: string; icon?: string; parentId?: number }) =>
+    adminFetch('/admin/categories', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateCategory: (id: number, data: { slug?: string; nameUz?: string; nameRu?: string; icon?: string }) =>
+    adminFetch(`/admin/categories/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  deleteCategory: (id: number) =>
+    adminFetch(`/admin/categories/${id}`, { method: 'DELETE' }),
+
+  listLocations: () =>
+    adminFetch<Array<{ id: number; nameUz: string; nameRu: string; parentId: number | null }>>('/admin/locations'),
+
+  createLocation: (data: { nameUz: string; nameRu: string; parentId?: number }) =>
+    adminFetch('/admin/locations', { method: 'POST', body: JSON.stringify(data) }),
+
+  updateLocation: (id: number, data: { nameUz?: string; nameRu?: string }) =>
+    adminFetch(`/admin/locations/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+  deleteLocation: (id: number) =>
+    adminFetch(`/admin/locations/${id}`, { method: 'DELETE' }),
 };

@@ -232,6 +232,19 @@ export const adminService = {
   },
 
   async listCategories(): Promise<Category[]> {
+    if (isRestBackendEnabled()) {
+      try {
+        const cats = await adminApi.listCategories();
+        return cats.map((c) => ({
+          id: String(c.id),
+          name: c.nameUz,
+          slug: c.slug,
+          icon: c.icon ?? '',
+          jobCount: 0,
+        }));
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseCategoriesRepository.list();
     return seedCategories.map((cat) => ({
       ...cat,
@@ -240,6 +253,18 @@ export const adminService = {
   },
 
   async createCategory(input: CategoryInput): Promise<Category> {
+    if (isRestBackendEnabled()) {
+      try {
+        const row = await adminApi.createCategory({
+          slug: input.slug.trim(),
+          nameUz: input.name.trim(),
+          nameRu: input.name.trim(),
+          icon: input.icon.trim(),
+        }) as { id: number; slug: string; nameUz: string; icon: string | null };
+        return { id: String(row.id), name: row.nameUz, slug: row.slug, icon: row.icon ?? '', jobCount: 0 };
+      } catch { /* fall through */ }
+    }
+
     const id = `cat-${Date.now()}`;
     if (isBackendEnabled()) {
       return firebaseCategoriesRepository.create({
@@ -261,6 +286,17 @@ export const adminService = {
   },
 
   async updateCategory(id: string, input: CategoryUpdateInput): Promise<Category> {
+    if (isRestBackendEnabled()) {
+      try {
+        const row = await adminApi.updateCategory(Number(id), {
+          nameUz: input.name,
+          slug: input.slug,
+          icon: input.icon,
+        }) as { id: number; slug: string; nameUz: string; icon: string | null };
+        return { id: String(row.id), name: row.nameUz, slug: row.slug, icon: row.icon ?? '', jobCount: 0 };
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseCategoriesRepository.update(id, input);
     const index = seedCategories.findIndex((c) => c.id === id);
     if (index < 0) throw new Error('Category not found');
@@ -269,6 +305,10 @@ export const adminService = {
   },
 
   async deleteCategory(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try { await adminApi.deleteCategory(Number(id)); return; } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) {
       await firebaseCategoriesRepository.remove(id);
       return;
@@ -278,11 +318,29 @@ export const adminService = {
   },
 
   async listLocations(): Promise<LocationRecord[]> {
+    if (isRestBackendEnabled()) {
+      try {
+        const locs = await adminApi.listLocations();
+        return locs.map((l) => ({
+          id: String(l.id),
+          label: l.nameUz,
+          isActive: true,
+        }));
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseLocationsRepository.list();
     return locationsStore.list();
   },
 
   async createLocation(label: string): Promise<LocationRecord> {
+    if (isRestBackendEnabled()) {
+      try {
+        const row = await adminApi.createLocation({ nameUz: label, nameRu: label }) as { id: number; nameUz: string };
+        return { id: String(row.id), label: row.nameUz, isActive: true };
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseLocationsRepository.create(label);
     return locationsStore.create(label);
   },
@@ -291,6 +349,15 @@ export const adminService = {
     id: string,
     patch: Partial<Pick<LocationRecord, 'label' | 'isActive'>>
   ): Promise<LocationRecord> {
+    if (isRestBackendEnabled()) {
+      try {
+        const data: { nameUz?: string; nameRu?: string } = {};
+        if (patch.label) { data.nameUz = patch.label; data.nameRu = patch.label; }
+        const row = await adminApi.updateLocation(Number(id), data) as { id: number; nameUz: string };
+        return { id: String(row.id), label: row.nameUz, isActive: patch.isActive ?? true };
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseLocationsRepository.update(id, patch);
     const updated = locationsStore.update(id, patch);
     if (!updated) throw new Error('Location not found');
@@ -298,6 +365,10 @@ export const adminService = {
   },
 
   async deleteLocation(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try { await adminApi.deleteLocation(Number(id)); return; } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) {
       await firebaseLocationsRepository.remove(id);
       return;

@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { count, desc, eq, sql } from 'drizzle-orm';
 import { DB, type DbClient } from '../../db/db.module';
-import { listings, listingMedia, profiles, reports, reviews, users } from '../../db/schema';
+import { categories, listings, listingMedia, locations, profiles, reports, reviews, users } from '../../db/schema';
 
 @Injectable()
 export class AdminService {
@@ -130,5 +130,71 @@ export class AdminService {
       ownerName: r.ownerName ?? 'Nomsiz',
       image: mediaMap.get(r.id) ?? null,
     }));
+  }
+
+  async listCategories() {
+    return this.db.select().from(categories).orderBy(categories.id);
+  }
+
+  async createCategory(data: { slug: string; nameUz: string; nameRu: string; icon?: string; parentId?: number }) {
+    const maxId = await this.db.select({ max: sql<number>`coalesce(max(${categories.id}), 0)` }).from(categories);
+    const nextId = (maxId[0]?.max ?? 0) + 1;
+    const [row] = await this.db.insert(categories).values({
+      id: nextId,
+      slug: data.slug,
+      nameUz: data.nameUz,
+      nameRu: data.nameRu,
+      icon: data.icon ?? null,
+      parentId: data.parentId ?? null,
+    }).returning();
+    return row;
+  }
+
+  async updateCategory(id: number, data: { nameUz?: string; nameRu?: string; icon?: string; slug?: string }) {
+    const set: Record<string, unknown> = {};
+    if (data.nameUz !== undefined) set.nameUz = data.nameUz;
+    if (data.nameRu !== undefined) set.nameRu = data.nameRu;
+    if (data.icon !== undefined) set.icon = data.icon;
+    if (data.slug !== undefined) set.slug = data.slug;
+    const [updated] = await this.db.update(categories).set(set).where(eq(categories.id, id)).returning();
+    if (!updated) throw new NotFoundException({ code: 'category_not_found', message: 'Kategoriya topilmadi' });
+    return updated;
+  }
+
+  async deleteCategory(id: number) {
+    const [deleted] = await this.db.delete(categories).where(eq(categories.id, id)).returning();
+    if (!deleted) throw new NotFoundException({ code: 'category_not_found', message: 'Kategoriya topilmadi' });
+    return { ok: true };
+  }
+
+  async listLocations() {
+    return this.db.select().from(locations).orderBy(locations.id);
+  }
+
+  async createLocation(data: { nameUz: string; nameRu: string; parentId?: number }) {
+    const maxId = await this.db.select({ max: sql<number>`coalesce(max(${locations.id}), 0)` }).from(locations);
+    const nextId = (maxId[0]?.max ?? 0) + 1;
+    const [row] = await this.db.insert(locations).values({
+      id: nextId,
+      nameUz: data.nameUz,
+      nameRu: data.nameRu,
+      parentId: data.parentId ?? null,
+    }).returning();
+    return row;
+  }
+
+  async updateLocation(id: number, data: { nameUz?: string; nameRu?: string }) {
+    const set: Record<string, unknown> = {};
+    if (data.nameUz !== undefined) set.nameUz = data.nameUz;
+    if (data.nameRu !== undefined) set.nameRu = data.nameRu;
+    const [updated] = await this.db.update(locations).set(set).where(eq(locations.id, id)).returning();
+    if (!updated) throw new NotFoundException({ code: 'location_not_found', message: 'Lokatsiya topilmadi' });
+    return updated;
+  }
+
+  async deleteLocation(id: number) {
+    const [deleted] = await this.db.delete(locations).where(eq(locations.id, id)).returning();
+    if (!deleted) throw new NotFoundException({ code: 'location_not_found', message: 'Lokatsiya topilmadi' });
+    return { ok: true };
   }
 }
