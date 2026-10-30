@@ -36,6 +36,7 @@ import { appToast } from '@/lib/feedback/toast';
 import { useTheme } from '@/lib/theme';
 import { useI18n } from '@/lib/i18n';
 import type { AppLanguage } from '@/types';
+import { CategoryBar, MobileCategoryMenu } from './CategoryBar';
 
 function getPostLinks(t: { nav_post_rent: string; nav_post_rent_desc: string; nav_post_job: string; nav_post_job_desc: string }): PlatformLink[] {
   return [
@@ -697,6 +698,8 @@ export function PlatformNavbar() {
                   </Link>
                 )}
 
+                <MobileCategoryMenu mode={mode} onNavigate={closeAll} />
+
                 {menuSections.map((section) => (
                   <div key={section.id} className="mt-3 border-t border-[var(--nav-border)] pt-3">
                     <p className="mb-1 px-2.5 text-[11px] font-bold uppercase tracking-wider text-[var(--nav-fg-subtle)]">
@@ -729,6 +732,8 @@ export function PlatformNavbar() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <CategoryBar mode={mode} />
       </header>
     </MotionConfig>
   );
