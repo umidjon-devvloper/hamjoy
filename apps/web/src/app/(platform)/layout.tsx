@@ -8,7 +8,7 @@ import { SiteFooter } from '@/components/layout/SiteFooter';
  */
 export default function PlatformLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--color-background)]">
+    <div className="flex min-h-screen flex-col bg-[var(--color-background)] has-[.map-fullscreen]:h-screen has-[.map-fullscreen]:min-h-0 has-[.map-fullscreen]:overflow-hidden">
       <PlatformNavbar />
       {children}
       <SiteFooter />

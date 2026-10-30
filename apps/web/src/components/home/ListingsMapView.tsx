@@ -38,7 +38,7 @@ export function ListingsMapView() {
   const center = coords ?? DEFAULT_MAP_CENTER;
 
   return (
-    <div className="relative min-h-0 flex-1">
+    <div className="relative h-full">
       <ListingsTileMap
         listings={allListings}
         center={center}

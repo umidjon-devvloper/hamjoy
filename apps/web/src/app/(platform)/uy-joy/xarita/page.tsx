@@ -8,5 +8,12 @@ export const metadata = createPageMetadata({
 });
 
 export default function ListingsMapPage() {
-  return <ListingsMapView />;
+  return (
+    <>
+      <style>{'.map-fullscreen ~ footer { display: none !important }'}</style>
+      <div className="map-fullscreen min-h-0 flex-1">
+        <ListingsMapView />
+      </div>
+    </>
+  );
 }
