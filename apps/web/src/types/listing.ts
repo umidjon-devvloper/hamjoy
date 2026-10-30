@@ -35,6 +35,8 @@ export interface PropertyListing {
   totalFloors?: number;
   region: string;
   district: string;
+  lat?: number;
+  lng?: number;
   /** Paths under /public; the first one is the cover. */
   images: string[];
   features: string[];

@@ -245,7 +245,7 @@ export function CategoryBar({ mode }: { mode: PlatformMode }) {
       </nav>
 
       <Link
-        href={mode === 'ish' ? ROUTES.map : mode === 'uy-joy' ? ROUTES.uyJoy.sale : '/yaqinim'}
+        href={mode === 'ish' ? ROUTES.map : mode === 'uy-joy' ? ROUTES.uyJoy.map : '/yaqinim'}
         onClick={close}
         className="mb-2 ml-auto hidden h-9 items-center gap-2 whitespace-nowrap rounded-xl px-3 text-sm xl:inline-flex font-semibold text-[var(--nav-hover-fg)] transition-colors hover:bg-[var(--nav-hover)]"
       >

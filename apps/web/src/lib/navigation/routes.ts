@@ -40,6 +40,7 @@ export const ROUTES = {
     rent: '/uy-joy/ijara',
     buy: '/uy-joy/olish',
     newBuildings: '/uy-joy/yangi-uylar',
+    map: '/uy-joy/xarita',
   },
   login: '/login',
   register: '/register',

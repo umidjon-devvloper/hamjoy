@@ -57,6 +57,8 @@ const nextConfig: NextConfig = {
       // MinIO (S3-compatible) for user uploads
       { protocol: 'http', hostname: 'localhost', port: '9000' },
       { protocol: 'http', hostname: '127.0.0.1', port: '9000' },
+      // Proxied media via /_media rewrite (same origin)
+      { protocol: 'http', hostname: 'localhost', port: '3000' },
       // API static (if ever served via next/image)
       { protocol: 'http', hostname: 'localhost', port: '4001' },
       // Cloudflare tunnel / R2 variants
