@@ -42,10 +42,11 @@ export function LoginForm() {
     }
     setIsSubmitting(true);
     try {
-      const { expiresInSec } = await otpSend(phone);
-      setExpiresInSec(expiresInSec);
+      const res = await otpSend(phone);
+      setExpiresInSec(res.expiresInSec);
+      if (res.devCode) setCode(res.devCode);
       setStep('code');
-      appToast.success('SMS kod yuborildi');
+      appToast.success(res.devCode ? `Dev kod: ${res.devCode}` : 'SMS kod yuborildi');
     } catch (err) {
       appToast.error(err, 'Kod yuborishda xatolik');
     } finally {

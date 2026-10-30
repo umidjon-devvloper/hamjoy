@@ -13,7 +13,7 @@ export const joymeeAuthRepository: AuthRepository = {
 
   async otpSend(phone: string) {
     const res = await getJoymeeClient().auth.otpSend(phone);
-    return { expiresInSec: res.expiresInSec };
+    return { expiresInSec: res.expiresInSec, devCode: (res as any).devCode as string | undefined };
   },
 
   async otpVerify(phone: string, code: string): Promise<AuthSession> {

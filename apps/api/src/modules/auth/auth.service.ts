@@ -23,7 +23,7 @@ export class AuthService {
   async otpSend(rawPhone: string) {
     const phone = normalizePhone(rawPhone);
     const res = await this.otp.send(phone);
-    return { sent: true as const, phone, expiresInSec: res.expiresInSec };
+    return { sent: true as const, phone, expiresInSec: res.expiresInSec, ...('devCode' in res ? { devCode: res.devCode } : {}) };
   }
 
   async otpVerify(rawPhone: string, code: string, device?: string | null) {

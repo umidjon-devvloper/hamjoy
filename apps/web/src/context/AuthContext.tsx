@@ -28,7 +28,7 @@ interface AuthContextValue {
   isAdmin: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
-  otpSend: (phone: string) => Promise<{ expiresInSec: number }>;
+  otpSend: (phone: string) => Promise<{ expiresInSec: number; devCode?: string }>;
   otpVerify: (phone: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (patch: UserProfileUpdate) => Promise<void>;

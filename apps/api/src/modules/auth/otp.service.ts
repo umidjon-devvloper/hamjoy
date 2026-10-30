@@ -37,7 +37,8 @@ export class OtpService {
     await this.redis.set(this.key(phone), JSON.stringify({ hash: this.hash(code), attempts: 0 }), 'EX', OTP_TTL_SEC);
     await this.redis.set(this.cooldownKey(phone), '1', 'EX', RESEND_COOLDOWN_SEC);
     await this.sms.send(phone, `Joymee kodingiz: ${code}`);
-    return { expiresInSec: OTP_TTL_SEC };
+    const isDev = !process.env.ESKIZ_EMAIL || !process.env.ESKIZ_PASSWORD;
+    return { expiresInSec: OTP_TTL_SEC, ...(isDev ? { devCode: code } : {}) };
   }
 
   async verify(phone: string, code: string): Promise<boolean> {

@@ -120,7 +120,7 @@ export class JoymeeClient {
   }
 
   readonly auth = {
-    otpSend: (phone: string) => this.request<{ sent: true; expiresInSec: number }>('auth/otp/send', { method: 'POST', body: { phone }, auth: false }),
+    otpSend: (phone: string) => this.request<{ sent: true; expiresInSec: number; devCode?: string }>('auth/otp/send', { method: 'POST', body: { phone }, auth: false }),
     otpVerify: (phone: string, code: string) => this.request<{ access: string; refresh: string; user: User }>('auth/otp/verify', { method: 'POST', body: { phone, code }, auth: false }),
     logout: () => this.request<{ ok: true }>('auth/logout', { method: 'POST' }),
   };
