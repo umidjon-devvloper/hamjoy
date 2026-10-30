@@ -100,35 +100,39 @@ function LoginForm() {
         <section className="bg-white/95 p-6 backdrop-blur-xl sm:rounded-[28px] sm:p-9 sm:shadow-[0_50px_100px_-30px_rgb(0_0_0/0.7)]">
           <div className="mb-8">
             <h2 className="text-[28px] font-extrabold tracking-[-0.03em] text-slate-900">Xodimlar uchun kirish</h2>
-            <p className="mt-1 text-sm text-slate-500">Tizimga kirish uchun maʼlumotlaringizni kiriting</p>
+            <p className="mt-1 text-sm text-slate-500">Faqat ruxsat berilgan hisoblar</p>
           </div>
 
           <form onSubmit={submit} noValidate className="space-y-4">
-            <label className="relative block">
-              <span className="sr-only">Login</span>
-              <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Login" autoComplete="username" autoFocus className={inputClass} />
-            </label>
-            <label className="relative block">
-              <span className="sr-only">Parol</span>
-              <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Parol"
-                autoComplete="current-password"
-                className={`${inputClass} pr-12`}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                aria-label={showPassword ? 'Parolni yashirish' : 'Parolni koʻrsatish'}
-                className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 hover:text-slate-700"
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </label>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Email</label>
+              <div className="relative">
+                <User className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="admin@hamjoy.uz" autoComplete="username" autoFocus className={inputClass} />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Parol</label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Parolni kiriting"
+                  autoComplete="current-password"
+                  className={`${inputClass} pr-12`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={showPassword ? 'Parolni yashirish' : 'Parolni koʻrsatish'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 hover:text-slate-700"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </div>
             <label className="flex items-center gap-2 text-sm text-slate-700">
               <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 rounded accent-[var(--color-primary)]" />
               Meni eslab qolish
@@ -174,6 +178,16 @@ function LoginForm() {
             </ul>
             <p className="mt-3 text-xs text-slate-500">Hozircha backend yoʻq — maʼlumotlar faqat shu brauzerda saqlanadi.</p>
           </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <Lock className="h-3 w-3" /> Ikki bosqichli himoya
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+              <Settings className="h-3 w-3" /> Har bir amal jurnalda
+            </span>
+          </div>
+          <p className="mt-3 text-xs text-slate-400">Barcha kirishlar audit jurnalida qayd etiladi. 2FA himoya yoqilgan.</p>
         </section>
       </div>
     </div>

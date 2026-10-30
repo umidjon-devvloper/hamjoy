@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo, useState } from 'react';
-import Image from 'next/image';
 import { Ban, CheckCircle2 } from 'lucide-react';
 import {
   ActionButton,
@@ -12,7 +11,6 @@ import {
   Panel,
   SearchField,
   tableClass,
-  Tabs,
   tdClass,
   thClass,
   usePaged,
@@ -22,8 +20,9 @@ import { useAsyncQuery } from '@/hooks/useAsyncQuery';
 import { useCan, type BadgeTone } from '@/lib/admin/access';
 import { appToast } from '@/lib/feedback/toast';
 import type { AdminUserRow } from '@/types';
+import { cn } from '@/lib/utils';
 
-type Tab = 'all' | 'active' | 'blocked';
+type Filter = 'all' | 'owners' | 'employers' | 'blocked';
 
 const ROLE_BADGE: Record<AdminUserRow['role'], { label: string; tone: BadgeTone }> = {
   seeker: { label: 'Ish izlovchi', tone: 'blue' },
@@ -31,20 +30,43 @@ const ROLE_BADGE: Record<AdminUserRow['role'], { label: string; tone: BadgeTone 
   admin: { label: 'Admin', tone: 'red' },
 };
 
+const FILTERS: { id: Filter; label: string }[] = [
+  { id: 'all', label: 'Barchasi' },
+  { id: 'owners', label: 'Mulkdorlar' },
+  { id: 'employers', label: 'Ish beruvchilar' },
+  { id: 'blocked', label: 'Bloklangan' },
+];
+
+function Avatar({ name }: { name: string }) {
+  const initials = name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+  return (
+    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--color-primary-light)] text-sm font-bold text-[var(--color-primary)]">
+      {initials || '?'}
+    </span>
+  );
+}
+
 export default function AdminUsersPage() {
   const can = useCan();
   const users = useAsyncQuery(() => adminService.listUsers(), [], []);
-  const [tab, setTab] = useState<Tab>('all');
+  const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return users.data.filter(
-      (u) =>
-        (tab === 'all' || (tab === 'blocked') === u.blocked) &&
-        (!q || [u.name, u.email, u.phone ?? ''].some((v) => v.toLowerCase().includes(q)))
-    );
-  }, [users.data, tab, query]);
+    return users.data.filter((u) => {
+      if (filter === 'blocked' && !u.blocked) return false;
+      if (filter === 'owners' && u.role !== 'seeker') return false;
+      if (filter === 'employers' && u.role !== 'poster') return false;
+      if (q && ![u.name, u.email, u.phone ?? ''].some((v) => v.toLowerCase().includes(q))) return false;
+      return true;
+    });
+  }, [users.data, filter, query]);
   const { rows, page, pageCount, setPage, offset } = usePaged(filtered);
 
   const toggleBlock = async (user: AdminUserRow) => {
@@ -57,31 +79,38 @@ export default function AdminUsersPage() {
     }
   };
 
-  const blockedCount = users.data.filter((u) => u.blocked).length;
-
   return (
     <>
       <AdminPageHeader title="Foydalanuvchilar" subtitle="Saytdagi barcha foydalanuvchilar roʻyxati" />
       <Panel>
-        <div className="flex flex-wrap items-center justify-between gap-3 p-4">
-          <Tabs<Tab>
-            value={tab}
-            onChange={setTab}
-            tabs={[
-              { id: 'all', label: 'Barchasi', count: users.data.length },
-              { id: 'active', label: 'Faol', count: users.data.length - blockedCount },
-              { id: 'blocked', label: 'Bloklangan', count: blockedCount },
-            ]}
-          />
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <div className="flex flex-wrap gap-2">
+            {FILTERS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFilter(f.id)}
+                className={cn(
+                  'rounded-full px-4 py-1.5 text-sm font-semibold transition-colors',
+                  filter === f.id
+                    ? 'bg-[var(--color-primary)] text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
           <SearchField value={query} onChange={setQuery} placeholder="Ism, email yoki telefon" />
         </div>
+
         <div className="overflow-x-auto">
           <table className={tableClass}>
             <thead>
               <tr>
                 <th className={thClass}>#</th>
-                <th className={thClass}>Ism</th>
-                <th className={thClass}>Email / Telefon</th>
+                <th className={thClass}>Foydalanuvchi</th>
+                <th className={thClass}>Aloqa</th>
                 <th className={thClass}>Rol</th>
                 <th className={thClass}>Holat</th>
                 <th className={`${thClass} text-right`}>Amallar</th>
@@ -98,19 +127,25 @@ export default function AdminUsersPage() {
                     <td className={tdClass}>{offset + i + 1}</td>
                     <td className={tdClass}>
                       <span className="flex items-center gap-3">
-                        <Image src={u.avatarUrl} alt="" width={36} height={36} className="h-9 w-9 rounded-full object-cover" unoptimized />
+                        <Avatar name={u.name} />
                         <span className="font-semibold text-slate-900">{u.name}</span>
                       </span>
                     </td>
                     <td className={tdClass}>
-                      <span className="block">{u.email}</span>
+                      <span className="block text-slate-700">{u.email}</span>
                       {u.phone && <span className="block text-xs text-slate-500">{u.phone}</span>}
                     </td>
                     <td className={tdClass}>
-                      <Badge tone={ROLE_BADGE[u.role].tone}>{ROLE_BADGE[u.role].label}</Badge>
+                      <Badge tone={ROLE_BADGE[u.role]?.tone ?? 'gray'}>{ROLE_BADGE[u.role]?.label ?? u.role}</Badge>
                     </td>
                     <td className={tdClass}>
-                      <Badge tone={u.blocked ? 'red' : 'green'}>{u.blocked ? 'Bloklangan' : 'Faol'}</Badge>
+                      <span className={cn(
+                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                        u.blocked ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'
+                      )}>
+                        <span className={cn('h-1.5 w-1.5 rounded-full', u.blocked ? 'bg-red-500' : 'bg-emerald-500')} />
+                        {u.blocked ? 'Bloklangan' : 'Faol'}
+                      </span>
                     </td>
                     <td className={`${tdClass} text-right`}>
                       {can('users.block') ? (

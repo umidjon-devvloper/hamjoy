@@ -28,15 +28,15 @@ import { ROUTES } from '@/lib/navigation/routes';
 import { cn } from '@/lib/utils';
 import { NoAccess } from './ui';
 
-export const ADMIN_NAV: { href: string; label: string; icon: LucideIcon; permission?: Permission }[] = [
+export const ADMIN_NAV: { href: string; label: string; icon: LucideIcon; permission?: Permission; badgeKey?: string }[] = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard, permission: 'dashboard.view' },
   { href: '/admin/users', label: 'Foydalanuvchilar', icon: Users, permission: 'users.view' },
-  { href: '/admin/listings', label: 'Uy-joy eʼlonlari', icon: Home, permission: 'listings.view' },
-  { href: '/admin/jobs', label: 'Ish eʼlonlari', icon: Briefcase, permission: 'jobs.view' },
-  { href: '/admin/reports', label: 'Murojaatlar', icon: MessageSquareWarning, permission: 'reports.view' },
+  { href: '/admin/listings', label: 'Eʼlonlar', icon: Home, permission: 'listings.view', badgeKey: 'listings' },
+  { href: '/admin/jobs', label: 'Vakansiyalar', icon: Briefcase, permission: 'jobs.view', badgeKey: 'jobs' },
+  { href: '/admin/reports', label: 'Shikoyatlar', icon: MessageSquareWarning, permission: 'reports.view', badgeKey: 'reports' },
   { href: '/admin/reviews', label: 'Sharhlar', icon: Star, permission: 'reports.view' },
   { href: '/admin/verifications', label: 'Verifikatsiyalar', icon: ShieldCheck, permission: 'reports.view' },
-  { href: '/admin/roles', label: 'Rollar va imtiyozlar', icon: ShieldCheck },
+  { href: '/admin/roles', label: 'Rollar', icon: ShieldCheck },
   { href: '/admin/settings', label: 'Sozlamalar', icon: Settings, permission: 'settings.manage' },
 ];
 

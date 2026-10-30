@@ -276,3 +276,75 @@ export function LineChart({ labels, series }: { labels: string[]; series: { labe
     </figure>
   );
 }
+
+/** Stacked bar chart (SVG, no dependencies). */
+export function BarChart({ labels, series }: { labels: string[]; series: { label: string; color: string; values: number[] }[] }) {
+  const W = 600;
+  const H = 220;
+  const pad = { l: 36, r: 12, t: 12, b: 28 };
+  const stacked = labels.map((_, i) => series.reduce((s, sr) => s + sr.values[i], 0));
+  const max = Math.max(1, ...stacked);
+  const step = Math.ceil(max / 4);
+  const top = step * 4;
+  const barW = Math.min(28, ((W - pad.l - pad.r) / labels.length) * 0.55);
+  const cx = (i: number) => pad.l + ((i + 0.5) * (W - pad.l - pad.r)) / labels.length;
+  const yv = (v: number) => pad.t + (1 - v / top) * (H - pad.t - pad.b);
+
+  return (
+    <figure>
+      <figcaption className="mb-3 flex flex-wrap gap-4 text-xs font-medium text-slate-600">
+        {series.map((s) => (
+          <span key={s.label} className="inline-flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ background: s.color }} />
+            {s.label}: {s.values.reduce((a, b) => a + b, 0)}
+          </span>
+        ))}
+      </figcaption>
+      <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <g key={i}>
+            <line x1={pad.l} x2={W - pad.r} y1={yv(step * i)} y2={yv(step * i)} stroke="#E6E7E3" strokeDasharray={i ? '3 4' : undefined} />
+            <text x={pad.l - 8} y={yv(step * i) + 4} textAnchor="end" fontSize="11" fill="#4B5160">
+              {step * i}
+            </text>
+          </g>
+        ))}
+        {labels.map((l, i) => {
+          let y0 = yv(0);
+          return (
+            <g key={l}>
+              {series.map((s) => {
+                const h = yv(0) - yv(s.values[i]);
+                const yTop = y0 - h;
+                y0 = yTop;
+                return (
+                  <rect key={s.label} x={cx(i) - barW / 2} y={yTop} width={barW} height={Math.max(0, h)} rx={3} fill={s.color}>
+                    <title>{`${l} — ${s.label}: ${s.values[i]}`}</title>
+                  </rect>
+                );
+              })}
+              <text x={cx(i)} y={H - 8} textAnchor="middle" fontSize="11" fill="#4B5160">
+                {l}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </figure>
+  );
+}
+
+export function ProgressBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-sm">
+        <span className="font-medium text-slate-700">{label}</span>
+        <span className="tabular text-sm font-semibold text-slate-900">{value}</span>
+      </div>
+      <div className="h-2 rounded-full bg-slate-100">
+        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: color }} />
+      </div>
+    </div>
+  );
+}
