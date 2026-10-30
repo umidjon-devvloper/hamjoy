@@ -28,8 +28,6 @@ const STATUS_LABEL: Record<string, { label: string; bg: string; fg: string }> = 
 const VERTICAL_LABEL: Record<string, string> = {
   'uy-joy': 'Uy-joy',
   ish: 'Ish',
-  avto: 'Avto',
-  bepul: 'Bepul',
 };
 
 /** User history: e'lonlar tarixi — tab bilan filter. */

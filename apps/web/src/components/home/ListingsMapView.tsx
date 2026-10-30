@@ -1,9 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { LocateFixed, Loader2 } from 'lucide-react';
-import { ListingsTileMap } from '@/components/map/ListingsTileMap';
 import { DEMO_LISTINGS } from '@/data/listings';
+
+const ListingsTileMap = dynamic(
+  () => import('@/components/map/ListingsTileMap').then((m) => ({ default: m.ListingsTileMap })),
+  { ssr: false },
+);
 import { useUserListings } from '@/lib/listings/user-listings';
 import { isRestBackendEnabled } from '@/lib/api/config';
 import { apiListingToProperty } from '@/lib/listings/api-mapping';

@@ -1,17 +1,17 @@
 'use client';
 
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Navigation, X } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import type { PropertyListing } from '@/types/listing';
 import type { MapCoordinates } from '@/types';
-import { boundsAround } from '@/lib/map/distance';
-import { tileGridForBounds, projectWithinBounds, fitZoomForBounds } from '@/lib/map/tiles';
-import { MAP_TILE_ATTRIBUTION } from '@/lib/map/config';
 import { formatListingPrice } from '@/lib/listings/format';
 import { ROUTES } from '@/lib/navigation/routes';
 import { cn } from '@/lib/utils';
+import 'leaflet/dist/leaflet.css';
 
 interface ListingsTileMapProps {
   listings: PropertyListing[];
@@ -20,6 +20,71 @@ interface ListingsTileMapProps {
   userLocation?: MapCoordinates | null;
   tileUrl?: string;
   className?: string;
+}
+
+function createPriceIcon(price: string, isSelected: boolean) {
+  const bg = isSelected ? 'var(--color-secondary)' : '#fbbf24';
+  const color = isSelected ? '#fff' : 'var(--color-secondary)';
+  const scale = isSelected ? 'transform: scale(1.15);' : '';
+  const shadow = isSelected
+    ? '0 4px 12px rgba(0,0,0,.35)'
+    : '0 2px 8px rgba(0,0,0,.2)';
+  return L.divIcon({
+    className: '',
+    iconSize: [0, 0],
+    iconAnchor: [0, 0],
+    html: `<div style="
+      position: absolute; bottom: 0; left: 50%;
+      transform: translateX(-50%) ${scale};
+      transform-origin: bottom center;
+      display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; filter: drop-shadow(${shadow});
+    ">
+      <div style="
+        background: ${bg}; color: ${color};
+        padding: 5px 12px; border-radius: 20px;
+        font-size: 13px; font-weight: 700; letter-spacing: -0.2px;
+        white-space: nowrap; line-height: 1.2;
+      ">${price}</div>
+      <div style="
+        width: 0; height: 0;
+        border-left: 7px solid transparent;
+        border-right: 7px solid transparent;
+        border-top: 8px solid ${bg};
+        margin-top: -1px;
+      "></div>
+    </div>`,
+  });
+}
+
+function createUserIcon() {
+  return L.divIcon({
+    className: '',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    html: `<span style="
+      display: flex; width: 16px; height: 16px;
+      border-radius: 50%; background: var(--color-brand-green);
+      box-shadow: 0 0 0 2px white, 0 0 8px rgba(30,181,58,.5);
+    "></span>`,
+  });
+}
+
+function RecenterMap({ center }: { center: MapCoordinates }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView([center.lat, center.lng], map.getZoom());
+  }, [center.lat, center.lng, map]);
+  return null;
+}
+
+function CountBadge({ count }: { count: number }) {
+  return (
+    <div className="absolute left-3 top-3 z-[1000] flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[var(--color-secondary)] shadow backdrop-blur">
+      <Navigation className="h-3.5 w-3.5 text-[var(--color-brand-green)]" />
+      {count} ta eʼlon
+    </div>
+  );
 }
 
 export function ListingsTileMap({
@@ -32,131 +97,60 @@ export function ListingsTileMap({
 }: ListingsTileMapProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const { grid, bounds, zoom } = useMemo(() => {
-    const b = boundsAround(center, radiusKm * 1.3);
-    const z = fitZoomForBounds(b, 5);
-    return { grid: tileGridForBounds(b, z, tileUrl), bounds: b, zoom: z };
-  }, [center, radiusKm, tileUrl]);
-
-  const pins = useMemo(() => {
-    const raw = listings
-      .filter((l) => typeof l.lat === 'number' && typeof l.lng === 'number')
-      .map((l) => ({ listing: l, pos: projectWithinBounds(l.lat!, l.lng!, bounds, zoom) }))
-      .filter((p) => p.pos.inView);
-
-    const adjusted = raw.map((p) => ({
-      ...p,
-      x: parseFloat(p.pos.left),
-      y: parseFloat(p.pos.top),
-      offsetY: 0,
-    }));
-
-    for (let i = 0; i < adjusted.length; i++) {
-      for (let j = i + 1; j < adjusted.length; j++) {
-        const dx = Math.abs(adjusted[i].x - adjusted[j].x);
-        const dy = Math.abs((adjusted[i].y + adjusted[i].offsetY) - (adjusted[j].y + adjusted[j].offsetY));
-        if (dx < 6 && dy < 3.5) {
-          adjusted[j].offsetY += 3.5 - dy;
-        }
-      }
-    }
-
-    return adjusted;
-  }, [listings, bounds, zoom]);
-
-  const userPos = userLocation
-    ? projectWithinBounds(userLocation.lat, userLocation.lng, bounds, zoom)
-    : null;
+  const pins = useMemo(
+    () => listings.filter((l) => typeof l.lat === 'number' && typeof l.lng === 'number'),
+    [listings],
+  );
 
   const selected = listings.find((l) => l.id === selectedId) ?? null;
 
-  const handlePinClick = useCallback((e: React.MouseEvent, id: string) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleMarkerClick = useCallback((id: string) => {
     setSelectedId((cur) => (cur === id ? null : id));
   }, []);
 
+  const tileSource = tileUrl ?? 'https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+  const attribution = tileUrl ? '&copy; Google Maps' : '&copy; Google Maps';
+
+  const zoom = radiusKm <= 5 ? 14 : radiusKm <= 10 ? 13 : radiusKm <= 20 ? 12 : 11;
+
   return (
-    <div
-      className={cn(
-        'relative overflow-hidden bg-slate-100',
-        className
-      )}
-    >
-      {/* Tile backdrop */}
-      <div className="absolute inset-0">
-        {grid.tiles.map((t) => (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            key={`${t.left}-${t.top}`}
-            src={t.url}
-            alt=""
-            aria-hidden
-            loading="lazy"
-            decoding="async"
-            className="absolute object-cover"
-            style={{ left: t.left, top: t.top, width: t.width, height: t.height }}
-          />
-        ))}
-      </div>
+    <div className={cn('relative overflow-hidden bg-slate-100', className)}>
+      <MapContainer
+        center={[center.lat, center.lng]}
+        zoom={zoom}
+        className="absolute inset-0 z-0"
+        style={{ width: '100%', height: '100%' }}
+        zoomControl={false}
+        attributionControl={true}
+      >
+        <TileLayer url={tileSource} attribution={attribution} maxZoom={19} />
+        <RecenterMap center={center} />
 
-      {/* Listing pins — yellow/gold like Joymee */}
-      {pins.map(({ listing: l, pos, offsetY }) => {
-        const isSel = selectedId === l.id;
-        return (
-          <button
-            key={l.id}
-            type="button"
-            onClick={(e) => handlePinClick(e, l.id)}
-            className={cn(
-              'absolute z-10 -translate-x-1/2 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-xs font-bold shadow-md transition-transform hover:scale-110 focus:outline-none',
-              isSel
-                ? 'z-20 scale-110 bg-[var(--color-secondary)] text-white'
-                : 'bg-amber-400 text-[var(--color-secondary)]'
-            )}
-            style={{ top: `calc(${pos.top} + ${offsetY}%)`, left: pos.left }}
-            aria-label={l.title}
-          >
-            {formatListingPrice(l)}
-            {/* Pin triangle */}
-            <span
-              className={cn(
-                'absolute left-1/2 top-full -translate-x-1/2 border-x-[5px] border-t-[6px] border-x-transparent',
-                isSel ? 'border-t-[var(--color-secondary)]' : 'border-t-amber-400'
-              )}
+        {pins.map((l) => {
+          const isSel = selectedId === l.id;
+          return (
+            <Marker
+              key={l.id}
+              position={[l.lat!, l.lng!]}
+              icon={createPriceIcon(formatListingPrice(l), isSel)}
+              eventHandlers={{ click: () => handleMarkerClick(l.id) }}
             />
-          </button>
-        );
-      })}
+          );
+        })}
 
-      {/* User location */}
-      {userPos?.inView && (
-        <span
-          className="absolute z-20 -translate-x-1/2 -translate-y-1/2"
-          style={{ top: userPos.top, left: userPos.left }}
-          aria-label="Sizning joylashuvingiz"
-        >
-          <span className="relative flex h-4 w-4">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-brand-green)]/50 opacity-60" />
-            <span className="relative inline-flex h-4 w-4 rounded-full bg-[var(--color-brand-green)] ring-2 ring-white" />
-          </span>
-        </span>
-      )}
+        {userLocation && (
+          <Marker
+            position={[userLocation.lat, userLocation.lng]}
+            icon={createUserIcon()}
+            interactive={false}
+          />
+        )}
+      </MapContainer>
 
-      {/* Attribution */}
-      <span className="absolute bottom-1 left-1 z-10 rounded bg-white/80 px-1.5 py-0.5 text-[9px] text-[var(--color-muted)] backdrop-blur">
-        {tileUrl ? '© Google Maps' : MAP_TILE_ATTRIBUTION}
-      </span>
+      <CountBadge count={pins.length} />
 
-      {/* Count badge */}
-      <div className="absolute left-3 top-3 z-10 flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-[var(--color-secondary)] shadow backdrop-blur">
-        <Navigation className="h-3.5 w-3.5 text-[var(--color-brand-green)]" />
-        {pins.length} ta eʼlon
-      </div>
-
-      {/* Selected listing card */}
       {selected && (
-        <div className="absolute bottom-4 left-3 right-3 z-30 sm:left-auto sm:right-4 sm:w-80">
+        <div className="absolute bottom-4 left-3 right-3 z-[1000] sm:left-auto sm:right-4 sm:w-80">
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
             <button
               type="button"

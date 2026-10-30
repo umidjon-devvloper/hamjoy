@@ -2,9 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState, type ReactNode } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image } from 'expo-image';
+import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Chip, Icon, RoundButton, Segmented, type IconName } from '@/components/ui';
 import { getApi } from '@/lib/api';
+import { uploads } from '@/lib/uploads';
 import { colors, radius, type } from '@/lib/theme';
 
 type Kind = 'sotuv' | 'ijara' | 'kunlik' | 'ish';
@@ -46,8 +49,43 @@ export default function Post() {
   const [company, setCompany] = useState('');
   const [location, setLocation] = useState(LOCATIONS[0]!);
   const [description, setDescription] = useState('');
+  const [images, setImages] = useState<{ uri: string; mime: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   const isJob = kind === 'ish';
+
+  const pickImages = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Ruxsat kerak', 'Rasmlarni tanlash uchun galereyaga ruxsat bering.');
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 10,
+      quality: 0.8,
+    });
+    if (result.canceled) return;
+    const picked = result.assets.map((a) => ({ uri: a.uri, mime: a.mimeType ?? 'image/jpeg' }));
+    setImages((prev) => [...prev, ...picked].slice(0, 10));
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Ruxsat kerak', 'Kamerani ishlatish uchun ruxsat bering.');
+      return;
+    }
+    const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+    if (result.canceled) return;
+    const asset = result.assets[0]!;
+    setImages((prev) => [...prev, { uri: asset.uri, mime: asset.mimeType ?? 'image/jpeg' }].slice(0, 10));
+  };
+
+  const removeImage = (idx: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   // Edit mode: pull the existing listing and prefill the form.
   const existing = useQuery({
@@ -91,14 +129,29 @@ export default function Post() {
 
   const submit = useMutation({
     mutationFn: async () => {
+      setUploading(true);
       const amount = Number(price.replace(/\D/g, ''));
       const attrs: Record<string, string | number | boolean> = { district: location.name };
       if (!isJob && rooms) attrs.rooms = Number(rooms);
       if (!isJob && area) attrs.area = Number(area);
       if (kind === 'kunlik') attrs.period = 'kun';
       if (isJob && company.trim()) attrs.company = company.trim();
+
+      let mediaUrls: string[] = [];
+      if (images.length > 0) {
+        try {
+          mediaUrls = await Promise.all(
+            images.map((img) => uploads.uploadLocal('listing', img.uri, img.mime)),
+          );
+        } catch {
+          Alert.alert('Xatolik', 'Rasmlarni yuklashda xatolik yuz berdi.');
+          setUploading(false);
+          throw new Error('Image upload failed');
+        }
+      }
+
       const api = getApi();
-      const body = {
+      const body: Record<string, unknown> = {
         type: isJob ? 'job' : kind === 'sotuv' ? 'sale' : 'rent',
         categoryId: CATEGORY[kind],
         locationId: location.id,
@@ -107,6 +160,9 @@ export default function Post() {
         price: amount ? { amount, currency, negotiable: false } : null,
         attrs,
       };
+      if (mediaUrls.length > 0) {
+        body.media = mediaUrls.map((url) => ({ url, kind: 'photo' }));
+      }
       if (editId) {
         return (await api.listings.update(editId, body as never)) as unknown as { id: string };
       }
@@ -119,13 +175,17 @@ export default function Post() {
       return created;
     },
     onSuccess: async () => {
+      setUploading(false);
       await qc.invalidateQueries({ queryKey: [isJob ? 'jobs' : 'homes'] });
       if (editId) await qc.invalidateQueries({ queryKey: ['listing', editId] });
       const title = editId ? "Eʼlon yangilandi" : 'Eʼlon yuborildi';
       const body = editId ? "O'zgarishlar saqlandi." : 'Moderatsiyadan soʻng hammaga koʻrinadi.';
       Alert.alert(title, body, [{ text: 'Yaxshi', onPress: () => router.back() }]);
     },
-    onError: (err) => Alert.alert(editId ? "Saqlab bo'lmadi" : 'Eʼlon joylanmadi', (err as Error).message),
+    onError: (err) => {
+      setUploading(false);
+      Alert.alert(editId ? "Saqlab bo'lmadi" : 'Eʼlon joylanmadi', (err as Error).message);
+    },
   });
 
   const valid = title.trim().length >= 3;
@@ -231,19 +291,42 @@ export default function Post() {
             />
           </Field>
 
-          <View style={styles.tip}>
-            <Icon name="camera" size={18} color={colors.green} />
-            <Text style={styles.tipText}>Rasmlarni joylangandan soʻng veb-saytdagi kabinet orqali qoʻshishingiz mumkin.</Text>
-          </View>
+          {!isJob && (
+            <Field label="RASMLAR">
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.imageRow}>
+                {images.map((img, idx) => (
+                  <View key={img.uri} style={styles.imageThumb}>
+                    <Image source={{ uri: img.uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+                    <Pressable onPress={() => removeImage(idx)} style={styles.imageRemove}>
+                      <Icon name="x" size={14} color={colors.white} />
+                    </Pressable>
+                  </View>
+                ))}
+                {images.length < 10 && (
+                  <Pressable onPress={pickImages} style={styles.imageAdd}>
+                    <Icon name="image" size={24} color={colors.green} />
+                    <Text style={styles.imageAddText}>Galereyadan</Text>
+                  </Pressable>
+                )}
+                {images.length < 10 && (
+                  <Pressable onPress={takePhoto} style={styles.imageAdd}>
+                    <Icon name="camera" size={24} color={colors.green} />
+                    <Text style={styles.imageAddText}>Kamera</Text>
+                  </Pressable>
+                )}
+              </ScrollView>
+              <Text style={styles.imageHint}>{images.length}/10 rasm tanlandi</Text>
+            </Field>
+          )}
         </ScrollView>
 
         <View style={[styles.bar, { paddingBottom: insets.bottom + 10 }]}>
           <Button
-            label={editId ? "O'zgarishlarni saqlash" : 'Eʼlonni joylash'}
+            label={uploading ? 'Rasmlar yuklanmoqda…' : editId ? "O'zgarishlarni saqlash" : 'Eʼlonni joylash'}
             tone="green"
             onPress={() => submit.mutate()}
-            loading={submit.isPending}
-            disabled={!valid}
+            loading={submit.isPending || uploading}
+            disabled={!valid || uploading}
           />
         </View>
       </KeyboardAvoidingView>
@@ -275,7 +358,11 @@ const styles = StyleSheet.create({
   priceRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   priceInput: { flex: 1, fontSize: 20, fontWeight: '800' },
   textarea: { minHeight: 120, paddingTop: 16, textAlignVertical: 'top' },
-  tip: { flexDirection: 'row', gap: 10, padding: 14, borderRadius: 18, backgroundColor: colors.mint, alignItems: 'center' },
-  tipText: { flex: 1, fontSize: 13, color: colors.green, lineHeight: 18 },
+  imageRow: { gap: 10 },
+  imageThumb: { width: 90, height: 90, borderRadius: 16, overflow: 'hidden', backgroundColor: colors.field },
+  imageRemove: { position: 'absolute', top: 4, right: 4, width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(0,0,0,0.55)', alignItems: 'center', justifyContent: 'center' },
+  imageAdd: { width: 90, height: 90, borderRadius: 16, borderWidth: 2, borderColor: colors.border, borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center', gap: 4 },
+  imageAddText: { fontSize: 11, color: colors.muted, fontWeight: '600' },
+  imageHint: { fontSize: 12, color: colors.muted, marginTop: 4 },
   bar: { paddingHorizontal: 20, paddingTop: 10, backgroundColor: colors.ground },
 });

@@ -223,7 +223,7 @@ function toJob(raw: RawListing): Job {
 async function searchRaw(params: {
   q?: string;
   type?: 'job' | 'rent' | 'sale' | 'car_sale' | 'car_salon' | 'free_give' | 'worker_offer' | 'service';
-  vertical?: 'uy-joy' | 'ish' | 'avto' | 'bepul';
+  vertical?: 'uy-joy' | 'ish';
 }): Promise<RawListing[]> {
   try {
     const res = await getApi().listings.search({ ...params, limit: 30 } as never);
@@ -234,19 +234,6 @@ async function searchRaw(params: {
   }
 }
 
-/**
- * Generic per-vertical feed hook — used by the new /avto and /bepul
- * sections which don't need the richer homes/jobs transformations.
- */
-export function useVerticalFeed(vertical: 'avto' | 'bepul', q?: string) {
-  return useQuery({
-    queryKey: ['vertical', vertical, q ?? ''],
-    queryFn: async () => {
-      const raw = await searchRaw({ vertical, q: q || undefined });
-      return raw.filter((r) => matches(q, r.title, r.description ?? ''));
-    },
-  });
-}
 
 const matches = (q: string | undefined, ...fields: string[]) =>
   !q || fields.some((f) => f.toLowerCase().includes(q.trim().toLowerCase()));

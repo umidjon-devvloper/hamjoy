@@ -30,8 +30,6 @@ const STATUS: Record<string, { label: string; bg: string; fg: string }> = {
 const VERTICAL_LABEL: Record<string, string> = {
   'uy-joy': 'Uy-joy',
   ish: 'Ish',
-  avto: 'Avto',
-  bepul: 'Bepul',
 };
 
 export default function MyListings() {
