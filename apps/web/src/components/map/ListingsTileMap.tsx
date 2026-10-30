@@ -38,14 +38,31 @@ export function ListingsTileMap({
     return { grid: tileGridForBounds(b, z, tileUrl), bounds: b, zoom: z };
   }, [center, radiusKm, tileUrl]);
 
-  const pins = useMemo(
-    () =>
-      listings
-        .filter((l) => typeof l.lat === 'number' && typeof l.lng === 'number')
-        .map((l) => ({ listing: l, pos: projectWithinBounds(l.lat!, l.lng!, bounds, zoom) }))
-        .filter((p) => p.pos.inView),
-    [listings, bounds, zoom]
-  );
+  const pins = useMemo(() => {
+    const raw = listings
+      .filter((l) => typeof l.lat === 'number' && typeof l.lng === 'number')
+      .map((l) => ({ listing: l, pos: projectWithinBounds(l.lat!, l.lng!, bounds, zoom) }))
+      .filter((p) => p.pos.inView);
+
+    const adjusted = raw.map((p) => ({
+      ...p,
+      x: parseFloat(p.pos.left),
+      y: parseFloat(p.pos.top),
+      offsetY: 0,
+    }));
+
+    for (let i = 0; i < adjusted.length; i++) {
+      for (let j = i + 1; j < adjusted.length; j++) {
+        const dx = Math.abs(adjusted[i].x - adjusted[j].x);
+        const dy = Math.abs((adjusted[i].y + adjusted[i].offsetY) - (adjusted[j].y + adjusted[j].offsetY));
+        if (dx < 6 && dy < 3.5) {
+          adjusted[j].offsetY += 3.5 - dy;
+        }
+      }
+    }
+
+    return adjusted;
+  }, [listings, bounds, zoom]);
 
   const userPos = userLocation
     ? projectWithinBounds(userLocation.lat, userLocation.lng, bounds, zoom)
@@ -84,7 +101,7 @@ export function ListingsTileMap({
       </div>
 
       {/* Listing pins — yellow/gold like Joymee */}
-      {pins.map(({ listing: l, pos }) => {
+      {pins.map(({ listing: l, pos, offsetY }) => {
         const isSel = selectedId === l.id;
         return (
           <button
@@ -97,7 +114,7 @@ export function ListingsTileMap({
                 ? 'z-20 scale-110 bg-[var(--color-secondary)] text-white'
                 : 'bg-amber-400 text-[var(--color-secondary)]'
             )}
-            style={{ top: pos.top, left: pos.left }}
+            style={{ top: `calc(${pos.top} + ${offsetY}%)`, left: pos.left }}
             aria-label={l.title}
           >
             {formatListingPrice(l)}
