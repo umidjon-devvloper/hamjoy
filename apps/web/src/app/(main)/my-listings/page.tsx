@@ -44,7 +44,7 @@ function Row({
     item.priceAmount && item.priceCurrency
       ? `${Number(item.priceAmount).toLocaleString('uz-UZ')} ${item.priceCurrency}`
       : null;
-  const viewHref = item.vertical === 'ish' ? `/job/${item.id}` : `/listing/${item.id}`;
+  const viewHref = item.vertical === 'ish' ? `/job/${item.id}` : `/uy-joy/elon/${item.id}`;
   const editHref =
     item.vertical === 'ish'
       ? `/create?edit=${item.id}`
@@ -116,8 +116,10 @@ function MyListingsContent() {
 
   const load = () => {
     if (!user.id) return;
-    void joymeeReviews.history(user.id).then((r) => {
+    void joymeeReviews.myListings().then((r) => {
       setRows(r);
+      setLoaded(true);
+    }).catch(() => {
       setLoaded(true);
     });
   };

@@ -52,6 +52,27 @@ export const joymeeReviews = {
     return (await res.json()) as UserHistoryRow[];
   },
 
+  async myListings(): Promise<UserHistoryRow[]> {
+    const headers = await authHeader();
+    const res = await fetch(`${base()}/listings/mine`, { headers });
+    if (!res.ok) return [];
+    const items = (await res.json()) as Array<{
+      id: string; title: string; type: string; vertical: string;
+      status: string; priceAmount?: string | null; priceCurrency?: string | null;
+      createdAt: string;
+    }>;
+    return items.map((l) => ({
+      id: l.id,
+      title: l.title,
+      type: l.type,
+      vertical: l.vertical,
+      status: l.status,
+      priceAmount: l.priceAmount ?? null,
+      priceCurrency: l.priceCurrency ?? null,
+      createdAt: l.createdAt,
+    }));
+  },
+
   async create(input: { toUserId: string; listingId?: string; rating: number; comment?: string }): Promise<Review> {
     const res = await fetch(`${base()}/reviews`, {
       method: 'POST',

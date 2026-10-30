@@ -45,8 +45,10 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
 
   useEffect(() => {
     if (!isRestBackendEnabled() || !userId) return;
-    void joymeeReviews.history(userId).then((r) => {
+    void joymeeReviews.myListings().then((r) => {
       setRows(r);
+      setLoaded(true);
+    }).catch(() => {
       setLoaded(true);
     });
   }, [userId]);
@@ -108,7 +110,7 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
             return (
               <li key={r.id} className="flex items-center gap-3 py-3">
                 <Link
-                  href={r.vertical === 'ish' ? `/job/${r.id}` : `/listing/${r.id}`}
+                  href={r.vertical === 'ish' ? `/job/${r.id}` : `/uy-joy/elon/${r.id}`}
                   className="flex min-w-0 flex-1 items-center gap-3"
                 >
                   <div className="min-w-0 flex-1">
