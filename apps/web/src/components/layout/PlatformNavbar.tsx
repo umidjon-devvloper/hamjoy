@@ -34,24 +34,26 @@ import { useAuth } from '@/context/AuthContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { appToast } from '@/lib/feedback/toast';
 import { useTheme } from '@/lib/theme';
+import { useI18n } from '@/lib/i18n';
+import type { AppLanguage } from '@/types';
 
-/** What can be posted — the gold "Eʼlon joylash" menu. */
-const POST_LINKS: PlatformLink[] = [
-  {
-    label: 'Uy-joy ijara',
-    description: 'Uy-joyni ijaraga bering',
-    icon: Building2,
-    href: `${ROUTES.createListing}&bitim=ijara`,
-  },
-  { label: 'Ish joylash', description: 'Xodim topish uchun vakansiya', icon: Briefcase, href: ROUTES.createJob },
+function getPostLinks(t: { nav_post_rent: string; nav_post_rent_desc: string; nav_post_job: string; nav_post_job_desc: string }): PlatformLink[] {
+  return [
+    {
+      label: t.nav_post_rent,
+      description: t.nav_post_rent_desc,
+      icon: Building2,
+      href: `${ROUTES.createListing}&bitim=ijara`,
+    },
+    { label: t.nav_post_job, description: t.nav_post_job_desc, icon: Briefcase, href: ROUTES.createJob },
+  ];
+}
+
+const LANGUAGES: { code: AppLanguage; display: string; label: string }[] = [
+  { code: 'uz', display: 'UZ', label: 'Oʻzbekcha' },
+  { code: 'ru', display: 'RU', label: 'Русский' },
+  { code: 'en', display: 'EN', label: 'English' },
 ];
-
-/** Only Uzbek exists today; RU/EN are listed so the menu shape is final. */
-const LANGUAGES = [
-  { code: 'UZ', label: 'Oʻzbekcha', ready: true },
-  { code: 'RU', label: 'Русский', ready: false },
-  { code: 'EN', label: 'English', ready: false },
-] as const;
 
 type MenuId = 'lang' | 'post';
 
@@ -89,6 +91,7 @@ function Tooltip({ label, className }: { label: string; className?: string }) {
 
 function MenuLink({ link, onNavigate }: { link: PlatformLink; onNavigate: () => void }) {
   const Icon = link.icon;
+  const { t } = useI18n();
   const body = (
     <>
       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--nav-hover)] text-[var(--nav-accent)]">
@@ -100,7 +103,7 @@ function MenuLink({ link, onNavigate }: { link: PlatformLink; onNavigate: () => 
       </span>
       {!link.href && (
         <span className="shrink-0 rounded-full bg-[var(--nav-hover)] px-2 py-0.5 text-[10px] font-semibold text-[var(--nav-fg-subtle)]">
-          Tez orada
+          {t.coming_soon}
         </span>
       )}
     </>
@@ -301,8 +304,10 @@ export function PlatformNavbar() {
   const pathname = usePathname();
   // Ish mode shows jobs only: no Sotuv / Ijara tabs, posting, or housing menu entries.
   const mode = getPlatformMode(pathname);
-  const searchPlaceholder = mode === 'ish' ? 'Ish yoki kompaniya qidiring...' : 'Uy, ish qidiring...';
-  const postLinks = mode === 'ish' ? POST_LINKS.filter((l) => l.href === ROUTES.createJob) : POST_LINKS;
+  const { lang, setLang, t } = useI18n();
+  const searchPlaceholder = mode === 'ish' ? t.nav_search_placeholder_jobs : t.nav_search_placeholder_home;
+  const allPostLinks = getPostLinks(t);
+  const postLinks = mode === 'ish' ? allPostLinks.filter((l) => l.href === ROUTES.createJob) : allPostLinks;
   const menuSections = mode === 'ish' ? PLATFORM_SECTIONS.filter((s) => s.id !== 'uy-joy') : PLATFORM_SECTIONS;
   const user = useCurrentUser();
   const { unreadCount } = useNotifications();
@@ -310,7 +315,7 @@ export function PlatformNavbar() {
   const { isAuthenticated } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
-  const themeLabel = isDark ? 'Kunduzgi rejim' : 'Tungi rejim';
+  const themeLabel = isDark ? t.nav_light_mode : t.nav_dark_mode;
   const [openMenu, setOpenMenu] = useState<MenuId | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -375,8 +380,8 @@ export function PlatformNavbar() {
 
   const toggle = (id: MenuId) => setOpenMenu((current) => (current === id ? null : id));
 
-  const pickLanguage = (ready: boolean) => {
-    if (!ready) appToast.info('Bu til tez orada qoʻshiladi');
+  const pickLanguage = (code: AppLanguage) => {
+    setLang(code);
     setOpenMenu(null);
   };
 
@@ -461,7 +466,7 @@ export function PlatformNavbar() {
                 )}
               >
                 <Globe className="h-[18px] w-[18px]" />
-                UZ
+                {LANGUAGES.find((l) => l.code === lang)?.display ?? 'UZ'}
                 <ChevronDown
                   className={cn('h-3.5 w-3.5 transition-transform', openMenu === 'lang' && 'rotate-180')}
                 />
@@ -469,24 +474,22 @@ export function PlatformNavbar() {
               <AnimatePresence>
                 {openMenu === 'lang' && (
                   <motion.div id="nav-lang-panel" {...panelMotion} className={cn(panelClass, 'left-0 w-56 origin-top-left')}>
-                    {LANGUAGES.map((lang) => (
+                    {LANGUAGES.map((l) => (
                       <button
-                        key={lang.code}
+                        key={l.code}
                         type="button"
-                        aria-current={lang.ready ? 'true' : undefined}
-                        onClick={() => pickLanguage(lang.ready)}
+                        aria-current={l.code === lang ? 'true' : undefined}
+                        onClick={() => pickLanguage(l.code)}
                         className={cn(
                           'flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--nav-hover-fg)]',
-                          !lang.ready && 'text-[var(--nav-fg-subtle)]',
+                          l.code === lang && 'bg-[var(--nav-hover)]',
                           focusRing
                         )}
                       >
-                        <span className="w-7 text-xs font-bold">{lang.code}</span>
-                        <span className="flex-1">{lang.label}</span>
-                        {lang.ready ? (
+                        <span className="w-7 text-xs font-bold">{l.display}</span>
+                        <span className="flex-1">{l.label}</span>
+                        {l.code === lang && (
                           <Check className="h-4 w-4 text-[var(--nav-accent)]" />
-                        ) : (
-                          <span className="text-[10px] font-semibold">Tez orada</span>
                         )}
                       </button>
                     ))}
@@ -521,7 +524,7 @@ export function PlatformNavbar() {
             {isAuthenticated ? (
               <NavAction
                 href={ROUTES.profile}
-                label="Hisobim"
+                label={t.nav_my_account}
                 icon={UserRound}
                 active={isActive(ROUTES.profile)}
                 onClick={closeAll}
@@ -529,7 +532,7 @@ export function PlatformNavbar() {
             ) : (
               <NavAction
                 href={ROUTES.login}
-                label="Kirish"
+                label={t.nav_login}
                 icon={UserRound}
                 active={isActive(ROUTES.login)}
                 onClick={closeAll}
@@ -538,10 +541,10 @@ export function PlatformNavbar() {
             {isAuthenticated && (
               <NavAction
                 href={ROUTES.favorites}
-                label="Saqlangan"
+                label={t.nav_saved}
                 icon={Heart}
                 count={favoriteIds.size}
-                countLabel="ta eʼlon"
+                countLabel={t.saved_count}
                 active={isActive(ROUTES.favorites)}
                 onClick={closeAll}
                 className="hidden sm:flex"
@@ -550,10 +553,10 @@ export function PlatformNavbar() {
             {isAuthenticated && (
               <NavAction
                 href={ROUTES.notifications}
-                label="Bildirishnomalar"
+                label={t.nav_notifications}
                 icon={Bell}
                 count={unreadCount}
-                countLabel="ta oʻqilmagan"
+                countLabel={t.unread_count}
                 active={isActive(ROUTES.notifications)}
                 onClick={closeAll}
               />
@@ -573,27 +576,27 @@ export function PlatformNavbar() {
                   ref={postButtonRef}
                   aria-expanded={openMenu === 'post'}
                   aria-controls="nav-post-panel"
-                  aria-label="Eʼlon joylash"
+                  aria-label={t.nav_post}
                   className={cn(
                     'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
                     focusRing
                   )}
                 >
                   <Plus className="h-[18px] w-[18px]" strokeWidth={2.75} />
-                  <span className="hidden sm:inline">Eʼlon joylash</span>
+                  <span className="hidden sm:inline">{t.nav_post}</span>
                 </button>
               ) : (
                 <Link
                   href={ROUTES.login}
                   onClick={closeAll}
-                  aria-label="Kirish"
+                  aria-label={t.nav_login}
                   className={cn(
                     'inline-flex h-10 items-center gap-2 rounded-[14px] bg-[var(--color-brand-green)] px-3 text-sm font-bold text-white transition-colors hover:bg-[var(--color-brand-green-deep)] sm:h-11 sm:px-5',
                     focusRing
                   )}
                 >
                   <LogIn className="h-[18px] w-[18px]" strokeWidth={2.5} />
-                  <span className="hidden sm:inline">Kirish</span>
+                  <span className="hidden sm:inline">{t.nav_login}</span>
                 </Link>
               )}
               <AnimatePresence>
@@ -609,7 +612,7 @@ export function PlatformNavbar() {
                     )}
                   >
                     <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-[var(--nav-fg-subtle)]">
-                      Nima joylaysiz?
+                      {t.nav_post_what}
                     </p>
                     {postLinks.map((link) => (
                       <MenuLink key={link.label} link={link} onNavigate={closeAll} />
@@ -628,7 +631,7 @@ export function PlatformNavbar() {
               ref={mobileButtonRef}
               aria-expanded={mobileOpen}
               aria-controls="platform-mobile-menu"
-              aria-label={mobileOpen ? 'Menyuni yopish' : 'Menyuni ochish'}
+              aria-label={mobileOpen ? t.nav_menu_close : t.nav_menu_open}
               className={cn(iconButton, 'lg:hidden', mobileOpen && 'bg-[var(--nav-hover)] text-[var(--nav-fg)]')}
             >
               {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -665,7 +668,7 @@ export function PlatformNavbar() {
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-sm font-semibold">{user.name}</span>
-                      <span className="block text-xs text-[var(--nav-fg-subtle)]">Profilni koʻrish</span>
+                      <span className="block text-xs text-[var(--nav-fg-subtle)]">{t.nav_view_profile}</span>
                     </span>
                   </Link>
                 ) : (
@@ -678,8 +681,8 @@ export function PlatformNavbar() {
                       <UserRound className="h-5 w-5" />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-semibold">Kirish yoki roʻyxatdan oʻtish</span>
-                      <span className="block text-xs text-white/80">E'lon joylash va saqlash uchun</span>
+                      <span className="block truncate text-sm font-semibold">{t.nav_login_register}</span>
+                      <span className="block text-xs text-white/80">{t.nav_login_register_desc}</span>
                     </span>
                   </Link>
                 )}
@@ -690,7 +693,7 @@ export function PlatformNavbar() {
                     className="flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-semibold hover:bg-[var(--nav-hover)] sm:hidden hover:text-[var(--nav-hover-fg)]"
                   >
                     <Heart className="h-[18px] w-[18px] text-[var(--nav-accent)]" />
-                    Saqlanganlar
+                    {t.nav_saved}
                   </Link>
                 )}
 
@@ -708,10 +711,10 @@ export function PlatformNavbar() {
                                 <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[var(--nav-border)] pt-4">
                   <button
                     type="button"
-                    onClick={() => appToast.info('Boshqa tillar tez orada qoʻshiladi')}
+                    onClick={() => toggle('lang')}
                     className="flex items-center justify-center gap-2 rounded-xl bg-[var(--nav-hover)] py-2.5 text-sm font-semibold"
                   >
-                    <Globe className="h-4 w-4" /> Oʻzbekcha
+                    <Globe className="h-4 w-4" /> {LANGUAGES.find((l) => l.code === lang)?.label}
                   </button>
                   <button
                     type="button"

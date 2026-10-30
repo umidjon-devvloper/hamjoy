@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, FormEvent, useCallback } from 'react';
+import { useState, useRef, FormEvent, useCallback } from 'react';
+import { Camera, Loader2 } from 'lucide-react';
 import type { User, UserProfileUpdate } from '@/types';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -14,6 +15,8 @@ import {
   type ProfileFormErrors,
 } from '@/lib/validations/profile.validation';
 import { appToast } from '@/lib/feedback/toast';
+import { joymeeUploads } from '@/lib/joymee/uploads';
+import { useI18n } from '@/lib/i18n';
 
 interface ProfileFormProps {
   user: User;
@@ -29,6 +32,10 @@ export function ProfileForm({ user, onSubmit, isSubmitting }: ProfileFormProps) 
   const [profileRole, setProfileRole] = useState(user.profileRole);
   const [language, setLanguage] = useState(user.language);
   const [errors, setErrors] = useState<ProfileFormErrors>({});
+  const [uploading, setUploading] = useState(false);
+  const [preview, setPreview] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { t } = useI18n();
 
   const clearError = useCallback((key: string) => {
     setErrors((prev) => {
@@ -64,22 +71,52 @@ export function ProfileForm({ user, onSubmit, isSubmitting }: ProfileFormProps) 
       <FormErrorSummary errors={errors} />
 
       <div className="flex flex-col items-center gap-3">
-        <UserAvatar src={avatarUrl} alt={name} size="xl" />
-        <Input
-          label="Avatar URL"
-          value={avatarUrl}
-          onChange={(e) => {
-            setAvatarUrl(e.target.value);
-            clearError('avatarUrl');
+        <div className="relative">
+          <UserAvatar src={preview ?? avatarUrl} alt={name} size="xl" />
+          <button
+            type="button"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-brand-green)] text-white shadow-md transition-transform hover:scale-105 disabled:opacity-50"
+          >
+            {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
+          </button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const localUrl = URL.createObjectURL(file);
+            setPreview(localUrl);
+            setUploading(true);
+            try {
+              const url = await joymeeUploads.upload('avatar', file);
+              setAvatarUrl(url);
+              setPreview(null);
+              clearError('avatarUrl');
+              appToast.success(t.profile_image_uploaded);
+            } catch (err) {
+              setPreview(null);
+              appToast.error(err, t.profile_image_failed);
+            } finally {
+              setUploading(false);
+              URL.revokeObjectURL(localUrl);
+              e.target.value = '';
+            }
           }}
-          error={errors.avatarUrl}
-          placeholder="https://..."
-          hint="Paste an image URL for your profile photo"
         />
+        <p className="text-xs text-[var(--color-muted)]">{t.profile_change_avatar}</p>
+        {errors.avatarUrl && (
+          <p className="text-xs text-red-500">{errors.avatarUrl}</p>
+        )}
       </div>
 
       <Input
-        label="Full name"
+        label={t.profile_full_name}
         value={name}
         onChange={(e) => {
           setName(e.target.value);
@@ -90,7 +127,7 @@ export function ProfileForm({ user, onSubmit, isSubmitting }: ProfileFormProps) 
       />
 
       <Input
-        label="Phone"
+        label={t.profile_phone}
         type="tel"
         value={phone}
         onChange={(e) => {
@@ -103,10 +140,10 @@ export function ProfileForm({ user, onSubmit, isSubmitting }: ProfileFormProps) 
       />
 
       <Input
-        label="Professional title"
+        label={t.profile_title}
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="e.g. Product Designer"
+        placeholder={t.profile_title_placeholder}
       />
 
       <ProfileRoleSelector
@@ -121,7 +158,7 @@ export function ProfileForm({ user, onSubmit, isSubmitting }: ProfileFormProps) 
       <LanguageSelector value={language} onChange={setLanguage} />
 
       <Button type="submit" className="w-full" size="lg" isLoading={isSubmitting}>
-        Save changes
+        {t.save_changes}
       </Button>
     </form>
   );

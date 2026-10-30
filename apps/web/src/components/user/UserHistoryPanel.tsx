@@ -8,14 +8,15 @@ import { joymeeListingsRepository } from '@/lib/joymee/listings.repository';
 import { isRestBackendEnabled } from '@/lib/api/config';
 import { appToast } from '@/lib/feedback/toast';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 type Tab = 'all' | 'active' | 'sold' | 'archived';
 
-const STATUS_LABEL: Record<string, { label: string; cls: string }> = {
-  active:   { label: 'Faol',    cls: 'bg-[var(--color-primary-light)] text-[var(--color-brand-green)]' },
-  sold:     { label: 'Sotildi', cls: 'bg-[var(--color-accent-light)] text-[var(--color-accent)]' },
-  archived: { label: 'Arxiv',   cls: 'bg-[#EEEFEA] text-[var(--color-muted)]' },
-  draft:    { label: 'Qoralama', cls: 'bg-[#EEEFEA] text-[var(--color-muted)]' },
+const STATUS_CLS: Record<string, string> = {
+  active:   'bg-[var(--color-primary-light)] text-[var(--color-brand-green)]',
+  sold:     'bg-[var(--color-accent-light)] text-[var(--color-accent)]',
+  archived: 'bg-[#EEEFEA] text-[var(--color-muted)]',
+  draft:    'bg-[#EEEFEA] text-[var(--color-muted)]',
 };
 
 const VERTICAL_LABEL: Record<string, string> = {
@@ -44,6 +45,7 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
   const [rows, setRows] = useState<UserHistoryRow[]>([]);
   const [tab, setTab] = useState<Tab>('all');
   const [loaded, setLoaded] = useState(false);
+  const { t } = useI18n();
 
   const load = () => {
     void joymeeReviews.myListings().then((r) => {
@@ -62,14 +64,21 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
   const activate = async (id: string) => {
     try {
       await joymeeListingsRepository.publish(id);
-      appToast.success('Eʼlon faollashtirildi');
+      appToast.success(t.listings_activated);
       load();
     } catch (err) {
-      appToast.error(err, 'Faollashtirish amalga oshmadi');
+      appToast.error(err, t.listings_activate_failed);
     }
   };
 
   if (!isRestBackendEnabled()) return null;
+
+  const statusLabel: Record<string, string> = {
+    active: t.listings_active,
+    sold: t.listings_sold,
+    archived: t.listings_archived,
+    draft: t.listings_draft,
+  };
 
   const counts = {
     all: rows.length,
@@ -83,42 +92,43 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
     <section className="card rounded-[22px] p-5 sm:p-6">
       <header className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-xl font-bold tracking-[-0.02em] text-[var(--color-secondary)]">
-          Eʼlonlar tarixi
+          {t.listings_history}
         </h2>
         <div className="hidden gap-2 sm:flex">
-          <Count icon={Clock} label="Faol" value={counts.active} />
-          <Count icon={CheckCircle2} label="Sotildi" value={counts.sold} />
-          <Count icon={Archive} label="Arxiv" value={counts.archived} />
+          <Count icon={Clock} label={t.listings_active} value={counts.active} />
+          <Count icon={CheckCircle2} label={t.listings_sold} value={counts.sold} />
+          <Count icon={Archive} label={t.listings_archived} value={counts.archived} />
         </div>
       </header>
 
       <div className="mb-4 flex flex-wrap gap-2">
-        {(['all', 'active', 'sold', 'archived'] as Tab[]).map((t) => (
+        {(['all', 'active', 'sold', 'archived'] as Tab[]).map((tb) => (
           <button
-            key={t}
+            key={tb}
             type="button"
-            onClick={() => setTab(t)}
+            onClick={() => setTab(tb)}
             className={cn(
               'rounded-full px-3 py-1 text-xs font-semibold transition-colors',
-              tab === t
+              tab === tb
                 ? 'bg-[var(--color-brand-green)] text-white'
                 : 'bg-[var(--color-background)] text-[var(--color-muted)] hover:text-[var(--color-secondary)]',
             )}
           >
-            {t === 'all' ? 'Hammasi' : STATUS_LABEL[t].label}
-            <span className="ml-1 opacity-70">{counts[t]}</span>
+            {tb === 'all' ? t.listings_all : statusLabel[tb]}
+            <span className="ml-1 opacity-70">{counts[tb]}</span>
           </button>
         ))}
       </div>
 
       {!loaded ? (
-        <p className="text-sm text-[var(--color-muted)]">Yuklanmoqda…</p>
+        <p className="text-sm text-[var(--color-muted)]">{t.loading}</p>
       ) : filtered.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted)]">Bu bo'limda hali eʼlon yoʻq.</p>
+        <p className="text-sm text-[var(--color-muted)]">{t.listings_none}</p>
       ) : (
         <ul className="divide-y divide-[var(--color-border)]">
           {filtered.map((r) => {
-            const s = STATUS_LABEL[r.status] ?? STATUS_LABEL.archived;
+            const sCls = STATUS_CLS[r.status] ?? STATUS_CLS.archived;
+            const sLabel = statusLabel[r.status] ?? statusLabel.archived;
             const price =
               r.priceAmount && r.priceCurrency
                 ? `${Number(r.priceAmount).toLocaleString('uz-UZ')} ${r.priceCurrency}`
@@ -148,11 +158,11 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
                       className="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary-light)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-brand-green)] hover:brightness-95"
                     >
                       <Zap className="h-3 w-3" />
-                      Faol qilish
+                      {t.listings_activate}
                     </button>
                   )}
-                  <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', s.cls)}>
-                    {s.label}
+                  <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', sCls)}>
+                    {sLabel}
                   </span>
                 </div>
               </li>

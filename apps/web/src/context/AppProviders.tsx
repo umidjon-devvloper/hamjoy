@@ -10,10 +10,12 @@ import { ChatsProvider } from './ChatsContext';
 import { ApplicationsProvider } from './ApplicationsContext';
 import { NotificationsProvider } from './NotificationsContext';
 import { QueryProvider } from './QueryProvider';
+import { I18nProvider } from '@/lib/i18n';
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryProvider>
+      <I18nProvider>
       <AuthProvider>
         <FavoritesProvider>
           <ApplicationsProvider>
@@ -28,6 +30,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           </ApplicationsProvider>
         </FavoritesProvider>
       </AuthProvider>
+      </I18nProvider>
     </QueryProvider>
   );
 }
