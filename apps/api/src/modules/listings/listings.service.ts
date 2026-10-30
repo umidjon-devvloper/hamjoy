@@ -121,8 +121,9 @@ export class ListingsService {
     await this.getOwned(user, id);
     await this.db
       .update(listings)
-      .set({ status: 'pending', publishedAt: new Date() })
+      .set({ status: 'active', publishedAt: new Date() })
       .where(eq(listings.id, id));
+    await this.indexOne(id);
     return (await this.hydrate([id]))[0]!;
   }
 
