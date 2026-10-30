@@ -18,6 +18,7 @@ import type {
 import { authService } from '@/services/auth.service';
 import { isMockAuthEnabled, isAuthOptional } from '@/lib/auth/config';
 import { isAdminUser } from '@/lib/auth/roles';
+import { syncAuthSessionCookies } from '@/lib/auth/session-cookie';
 
 interface AuthContextValue {
   user: User;
@@ -120,6 +121,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const nextUser = await authService.getUserById(nextSession.userId);
     setSession(nextSession);
     setUser(nextUser ?? authService.getCurrentUser());
+    syncAuthSessionCookies(nextUser?.role ?? 'seeker');
   }, []);
 
   const logout = useCallback(async () => {

@@ -67,7 +67,8 @@ export function formatListingPrice(listing: Pick<PropertyListing, 'price' | 'cur
 }
 
 /** "2026-10-11" → "11-oktabr". Timezone-free so it never shifts a day between server and client. */
-export function formatListingDate(iso: string): string {
+export function formatListingDate(iso: string | undefined | null): string {
+  if (!iso) return '';
   const [, month, day] = iso.split('-').map(Number);
   return `${day}-${MONTHS[month - 1] ?? ''}`;
 }

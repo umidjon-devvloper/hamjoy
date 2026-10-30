@@ -16,7 +16,7 @@ export function LoginForm() {
   // ?next= lets the caller (e.g. the navbar's "E'lon joylash" button) send
   // the user back where they were after sign-in. We only follow in-app
   // paths — anything that isn't a leading "/" is ignored.
-  const rawNext = searchParams?.get('next') ?? '';
+  const rawNext = searchParams?.get('next') ?? searchParams?.get('redirect') ?? '';
   const nextHref = rawNext.startsWith('/') ? rawNext : '/home';
   const { login, otpSend, otpVerify, isMockAuth } = useAuth();
 

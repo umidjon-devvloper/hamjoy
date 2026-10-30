@@ -52,7 +52,8 @@ export class JoymeeClient {
 
   private async request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const { method = 'GET', body, query, signal, auth = true } = options;
-    const headers: Record<string, string> = { 'content-type': 'application/json' };
+    const headers: Record<string, string> = {};
+    if (body !== undefined) headers['content-type'] = 'application/json';
 
     if (auth && this.opts.tokens) {
       const access = await this.opts.tokens.getAccess();

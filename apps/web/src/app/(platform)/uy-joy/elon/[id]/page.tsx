@@ -24,8 +24,8 @@ export default async function ListingPage(props: PageProps<'/uy-joy/elon/[id]'>)
   const { id } = await props.params;
   const listing = getDemoListing(id);
 
-  // Listings posted from this app live in the browser store (ids start with "u-").
-  if (!listing && !id.startsWith('u-')) notFound();
+  const isUserListing = id.startsWith('u-') || /^[0-9a-f]{8}-[0-9a-f]{4}-/.test(id);
+  if (!listing && !isUserListing) notFound();
 
   return (
     <>
