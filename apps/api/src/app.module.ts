@@ -22,6 +22,7 @@ import { ReviewsModule } from './modules/reviews/reviews.module';
 import { VerificationsModule } from './modules/verifications/verifications.module';
 import { ModerationModule } from './modules/moderation/moderation.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     VerificationsModule,
     ModerationModule,
     UploadsModule,
+    AdminModule,
   ],
   controllers: [HealthController],
   providers: [

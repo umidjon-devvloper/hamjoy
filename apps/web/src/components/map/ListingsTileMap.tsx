@@ -32,7 +32,7 @@ export function ListingsTileMap({
 
   const { grid, bounds, zoom } = useMemo(() => {
     const b = boundsAround(center, radiusKm * 1.3);
-    const z = fitZoomForBounds(b, 3);
+    const z = fitZoomForBounds(b, 5);
     return { grid: tileGridForBounds(b, z), bounds: b, zoom: z };
   }, [center, radiusKm]);
 

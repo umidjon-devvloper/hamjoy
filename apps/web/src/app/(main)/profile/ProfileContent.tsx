@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Mail, Phone, Globe, Briefcase, Pencil, ListChecks, BadgeCheck } from 'lucide-react';
+import { Mail, Phone, Globe, Briefcase, Pencil, ListChecks, LogOut } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { UserAvatar } from '@/components/profile/UserAvatar';
 import { UserHistoryPanel } from '@/components/user/UserHistoryPanel';
@@ -12,7 +12,7 @@ import { PROFILE_ROLE_LABELS, LANGUAGE_LABELS } from '@/types';
 
 export function ProfileContent() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <div className="page-container">
@@ -47,14 +47,6 @@ export function ProfileContent() {
             >
               <ListChecks className="w-4 h-4" />
               Eʼlonlarim
-            </Button>
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={() => router.push('/profile/verify')}
-            >
-              <BadgeCheck className="w-4 h-4" />
-              {user.trusted ? 'Ishonchli ✓' : 'Verifikatsiya'}
             </Button>
             <Button
               variant="outline"
@@ -110,6 +102,22 @@ export function ProfileContent() {
           <UserHistoryPanel userId={user.id} />
         </div>
       ) : null}
+
+      {isAuthenticated && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={async () => {
+              await logout();
+              router.push('/login');
+            }}
+            className="card flex w-full items-center gap-3 p-4 text-left text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span className="text-sm font-semibold">Chiqish</span>
+          </button>
+        </div>
+      )}
 
       {!isAuthenticated && (
         <div className="card p-5 mt-6 text-center">

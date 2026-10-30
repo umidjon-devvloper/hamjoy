@@ -13,6 +13,8 @@ import type {
 import { users as seedUsers } from '@/data/users';
 import { categories as seedCategories } from '@/data/categories';
 import { isBackendEnabled } from '@/lib/backend/config';
+import { isRestBackendEnabled } from '@/lib/api/config';
+import { adminApi } from '@/lib/admin/api';
 import { jobsService } from '@/services/jobs.service';
 import { chatsService } from '@/services/chats.service';
 import { reportsStore } from '@/services/reports.store';
@@ -43,6 +45,20 @@ function mergeUsers(): AdminUserRow[] {
 
 export const adminService = {
   async getDashboardStats(): Promise<AdminDashboardStats> {
+    if (isRestBackendEnabled()) {
+      try {
+        const stats = await adminApi.getStats();
+        return {
+          totalJobs: 0,
+          activeJobs: 0,
+          totalUsers: stats.totalUsers,
+          totalChats: 0,
+          pendingPosts: stats.pendingListings,
+          pendingReports: stats.openReports,
+        };
+      } catch { /* fall through to local */ }
+    }
+
     if (isBackendEnabled()) {
       const [totalJobs, activeJobs, pendingPosts, totalUsers, pendingReports, totalChats] =
         await Promise.all([
@@ -78,6 +94,22 @@ export const adminService = {
   },
 
   async listAllJobs(): Promise<AdminJobRow[]> {
+    if (isRestBackendEnabled()) {
+      try {
+        const listings = await adminApi.listListings();
+        return listings.map((l) => ({
+          id: l.id,
+          title: l.title,
+          companyName: l.ownerName,
+          posterId: l.userId,
+          posterName: l.ownerName,
+          status: l.status as JobStatus,
+          createdAt: l.createdAt,
+          categoryId: '',
+        }));
+      } catch { /* fall through */ }
+    }
+
     const jobs = await jobsService.getAllRawAsync();
     return jobs
       .map((job) => ({
@@ -94,10 +126,16 @@ export const adminService = {
   },
 
   async approveJob(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try { await adminApi.moderateListing(id, 'approve'); return; } catch { /* fall through */ }
+    }
     await jobsService.updateJobStatus(id, 'active');
   },
 
   async rejectJob(id: string): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try { await adminApi.moderateListing(id, 'reject'); return; } catch { /* fall through */ }
+    }
     await jobsService.updateJobStatus(id, 'closed');
   },
 
@@ -106,10 +144,30 @@ export const adminService = {
   },
 
   async setJobStatus(id: string, status: JobStatus): Promise<void> {
+    if (isRestBackendEnabled()) {
+      const decision = status === 'active' ? 'approve' : status === 'closed' ? 'reject' : 'block';
+      try { await adminApi.moderateListing(id, decision); return; } catch { /* fall through */ }
+    }
     await jobsService.updateJobStatus(id, status);
   },
 
   async listUsers(): Promise<AdminUserRow[]> {
+    if (isRestBackendEnabled()) {
+      try {
+        const users = await adminApi.listUsers();
+        return users.map((u) => ({
+          id: u.id,
+          name: u.name || 'Nomaʼlum',
+          phone: u.phone ?? '',
+          email: u.email ?? '',
+          avatar: u.avatarUrl ?? '',
+          blocked: u.status === 'blocked',
+          role: u.role,
+          createdAt: u.createdAt,
+        }));
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) {
       const users = await firebaseProfilesRepository.list();
       return users.map((u) => ({ ...u, blocked: u.blocked ?? false }));
@@ -118,6 +176,13 @@ export const adminService = {
   },
 
   async setUserBlocked(userId: string, blocked: boolean): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try {
+        await adminApi.setUserStatus(userId, blocked ? 'blocked' : 'active');
+        return;
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) {
       await firebaseProfilesRepository.setBlocked(userId, blocked);
       return;
@@ -129,11 +194,35 @@ export const adminService = {
   },
 
   async listReports(): Promise<Report[]> {
+    if (isRestBackendEnabled()) {
+      try {
+        const reports = await adminApi.listReports() as Array<Record<string, unknown>>;
+        return reports.map((r) => ({
+          id: String(r.id),
+          targetId: String(r.targetId ?? ''),
+          targetType: String(r.targetType ?? 'listing'),
+          reason: String(r.reason ?? ''),
+          description: String(r.description ?? ''),
+          reporterId: String(r.reporterId ?? ''),
+          status: (r.status as ReportStatus) ?? 'pending',
+          createdAt: String(r.createdAt ?? new Date().toISOString()),
+        }));
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) return firebaseReportsRepository.list();
     return reportsStore.list();
   },
 
   async updateReportStatus(id: string, status: ReportStatus): Promise<void> {
+    if (isRestBackendEnabled()) {
+      try {
+        if (status === 'resolved') await adminApi.resolveReport(id);
+        else if (status === 'dismissed') await adminApi.dismissReport(id);
+        return;
+      } catch { /* fall through */ }
+    }
+
     if (isBackendEnabled()) {
       await firebaseReportsRepository.updateStatus(id, status);
       return;

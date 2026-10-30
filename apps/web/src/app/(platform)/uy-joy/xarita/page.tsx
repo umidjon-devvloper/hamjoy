@@ -3,7 +3,7 @@ import { createPageMetadata } from '@/lib/seo/metadata';
 
 export const metadata = createPageMetadata({
   title: 'Uy-joy xaritasi',
-  description: "Uy-joy e'lonlarini xaritada ko'ring — HamJoy.",
+  description: "Uy-joy eʼlonlarini xaritada koʻring — HamJoy.",
   path: '/uy-joy/xarita',
 });
 
