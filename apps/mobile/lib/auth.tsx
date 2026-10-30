@@ -27,7 +27,7 @@ interface AuthContextValue {
   me: { user: MeUser; profile: MeProfile | null } | null;
   isAuthenticated: boolean;
   isHydrated: boolean;
-  otpSend: (phone: string) => Promise<{ expiresInSec: number }>;
+  otpSend: (phone: string) => Promise<{ expiresInSec: number; devCode?: string }>;
   otpVerify: (phone: string, code: string) => Promise<void>;
   logout: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const otpSend = useCallback(async (phone: string) => {
     const res = await getApi().auth.otpSend(phone);
-    return { expiresInSec: res.expiresInSec };
+    return { expiresInSec: res.expiresInSec, devCode: res.devCode };
   }, []);
 
   const otpVerify = useCallback(

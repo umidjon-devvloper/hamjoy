@@ -27,7 +27,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     features: ['Yevroremont', 'Konditsioner', 'Lift', 'Avtoturargoh', 'Ipoteka mumkin'],
     postedAt: '2026-10-11',
     isTop: true,
-    seller: { name: 'Dilshod A.', type: 'mulkdor', phone: '+998 00 101 11 01' },
+    seller: { name: 'Dilshod A.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'mirzo-ulugbek-2-xonali-ijara',
@@ -50,7 +50,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/studiya-1.webp', '/listings/mehmonxona-1.webp', '/listings/oshxona-1.webp'],
     features: ['Mebel bilan', 'Kir yuvish mashinasi', 'Internet', 'Muzlatgich'],
     postedAt: '2026-10-11',
-    seller: { name: 'Nodira X.', type: 'mulkdor', phone: '+998 00 102 22 02' },
+    seller: { name: 'Nodira X.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'qibray-zamonaviy-hovli',
@@ -73,7 +73,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     features: ['Ikki qavatli', 'Gaz', 'Markaziy suv', 'Garaj', 'Bogʻ'],
     postedAt: '2026-10-10',
     isTop: true,
-    seller: { name: 'Uy-Invest agentligi', type: 'agentlik', phone: '+998 00 103 33 03' },
+    seller: { name: 'Uy-Invest agentligi', type: 'agentlik', phone: '+998 93 655 89 59' },
   },
   {
     id: 'samarqand-studiya-kunlik',
@@ -96,7 +96,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/mehmonxona-2.webp', '/listings/mehmonxona-3.webp'],
     features: ['Wi-Fi', 'Konditsioner', 'Choyshab va sochiq', 'Oshxona'],
     postedAt: '2026-10-10',
-    seller: { name: 'Jasur T.', type: 'mulkdor', phone: '+998 00 104 44 04' },
+    seller: { name: 'Jasur T.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'bektemir-villa-basseyn',
@@ -118,7 +118,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/villa-2.webp', '/listings/villa-3.webp', '/listings/villa-1.webp', '/listings/mehmonxona-6.webp'],
     features: ['Basseyn', 'Aqlli uy', 'Xavfsizlik kameralari', 'Garaj', 'Yozgi oshxona'],
     postedAt: '2026-10-09',
-    seller: { name: 'Premium Uylar', type: 'agentlik', phone: '+998 00 105 55 05' },
+    seller: { name: 'Premium Uylar', type: 'agentlik', phone: '+998 93 655 89 59' },
   },
   {
     id: 'mirobod-ofis-ijara',
@@ -140,7 +140,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/ofis-2.webp', '/listings/ofis-1.webp'],
     features: ['Ochiq reja', 'Majlislar xonasi', '24/7 qoʻriqlash', 'Avtoturargoh'],
     postedAt: '2026-10-08',
-    seller: { name: 'City Office', type: 'agentlik', phone: '+998 00 106 66 06' },
+    seller: { name: 'City Office', type: 'agentlik', phone: '+998 93 655 89 59' },
   },
   {
     id: 'bostonliq-yogoch-uy',
@@ -162,7 +162,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/hovli-yogoch.webp', '/listings/mehmonxona-5.webp'],
     features: ['Kamin', 'Togʻ manzarasi', 'Ayvon', 'Bogʻ'],
     postedAt: '2026-10-07',
-    seller: { name: 'Akmal R.', type: 'mulkdor', phone: '+998 00 107 77 07' },
+    seller: { name: 'Akmal R.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'chilonzor-hovli-ijara',
@@ -185,7 +185,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: ['/listings/hovli-basseyn.webp', '/listings/mehmonxona-4.webp', '/listings/mehmonxona-1.webp'],
     features: ['Basseyn', 'Mebel bilan', 'Gaz', 'Avtoturargoh'],
     postedAt: '2026-10-06',
-    seller: { name: 'Shahzoda M.', type: 'mulkdor', phone: '+998 00 108 88 08' },
+    seller: { name: 'Shahzoda M.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'sorov-chilonzor-2-xonali',
@@ -203,7 +203,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: [],
     features: ['Ipoteka mumkin', 'Yevroremont'],
     postedAt: '2026-10-11',
-    seller: { name: 'Bekzod Q.', type: 'mulkdor', phone: '+998 00 109 99 09' },
+    seller: { name: 'Bekzod Q.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
   {
     id: 'sorov-yunusobod-ijara',
@@ -222,7 +222,7 @@ export const DEMO_LISTINGS: PropertyListing[] = [
     images: [],
     features: ['Mebel bilan', 'Internet'],
     postedAt: '2026-10-10',
-    seller: { name: 'Malika S.', type: 'mulkdor', phone: '+998 00 110 10 10' },
+    seller: { name: 'Malika S.', type: 'mulkdor', phone: '+998 93 655 89 59' },
   },
 ];
 

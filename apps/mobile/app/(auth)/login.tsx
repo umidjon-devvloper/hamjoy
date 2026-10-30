@@ -35,10 +35,14 @@ export default function Login() {
     }
     setBusy(true);
     try {
-      await otpSend(phone);
+      const res = await otpSend(phone);
       setCode('');
       setStep('code');
       setResendIn(60);
+      if (res.devCode) {
+        setCode(res.devCode);
+        setTimeout(() => verify(res.devCode!), 300);
+      }
     } catch (err) {
       Alert.alert('Kod yuborilmadi', (err as Error).message);
     } finally {
