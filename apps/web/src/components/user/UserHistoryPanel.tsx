@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CheckCircle2, Archive, Clock } from 'lucide-react';
+import { CheckCircle2, Archive, Clock, Zap } from 'lucide-react';
 import { joymeeReviews, type UserHistoryRow } from '@/lib/joymee/reviews';
+import { joymeeListingsRepository } from '@/lib/joymee/listings.repository';
 import { isRestBackendEnabled } from '@/lib/api/config';
+import { appToast } from '@/lib/feedback/toast';
 import { cn } from '@/lib/utils';
 
 type Tab = 'all' | 'active' | 'sold' | 'archived';
@@ -43,15 +45,29 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
   const [tab, setTab] = useState<Tab>('all');
   const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    if (!isRestBackendEnabled() || !userId) return;
+  const load = () => {
     void joymeeReviews.myListings().then((r) => {
       setRows(r);
       setLoaded(true);
     }).catch(() => {
       setLoaded(true);
     });
+  };
+
+  useEffect(() => {
+    if (!isRestBackendEnabled() || !userId) return;
+    load();
   }, [userId]);
+
+  const activate = async (id: string) => {
+    try {
+      await joymeeListingsRepository.publish(id);
+      appToast.success('Eʼlon faollashtirildi');
+      load();
+    } catch (err) {
+      appToast.error(err, 'Faollashtirish amalga oshmadi');
+    }
+  };
 
   if (!isRestBackendEnabled()) return null;
 
@@ -124,9 +140,21 @@ export function UserHistoryPanel({ userId }: { userId: string }) {
                     </p>
                   </div>
                 </Link>
-                <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', s.cls)}>
-                  {s.label}
-                </span>
+                <div className="flex shrink-0 items-center gap-2">
+                  {(r.status === 'draft' || r.status === 'archived') && (
+                    <button
+                      type="button"
+                      onClick={() => activate(r.id)}
+                      className="inline-flex items-center gap-1 rounded-full bg-[var(--color-primary-light)] px-2.5 py-1 text-[11px] font-bold text-[var(--color-brand-green)] hover:brightness-95"
+                    >
+                      <Zap className="h-3 w-3" />
+                      Faol qilish
+                    </button>
+                  )}
+                  <span className={cn('rounded-full px-2.5 py-1 text-[11px] font-bold', s.cls)}>
+                    {s.label}
+                  </span>
+                </div>
               </li>
             );
           })}

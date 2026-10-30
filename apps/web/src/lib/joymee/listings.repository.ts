@@ -91,4 +91,13 @@ export const joymeeListingsRepository = {
       headers: token ? { authorization: `Bearer ${token}` } : {},
     });
   },
+
+  async publish(id: string): Promise<void> {
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, '') || 'http://localhost:4001';
+    const token = await (await import('./client')).joymeeTokens.getAccess();
+    await fetch(`${base}/listings/${id}/publish`, {
+      method: 'POST',
+      headers: token ? { authorization: `Bearer ${token}` } : {},
+    });
+  },
 };
