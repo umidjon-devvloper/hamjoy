@@ -63,7 +63,8 @@ export interface TileGrid {
 
 export function tileGridForBounds(
   bounds: { north: number; south: number; west: number; east: number },
-  zoom: number
+  zoom: number,
+  tileUrl?: string
 ): TileGrid {
   const x0 = Math.floor(lngToTileXf(bounds.west, zoom));
   const x1 = Math.floor(lngToTileXf(bounds.east, zoom));
@@ -81,7 +82,7 @@ export function tileGridForBounds(
   for (let x = x0; x <= x1; x++) {
     for (let y = y0; y <= y1; y++) {
       tiles.push({
-        url: fillTemplate(MAP_TILE_URL, zoom, x, y),
+        url: fillTemplate(tileUrl ?? MAP_TILE_URL, zoom, x, y),
         left: `${((x - xfMin) / spanX) * 100}%`,
         top: `${((y - yfMin) / spanY) * 100}%`,
         width: `${(1 / spanX) * 100}%`,

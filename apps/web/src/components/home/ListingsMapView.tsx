@@ -8,12 +8,14 @@ import { useUserListings } from '@/lib/listings/user-listings';
 import { isRestBackendEnabled } from '@/lib/api/config';
 import { apiListingToProperty } from '@/lib/listings/api-mapping';
 import { useGeolocation } from '@/hooks/useGeolocation';
+import { useGoogleTiles } from '@/hooks/useGoogleTiles';
 import { DEFAULT_MAP_CENTER } from '@/lib/map/config';
 import { cn } from '@/lib/utils';
 import type { PropertyListing } from '@/types/listing';
 
 export function ListingsMapView() {
   const { coords, status, request } = useGeolocation();
+  const googleTileUrl = useGoogleTiles();
   const userListings = useUserListings();
   const [apiListings, setApiListings] = useState<PropertyListing[]>([]);
 
@@ -42,6 +44,7 @@ export function ListingsMapView() {
         center={center}
         radiusKm={coords ? 14 : 20}
         userLocation={coords}
+        tileUrl={googleTileUrl}
         className="absolute inset-0"
       />
 

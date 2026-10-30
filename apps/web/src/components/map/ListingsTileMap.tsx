@@ -18,6 +18,7 @@ interface ListingsTileMapProps {
   center: MapCoordinates;
   radiusKm?: number;
   userLocation?: MapCoordinates | null;
+  tileUrl?: string;
   className?: string;
 }
 
@@ -26,6 +27,7 @@ export function ListingsTileMap({
   center,
   radiusKm = 14,
   userLocation,
+  tileUrl,
   className,
 }: ListingsTileMapProps) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -33,8 +35,8 @@ export function ListingsTileMap({
   const { grid, bounds, zoom } = useMemo(() => {
     const b = boundsAround(center, radiusKm * 1.3);
     const z = fitZoomForBounds(b, 5);
-    return { grid: tileGridForBounds(b, z), bounds: b, zoom: z };
-  }, [center, radiusKm]);
+    return { grid: tileGridForBounds(b, z, tileUrl), bounds: b, zoom: z };
+  }, [center, radiusKm, tileUrl]);
 
   const pins = useMemo(
     () =>
@@ -126,7 +128,7 @@ export function ListingsTileMap({
 
       {/* Attribution */}
       <span className="absolute bottom-1 left-1 z-10 rounded bg-white/80 px-1.5 py-0.5 text-[9px] text-[var(--color-muted)] backdrop-blur">
-        {MAP_TILE_ATTRIBUTION}
+        {tileUrl ? '© Google Maps' : MAP_TILE_ATTRIBUTION}
       </span>
 
       {/* Count badge */}
